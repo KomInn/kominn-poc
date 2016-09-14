@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KomInn.Installer", "KomInn\KomInn.Installer.csproj", "{FD348DC7-8D67-4F71-8F3E-E96817320366}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "KomInn.Assets", "KomInn.Assets\KomInn.Assets.shproj", "{099F4F6C-BB42-4CCD-A6AB-08B6BCDDDE11}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{2D4CF16B-DBA7-4C84-8C0A-7F0B391F4C03}"
+	ProjectSection(SolutionItems) = preProject
+		readme.md = readme.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		KomInn.Assets\KomInn.Assets.projitems*{099f4f6c-bb42-4ccd-a6ab-08b6bcddde11}*SharedItemsImports = 13
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FD348DC7-8D67-4F71-8F3E-E96817320366}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD348DC7-8D67-4F71-8F3E-E96817320366}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD348DC7-8D67-4F71-8F3E-E96817320366}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD348DC7-8D67-4F71-8F3E-E96817320366}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

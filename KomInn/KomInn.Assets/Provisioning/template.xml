@@ -1,0 +1,280 @@
+<?xml version="1.0"?>
+<pnp:Provisioning xmlns:pnp="http://schemas.dev.office.com/PnP/2016/05/ProvisioningSchema">
+  <pnp:Preferences Generator="OfficeDevPnP.Core, Version=2.7.1609.3, Culture=neutral, PublicKeyToken=3751622786b357c2" />
+  <pnp:Templates ID="CONTAINER-TEMPLATE-CFC3F8CC878D4B6CA10C17DAA129D3B4">
+    <pnp:ProvisioningTemplate ID="TEMPLATE-CFC3F8CC878D4B6CA10C17DAA129D3B4" Version="1" BaseSiteTemplate="STS#0">
+      <pnp:WebSettings NoCrawl="false" WelcomePage="SitePages/Home.aspx" SiteLogo="" AlternateCSS="" MasterPageUrl="{masterpagecatalog}{site}seattle.master" CustomMasterPageUrl="{masterpagecatalog}{site}seattle.master" />
+      <pnp:RegionalSettings AdjustHijriDays="0" AlternateCalendarType="None" CalendarType="Gregorian" Collation="25" FirstDayOfWeek="Sunday" FirstWeekOfYear="0" LocaleId="1033" ShowWeeks="false" Time24="false" TimeZone="4" WorkDayEndHour="5:00PM" WorkDays="62" WorkDayStartHour="8:00AM" />
+      <pnp:SupportedUILanguages>
+        <pnp:SupportedUILanguage LCID="1033" />
+      </pnp:SupportedUILanguages>
+      <pnp:PropertyBagEntries>
+        <pnp:PropertyBagEntry Key="SiteCollectionGroupId0b08ad0b-df97-4cae-b1b1-5d56842604a7" Value="335ef689-9254-4f73-a02b-a7143ecd819a" Overwrite="false" />
+      </pnp:PropertyBagEntries>      
+      <pnp:SiteFields>
+        <Field Type="Note" DisplayName="ForslagType_0" StaticName="kad0c13056f543d098a626217b10ec09" Name="kad0c13056f543d098a626217b10ec09" ID="{17ba671c-6f49-47f4-8a80-9c8956d168ee}" ShowInViewForms="FALSE" Required="FALSE" Hidden="TRUE" CanToggleHidden="TRUE" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" />
+        <Field Type="User" DisplayName="Navn" List="UserInfo" Required="FALSE" EnforceUniqueValues="FALSE" ShowField="ImnName" UserSelectionMode="PeopleOnly" UserSelectionScope="0" Group="KomInn" ID="{0192f419-3d7b-43c2-a6c5-92d7826945f6}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Navn" Name="Navn" />
+        <Field Type="Number" DisplayName="Likes" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Group="KomInn" ID="{124e272b-c512-4ae9-b350-d94ecda3d861}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Likes" Name="Likes">
+        </Field>
+        <Field Type="TaxonomyFieldType" DisplayName="ForslagType" List="{{listid:TaxonomyHiddenList}}" WebId="f0f500ae-b70c-4fc7-b64b-5715184dda2f" ShowField="Term1033" Required="FALSE" EnforceUniqueValues="FALSE" Group="KomInn" ID="{4ad0c130-56f5-43d0-98a6-26217b10ec09}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="ForslagType" Name="ForslagType">
+          <Default>
+          </Default>
+          <Customization>
+            <ArrayOfProperty>
+              <Property>
+                <Name>SspId</Name>
+                <Value xmlns:q1="http://www.w3.org/2001/XMLSchema" p4:type="q1:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">{sitecollectiontermstoreid}</Value>
+              </Property>
+              <Property>
+                <Name>GroupId</Name>
+              </Property>
+              <Property>
+                <Name>TermSetId</Name>
+                <Value xmlns:q2="http://www.w3.org/2001/XMLSchema" p4:type="q2:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">{termsetid:{sitecollectiontermgroupname}:ForslagType}</Value>
+              </Property>
+              <Property>
+                <Name>AnchorId</Name>
+                <Value xmlns:q3="http://www.w3.org/2001/XMLSchema" p4:type="q3:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">00000000-0000-0000-0000-000000000000</Value>
+              </Property>
+              <Property>
+                <Name>UserCreated</Name>
+                <Value xmlns:q4="http://www.w3.org/2001/XMLSchema" p4:type="q4:boolean" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">true</Value>
+              </Property>
+              <Property>
+                <Name>Open</Name>
+                <Value xmlns:q5="http://www.w3.org/2001/XMLSchema" p4:type="q5:boolean" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">true</Value>
+              </Property>
+              <Property>
+                <Name>TextField</Name>
+                <Value xmlns:q6="http://www.w3.org/2001/XMLSchema" p4:type="q6:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">{17ba671c-6f49-47f4-8a80-9c8956d168ee}</Value>
+              </Property>
+              <Property>
+                <Name>IsPathRendered</Name>
+                <Value xmlns:q7="http://www.w3.org/2001/XMLSchema" p4:type="q7:boolean" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">false</Value>
+              </Property>
+              <Property>
+                <Name>IsKeyword</Name>
+                <Value xmlns:q8="http://www.w3.org/2001/XMLSchema" p4:type="q8:boolean" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">false</Value>
+              </Property>
+              <Property>
+                <Name>TargetTemplate</Name>
+              </Property>
+              <Property>
+                <Name>CreateValuesInEditForm</Name>
+                <Value xmlns:q9="http://www.w3.org/2001/XMLSchema" p4:type="q9:boolean" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">false</Value>
+              </Property>
+              <Property>
+                <Name>FilterAssemblyStrongName</Name>
+                <Value xmlns:q10="http://www.w3.org/2001/XMLSchema" p4:type="q10:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">Microsoft.SharePoint.Taxonomy, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c</Value>
+              </Property>
+              <Property>
+                <Name>FilterClassName</Name>
+                <Value xmlns:q11="http://www.w3.org/2001/XMLSchema" p4:type="q11:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">Microsoft.SharePoint.Taxonomy.TaxonomyField</Value>
+              </Property>
+              <Property>
+                <Name>FilterMethodName</Name>
+                <Value xmlns:q12="http://www.w3.org/2001/XMLSchema" p4:type="q12:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">GetFilteringHtml</Value>
+              </Property>
+              <Property>
+                <Name>FilterJavascriptProperty</Name>
+                <Value xmlns:q13="http://www.w3.org/2001/XMLSchema" p4:type="q13:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">FilteringJavascript</Value>
+              </Property>
+            </ArrayOfProperty>
+          </Customization>
+        </Field>
+        <Field Type="User" DisplayName="Saksbehandler" List="UserInfo" Required="FALSE" EnforceUniqueValues="FALSE" ShowField="ImnName" UserSelectionMode="PeopleOnly" UserSelectionScope="0" Group="KomInn" ID="{a5d3a758-203a-4021-a789-731a8a20268c}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Saksbehandler" Name="Saksbehandler" />
+        <Field Type="Choice" DisplayName="ForslagStatus" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Format="Dropdown" FillInChoice="FALSE" Group="KomInn" ID="{7d19bf60-b2b0-4990-8151-389d480f35f3}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="ForslagStatus" Name="ForslagStatus">
+          <Default>Ny</Default>
+          <CHOICES>
+            <CHOICE>Ny</CHOICE>
+            <CHOICE>Sendt inn</CHOICE>
+            <CHOICE>Løftes til linja</CHOICE>
+            <CHOICE>Vurderes</CHOICE>
+            <CHOICE>Godtatt</CHOICE>
+            <CHOICE>Avslått</CHOICE>
+            <CHOICE>Realisert</CHOICE>
+          </CHOICES>
+        </Field>
+        <Field Type="Text" DisplayName="Konkurransereferanse" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="KomInn" ID="{52d72067-1544-4f90-bc36-8248e8326c7d}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Konkurransereferanse" Name="Konkurransereferanse">
+        </Field>
+        <Field Type="Note" DisplayName="Adresse" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" NumLines="6" RichText="FALSE" Sortable="FALSE" Group="KomInn" ID="{e9429269-41f8-4f90-ab6e-305ad8cb6fe4}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Adresse" Name="Adresse">
+        </Field>
+        <Field Type="Note" DisplayName="Forslag til løsning" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" NumLines="6" RichText="FALSE" Sortable="FALSE" Group="KomInn" ID="{4a9b1472-b6fd-4b4f-b570-d286e8b9d20e}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Forslag_x0020_til_x0020_løsning" Name="Forslag_x0020_til_x0020_løsning">
+        </Field>
+        <Field Type="Text" DisplayName="Nærmeste leder" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="KomInn" ID="{2d096182-f8c0-43c4-9c9e-ad55cdeabd5a}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Nærmeste_x0020_leder" Name="Nærmeste_x0020_leder">
+        </Field>
+        <Field Type="Text" DisplayName="Postnummer" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="KomInn" ID="{ac9b3991-7431-4d2e-a4e6-f9a96c99f0a0}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Postnummer" Name="Postnummer">
+        </Field>
+        <Field Type="Text" DisplayName="Kommune" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="KomInn" ID="{e5f6fdab-9920-493e-a9c8-37fbd213f5ea}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Kommune" Name="Kommune">
+        </Field>
+        <Field Type="Text" DisplayName="Telefon" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="KomInn" ID="{e72a08af-d4d0-41e3-be2d-631232159cdf}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Telefon" Name="Telefon">
+        </Field>
+        <Field Type="Note" DisplayName="Utfordring" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" NumLines="6" RichText="FALSE" Sortable="FALSE" Group="KomInn" ID="{c0e045c8-c1ec-40c5-89f3-9825c8edee95}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Utfordring" Name="Utfordring">
+        </Field>
+        <Field Type="Text" DisplayName="Virksomhet" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="KomInn" ID="{913161dd-54e0-4ddf-bb21-89425a1d74d1}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Virksomhet" Name="Virksomhet">
+        </Field>
+        <Field Type="Text" DisplayName="E-postadresse" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="KomInn" ID="{f85efede-0c19-4032-8e27-23e9af97dcbb}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="E-postadresse" Name="E-postadresse">
+        </Field>
+        <Field Type="Note" DisplayName="Nyttig for andre?" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" NumLines="6" RichText="FALSE" Sortable="FALSE" Group="KomInn" ID="{368014e4-e593-4388-92fa-04d70490bd6e}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Nyttig_x0020_for_x0020_andre_x003f_" Name="Nyttig_x0020_for_x0020_andre_x003F_">
+        </Field>
+        <Field Type="Text" DisplayName="Avdeling" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="KomInn" ID="{024999eb-6b90-4d3a-9e2c-a345218f59d0}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Avdeling" Name="Avdeling">
+        </Field>
+        <Field Type="Note" DisplayName="Forslagstype_0" StaticName="j08f4d2eebd04b62b0319b8628bd5ec3" Name="j08f4d2eebd04b62b0319b8628bd5ec3" ID="{b76ad4f2-5f16-424a-a1f2-281441a1204b}" ShowInViewForms="FALSE" Required="FALSE" Hidden="TRUE" CanToggleHidden="TRUE" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" />
+      </pnp:SiteFields>
+      <pnp:ContentTypes>
+        <pnp:ContentType ID="0x0100F75F717C365A9948A76B964889E90F0D" Name="Forslag" Description="" Group="KomInn" NewFormUrl="" EditFormUrl="" DisplayFormUrl="">
+          <pnp:FieldRefs>
+            <pnp:FieldRef ID="c042a256-787d-4a6f-8a8a-cf6ab767f12d" Name="ContentType" />
+            <pnp:FieldRef ID="fa564e0f-0c70-4ab9-b863-0177e6ddd247" Name="Title" Required="true" />
+            <pnp:FieldRef ID="e9429269-41f8-4f90-ab6e-305ad8cb6fe4" Name="Adresse" />
+            <pnp:FieldRef ID="024999eb-6b90-4d3a-9e2c-a345218f59d0" Name="Avdeling" />
+            <pnp:FieldRef ID="f85efede-0c19-4032-8e27-23e9af97dcbb" Name="E-postadresse" />
+            <pnp:FieldRef ID="7d19bf60-b2b0-4990-8151-389d480f35f3" Name="ForslagStatus" />
+            <pnp:FieldRef ID="f3b0adf9-c1a2-4b02-920d-943fba4b3611" Name="TaxCatchAll" Hidden="true" />
+            <pnp:FieldRef ID="8f6b6dd8-9357-4019-8172-966fcd502ed2" Name="TaxCatchAllLabel" Hidden="true" />
+            <pnp:FieldRef ID="e5f6fdab-9920-493e-a9c8-37fbd213f5ea" Name="Kommune" />
+            <pnp:FieldRef ID="52d72067-1544-4f90-bc36-8248e8326c7d" Name="Konkurransereferanse" />
+            <pnp:FieldRef ID="124e272b-c512-4ae9-b350-d94ecda3d861" Name="Likes" />
+            <pnp:FieldRef ID="2d096182-f8c0-43c4-9c9e-ad55cdeabd5a" Name="Nærmeste_x0020_leder" />
+            <pnp:FieldRef ID="0192f419-3d7b-43c2-a6c5-92d7826945f6" Name="Navn" />
+            <pnp:FieldRef ID="368014e4-e593-4388-92fa-04d70490bd6e" Name="Nyttig_x0020_for_x0020_andre_x003F_" />
+            <pnp:FieldRef ID="ac9b3991-7431-4d2e-a4e6-f9a96c99f0a0" Name="Postnummer" />
+            <pnp:FieldRef ID="a5d3a758-203a-4021-a789-731a8a20268c" Name="Saksbehandler" />
+            <pnp:FieldRef ID="e72a08af-d4d0-41e3-be2d-631232159cdf" Name="Telefon" />
+            <pnp:FieldRef ID="c0e045c8-c1ec-40c5-89f3-9825c8edee95" Name="Utfordring" />
+            <pnp:FieldRef ID="913161dd-54e0-4ddf-bb21-89425a1d74d1" Name="Virksomhet" />
+            <pnp:FieldRef ID="4a9b1472-b6fd-4b4f-b570-d286e8b9d20e" Name="Forslag_x0020_til_x0020_løsning" />
+            <pnp:FieldRef ID="17ba671c-6f49-47f4-8a80-9c8956d168ee" Name="kad0c13056f543d098a626217b10ec09" Hidden="true" />
+            <pnp:FieldRef ID="4ad0c130-56f5-43d0-98a6-26217b10ec09" Name="ForslagType" />
+          </pnp:FieldRefs>
+        </pnp:ContentType>
+      </pnp:ContentTypes>
+      <pnp:Lists>
+      
+        <pnp:ListInstance Title="Forslag" Description="" DocumentTemplate="" TemplateType="100" Url="Lists/Forslag" MinorVersionLimit="0" MaxVersionLimit="0" DraftVersionVisibility="0" TemplateFeatureID="00bfea71-de22-43b2-a848-c05709900100" ContentTypesEnabled="true" EnableFolderCreation="false">
+          <pnp:ContentTypeBindings>
+            <pnp:ContentTypeBinding ContentTypeID="0x0100F75F717C365A9948A76B964889E90F0D" Default="true" />
+            <pnp:ContentTypeBinding ContentTypeID="0x01" />
+            <pnp:ContentTypeBinding ContentTypeID="0x0120" />
+          </pnp:ContentTypeBindings>
+          <pnp:Views>
+            <View Name="{0194F0B3-28AB-403F-AFE2-723E5B291789}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="/Lists/Forslag/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=23">
+              <Query>
+                <OrderBy>
+                  <FieldRef Name="ID" />
+                </OrderBy>
+              </Query>
+              <ViewFields>
+                <FieldRef Name="LinkTitle" />
+              </ViewFields>
+              <RowLimit Paged="TRUE">30</RowLimit>
+              <JSLink>clienttemplates.js</JSLink>
+            </View>
+          </pnp:Views>
+          <pnp:FieldRefs>
+            <pnp:FieldRef ID="17ba671c-6f49-47f4-8a80-9c8956d168ee" Name="kad0c13056f543d098a626217b10ec09" Hidden="true" DisplayName="ForslagType_0" />
+            <pnp:FieldRef ID="e9429269-41f8-4f90-ab6e-305ad8cb6fe4" Name="Adresse" DisplayName="Adresse" />
+            <pnp:FieldRef ID="024999eb-6b90-4d3a-9e2c-a345218f59d0" Name="Avdeling" DisplayName="Avdeling" />
+            <pnp:FieldRef ID="f85efede-0c19-4032-8e27-23e9af97dcbb" Name="E_x002d_postadresse" DisplayName="E-postadresse" />
+            <pnp:FieldRef ID="7d19bf60-b2b0-4990-8151-389d480f35f3" Name="ForslagStatus" DisplayName="ForslagStatus" />
+            <pnp:FieldRef ID="e5f6fdab-9920-493e-a9c8-37fbd213f5ea" Name="Kommune" DisplayName="Kommune" />
+            <pnp:FieldRef ID="52d72067-1544-4f90-bc36-8248e8326c7d" Name="Konkurransereferanse" DisplayName="Konkurransereferanse" />
+            <pnp:FieldRef ID="124e272b-c512-4ae9-b350-d94ecda3d861" Name="Likes" DisplayName="Likes" />
+            <pnp:FieldRef ID="2d096182-f8c0-43c4-9c9e-ad55cdeabd5a" Name="N_x00e6_rmeste_x0020_leder" DisplayName="Nærmeste leder" />
+            <pnp:FieldRef ID="0192f419-3d7b-43c2-a6c5-92d7826945f6" Name="Navn" DisplayName="Navn" />
+            <pnp:FieldRef ID="368014e4-e593-4388-92fa-04d70490bd6e" Name="Nyttig_x0020_for_x0020_andre_x00" DisplayName="Nyttig for andre?" />
+            <pnp:FieldRef ID="ac9b3991-7431-4d2e-a4e6-f9a96c99f0a0" Name="Postnummer" DisplayName="Postnummer" />
+            <pnp:FieldRef ID="a5d3a758-203a-4021-a789-731a8a20268c" Name="Saksbehandler" DisplayName="Saksbehandler" />
+            <pnp:FieldRef ID="e72a08af-d4d0-41e3-be2d-631232159cdf" Name="Telefon" DisplayName="Telefon" />
+            <pnp:FieldRef ID="c0e045c8-c1ec-40c5-89f3-9825c8edee95" Name="Utfordring" DisplayName="Utfordring" />
+            <pnp:FieldRef ID="913161dd-54e0-4ddf-bb21-89425a1d74d1" Name="Virksomhet" DisplayName="Virksomhet" />
+            <pnp:FieldRef ID="4a9b1472-b6fd-4b4f-b570-d286e8b9d20e" Name="Forslag_x0020_til_x0020_l_x00f8_" DisplayName="Forslag til løsning" />
+            <pnp:FieldRef ID="4ad0c130-56f5-43d0-98a6-26217b10ec09" Name="ForslagType" DisplayName="ForslagType" />
+          </pnp:FieldRefs>
+        </pnp:ListInstance>
+        <pnp:ListInstance Title="Kommentarer" Description="" DocumentTemplate="" TemplateType="100" Url="Lists/Kommentarer" MinorVersionLimit="0" MaxVersionLimit="0" DraftVersionVisibility="0" TemplateFeatureID="00bfea71-de22-43b2-a848-c05709900100" EnableFolderCreation="false">
+          <pnp:ContentTypeBindings>
+            <pnp:ContentTypeBinding ContentTypeID="0x01" Default="true" />
+            <pnp:ContentTypeBinding ContentTypeID="0x0120" />
+          </pnp:ContentTypeBindings>
+          <pnp:Views>
+            <View Name="{8D57E34E-673E-4C13-B65D-67C797CD0267}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="/Lists/Kommentarer/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=23">
+              <Query>
+                <OrderBy>
+                  <FieldRef Name="ID" />
+                </OrderBy>
+              </Query>
+              <ViewFields>
+                <FieldRef Name="LinkTitle" />
+                <FieldRef Name="Forslag" />
+                <FieldRef Name="Forslag_x003a_Title_x0020__x0028" />
+                <FieldRef Name="Kommentar" />
+                <FieldRef Name="Person" />
+                <FieldRef Name="Rolle" />
+              </ViewFields>
+              <RowLimit Paged="TRUE">30</RowLimit>
+              <JSLink>clienttemplates.js</JSLink>
+            </View>
+          </pnp:Views>
+          <pnp:Fields>
+            <Field Type="Lookup" DisplayName="Forslag" Required="TRUE" EnforceUniqueValues="FALSE" List="{listid:Forslag}" ShowField="ID" UnlimitedLengthInDocumentLibrary="FALSE" RelationshipDeleteBehavior="None" ID="{5a563d82-4b74-4966-9f26-30c79cbe8edd}" SourceID="{ccf5b201-4417-4093-8d85-c3edd9ec4cde}" StaticName="Forslag" Name="Forslag" ColName="int1" RowOrdinal="0" />
+            <Field Type="Lookup" DisplayName="Forslag:Title (linked to item)" List="{listid:Forslag}" WebId="f0f500ae-b70c-4fc7-b64b-5715184dda2f" ShowField="LinkTitleNoMenu" FieldRef="5a563d82-4b74-4966-9f26-30c79cbe8edd" ReadOnly="TRUE" UnlimitedLengthInDocumentLibrary="FALSE" ID="{b444b5bf-ab3f-470d-abcb-6e8471954b54}" SourceID="{ccf5b201-4417-4093-8d85-c3edd9ec4cde}" StaticName="Forslag_x003a_Title_x0020__x0028" Name="Forslag_x003a_Title_x0020__x0028" Version="1" />
+            <Field Type="Note" DisplayName="Kommentar" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" NumLines="6" RichText="FALSE" Sortable="FALSE" ID="{e2b1ad28-77d0-4e2d-909d-21c6c0914c91}" SourceID="{{listid:Kommentarer}}" StaticName="Kommentar" Name="Kommentar" ColName="ntext2" RowOrdinal="0" />
+            <Field Type="User" DisplayName="Person" List="UserInfo" Required="FALSE" EnforceUniqueValues="FALSE" ShowField="ImnName" UserSelectionMode="PeopleOnly" UserSelectionScope="0" ID="{dba23b03-7ed8-4917-817b-a5e84d9c595e}" SourceID="{ccf5b201-4417-4093-8d85-c3edd9ec4cde}" StaticName="Person" Name="Person" ColName="int2" RowOrdinal="0" />
+            <Field Type="Choice" DisplayName="Rolle" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Format="Dropdown" FillInChoice="FALSE" ID="{cb0ca1a1-bcd9-402c-959a-941a991156c5}" SourceID="{{listid:Kommentarer}}" StaticName="Rolle" Name="Rolle" ColName="nvarchar3" RowOrdinal="0">
+              <Default>Ansatt</Default>
+              <CHOICES>
+                <CHOICE>Ansatt</CHOICE>
+                <CHOICE>Forslagsstiller</CHOICE>
+                <CHOICE>Saksbehandler</CHOICE>
+              </CHOICES>
+            </Field>
+          </pnp:Fields>
+        </pnp:ListInstance>      
+      </pnp:Lists>
+      <pnp:Pages>
+        <pnp:Page Url="{site}/SitePages/Home.aspx" Overwrite="true" Layout="Custom">
+          <pnp:Fields>
+            <pnp:Field FieldName="WikiField"><![CDATA[<div class="ExternalClass08D5147F1A4245959FC86043944EAAE6">
+            <table id="layoutsTable" style="width&#58;100%;"><tbody><tr style="vertical-align&#58;top;"><td colspan="2"><div class="ms-rte-layoutszone-outer" style="width&#58;100%;"><div class="ms-rte-layoutszone-inner" role="textbox" aria-autocomplete="both" aria-haspopup="true" aria-multiline="true"><div class="ms-rtestate-read ms-rte-embedcode ms-rte-embedil ms-rtestate-notify"><button>Legg inn nytt forslag</button></div>
+</div></div></td></tr><tr style="vertical-align&#58;top;"><td style="width&#58;49.95%;"><div class="ms-rte-layoutszone-outer" style="width&#58;100%;"><div class="ms-rte-layoutszone-inner" role="textbox" aria-autocomplete="both" aria-haspopup="true" aria-multiline="true">
+</div>&#160;</div></td><td class="ms-wiki-columnSpacing" style="width&#58;49.95%;"><div class="ms-rte-layoutszone-outer" style="width&#58;100%;"><div class="ms-rte-layoutszone-inner" role="textbox" aria-autocomplete="both" aria-haspopup="true" aria-multiline="true">​
+</div></div></td></tr></tbody></table>
+            <span id="layoutsData" style="display&#58;none;">true,false,2</span></div>]]></pnp:Field>
+          </pnp:Fields>
+        </pnp:Page>
+      </pnp:Pages>
+      <pnp:TermGroups>
+        <pnp:TermGroup Name="{sitecollectiontermgroupname}" Description="" SiteCollectionTermGroup="true">
+          <pnp:TermSets>
+            <pnp:TermSet Name="ForslagType" Description="" IsOpenForTermCreation="true">
+              <pnp:Terms>
+                <pnp:Term Name="Fag" SourceTermId="9652f5a1-571a-417a-a246-6dbc39f3c74b" />
+              </pnp:Terms>
+            </pnp:TermSet>
+          </pnp:TermSets>
+          <pnp:Contributors />
+          <pnp:Managers />
+        </pnp:TermGroup>
+        <pnp:TermGroup Name="System" ID="028161ca-0ba6-4597-83e5-26105060a95e" Description="These term sets are used by the system itself.">
+          <pnp:TermSets>
+            <pnp:TermSet Name="Hashtags" ID="3ceb0050-69a1-40e7-a427-83e2fac80c27" Description="This term set contains all of the terms that have been used as hashtags." IsOpenForTermCreation="true" />
+            <pnp:TermSet Name="Keywords" ID="6581df83-ce23-4ded-93a0-b536ef5ea9b8" Description="This term set contains all of the terms that have been used as keywords that are not in existing term sets." IsOpenForTermCreation="true">
+              <pnp:Terms>
+                <pnp:Term Name="0" ID="33a04c3d-5e69-4e13-9231-878beb72c1a6" SourceTermId="33a04c3d-5e69-4e13-9231-878beb72c1a6" />
+                <pnp:Term Name="0,1" ID="01ab8db9-bfc7-40b1-af92-dae6ff686da5" SourceTermId="01ab8db9-bfc7-40b1-af92-dae6ff686da5" />
+                <pnp:Term Name="0,1,2" ID="bdfc8ce5-231f-46e6-b80d-374e80a5f8e0" SourceTermId="bdfc8ce5-231f-46e6-b80d-374e80a5f8e0" />
+                <pnp:Term Name="0,1,2,3" ID="ace3eeb3-83c2-401a-bdbe-8f0751423b3f" SourceTermId="ace3eeb3-83c2-401a-bdbe-8f0751423b3f" />
+                <pnp:Term Name="0,2" ID="c0531991-5849-4d6f-8302-3f9054326e76" SourceTermId="c0531991-5849-4d6f-8302-3f9054326e76" />
+                <pnp:Term Name="0,2,1" ID="44448435-2ea5-47fb-a20b-0496479cdac3" SourceTermId="44448435-2ea5-47fb-a20b-0496479cdac3" />
+                <pnp:Term Name="0,2,3" ID="440ed73b-fe78-4abb-988d-c616476355c1" SourceTermId="440ed73b-fe78-4abb-988d-c616476355c1" />
+              </pnp:Terms>
+            </pnp:TermSet>
+          </pnp:TermSets>
+          <pnp:Contributors />
+          <pnp:Managers />
+        </pnp:TermGroup>
+      </pnp:TermGroups>
+    </pnp:ProvisioningTemplate>
+  </pnp:Templates>
+</pnp:Provisioning>

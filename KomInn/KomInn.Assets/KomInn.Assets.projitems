@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>099f4f6c-bb42-4ccd-a6ab-08b6bcddde11</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>KomInn.Assets</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Pages\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Scripts\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Styles\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Style Library\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Style Library\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Style Library\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)Workflows\E-post ved nytt forslag.wsp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)Provisioning\template.xml" />
+  </ItemGroup>
+</Project>
