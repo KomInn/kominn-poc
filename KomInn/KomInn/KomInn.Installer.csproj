@@ -89,11 +89,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ProvisioningTools\ConsoleLogger.cs" />
+    <Compile Include="ProvisioningTools\FileInstaller.cs" />
     <Compile Include="ProvisioningTools\ILogger.cs" />
     <Compile Include="ProvisioningTools\Input.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ProvisioningTools\ProvisioningTemplateTool.cs" />
+    <Compile Include="ProvisioningTools\ProvisioningTool.cs" />
     <Compile Include="ProvisioningTools\SharePointContext.cs" />
     <Compile Include="ProvisioningTools\TokenHelper.cs" />
   </ItemGroup>

@@ -9,17 +9,67 @@
     <Import_RootNamespace>KomInn.Assets</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Pages\" />
-    <Folder Include="$(MSBuildThisFileDirectory)Scripts\" />
-    <Folder Include="$(MSBuildThisFileDirectory)Styles\" />
-    <Folder Include="$(MSBuildThisFileDirectory)Style Library\" />
-    <Folder Include="$(MSBuildThisFileDirectory)Style Library\" />
-    <Folder Include="$(MSBuildThisFileDirectory)Style Library\" />
-  </ItemGroup>
-  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)readme.md" />
+    <None Include="$(MSBuildThisFileDirectory)Scripts\dependencies.js" />
+    <None Include="$(MSBuildThisFileDirectory)Scripts\index.tsx" />
+    <None Include="$(MSBuildThisFileDirectory)Scripts\NewSuggestionForm.tsx" />
+    <None Include="$(MSBuildThisFileDirectory)Styles\Style.scss" />
+    <None Include="$(MSBuildThisFileDirectory)typings\globals\jquery\index.d.ts" />
+    <None Include="$(MSBuildThisFileDirectory)typings\globals\microsoft.ajax\index.d.ts" />
+    <None Include="$(MSBuildThisFileDirectory)typings\globals\react-dom\index.d.ts" />
+    <None Include="$(MSBuildThisFileDirectory)typings\globals\react\index.d.ts" />
+    <None Include="$(MSBuildThisFileDirectory)typings\globals\sharepoint\index.d.ts" />
+    <None Include="$(MSBuildThisFileDirectory)typings\globals\typeahead\index.d.ts" />
+    <None Include="$(MSBuildThisFileDirectory)typings\index.d.ts" />
     <None Include="$(MSBuildThisFileDirectory)Workflows\E-post ved nytt forslag.wsp" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\js\bundle.js" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\js\bundle.js.map" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\js\Provisioning\SiteAssets\js\bundle.js" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\js\Provisioning\SiteAssets\js\bundle.js.map" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\bootstrap\css\bootstrap-theme.css.map" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\bootstrap\css\bootstrap-theme.min.css.map" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\bootstrap\css\bootstrap.css.map" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\bootstrap\css\bootstrap.min.css.map" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\bootstrap\fonts\glyphicons-halflings-regular.svg" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\bootstrap\fonts\glyphicons-halflings-regular.woff2" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\bootstrap\js\bootstrap.js" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\bootstrap\js\bootstrap.min.js" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\bootstrap\js\npm.js" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\jquery\jquery.min.js" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\jquery\jquery.min.map" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\jquery\jquery.slim.min.js" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\jquery\jquery.slim.min.map" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\react-dom\react-dom-server.js" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\react-dom\react-dom-server.min.js" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\react-dom\react-dom.js" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\react-dom\react-dom.min.js" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\react\react-with-addons.js" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\react\react-with-addons.min.js" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\react\react.js" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\react\react.min.js" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\typeahead\bloodhound.js" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\typeahead\bloodhound.min.js" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\typeahead\typeahead.bundle.js" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\typeahead\typeahead.bundle.min.js" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\typeahead\typeahead.jquery.js" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\typeahead\typeahead.jquery.min.js" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SitePages\NyttForslag.aspx" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)typings\globals\jquery\typings.json" />
+    <Content Include="$(MSBuildThisFileDirectory)typings\globals\microsoft.ajax\typings.json" />
+    <Content Include="$(MSBuildThisFileDirectory)typings\globals\react-dom\typings.json" />
+    <Content Include="$(MSBuildThisFileDirectory)typings\globals\react\typings.json" />
+    <Content Include="$(MSBuildThisFileDirectory)typings\globals\sharepoint\typings.json" />
+    <Content Include="$(MSBuildThisFileDirectory)typings\globals\typeahead\typings.json" />
+    <Content Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\css\Style.css" />
+    <Content Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\bootstrap\css\bootstrap-theme.css" />
+    <Content Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\bootstrap\css\bootstrap-theme.min.css" />
+    <Content Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\bootstrap\css\bootstrap.css" />
+    <Content Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\bootstrap\css\bootstrap.min.css" />
+    <Content Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\bootstrap\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\bootstrap\fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="$(MSBuildThisFileDirectory)Provisioning\SiteAssets\lib\bootstrap\fonts\glyphicons-halflings-regular.woff" />
     <Content Include="$(MSBuildThisFileDirectory)Provisioning\template.xml" />
   </ItemGroup>
 </Project>

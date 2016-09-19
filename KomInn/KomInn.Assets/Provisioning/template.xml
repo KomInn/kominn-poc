@@ -2,16 +2,16 @@
 <pnp:Provisioning xmlns:pnp="http://schemas.dev.office.com/PnP/2016/05/ProvisioningSchema">
   <pnp:Preferences Generator="OfficeDevPnP.Core, Version=2.7.1609.3, Culture=neutral, PublicKeyToken=3751622786b357c2" />
   <pnp:Templates ID="CONTAINER-TEMPLATE-CFC3F8CC878D4B6CA10C17DAA129D3B4">
-    <pnp:ProvisioningTemplate ID="TEMPLATE-CFC3F8CC878D4B6CA10C17DAA129D3B4" Version="1" BaseSiteTemplate="STS#0">
-      <pnp:WebSettings NoCrawl="false" WelcomePage="SitePages/Home.aspx" SiteLogo="" AlternateCSS="" MasterPageUrl="{masterpagecatalog}{site}seattle.master" CustomMasterPageUrl="{masterpagecatalog}{site}seattle.master" />
-      <pnp:RegionalSettings AdjustHijriDays="0" AlternateCalendarType="None" CalendarType="Gregorian" Collation="25" FirstDayOfWeek="Sunday" FirstWeekOfYear="0" LocaleId="1033" ShowWeeks="false" Time24="false" TimeZone="4" WorkDayEndHour="5:00PM" WorkDays="62" WorkDayStartHour="8:00AM" />
+    <pnp:ProvisioningTemplate ID="TEMPLATE-CFC3F8CC878D4B6CA10C17DAA129D3B4" Version="1" BaseSiteTemplate="STS#0">    
       <pnp:SupportedUILanguages>
         <pnp:SupportedUILanguage LCID="1033" />
       </pnp:SupportedUILanguages>
-      <pnp:PropertyBagEntries>
+        <pnp:PropertyBagEntries>
         <pnp:PropertyBagEntry Key="SiteCollectionGroupId0b08ad0b-df97-4cae-b1b1-5d56842604a7" Value="335ef689-9254-4f73-a02b-a7143ecd819a" Overwrite="false" />
-      </pnp:PropertyBagEntries>      
+      </pnp:PropertyBagEntries>
+          
       <pnp:SiteFields>
+        <Field Type="Note" DisplayName="Tags_0" StaticName="l7db7e98492e43b2889c5bb222806187" Name="l7db7e98492e43b2889c5bb222806187" ID="{8d7f7f09-3c3f-4caa-b586-5a87fc7113cc}" ShowInViewForms="FALSE" Required="FALSE" Hidden="TRUE" CanToggleHidden="TRUE" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" />
         <Field Type="Note" DisplayName="ForslagType_0" StaticName="kad0c13056f543d098a626217b10ec09" Name="kad0c13056f543d098a626217b10ec09" ID="{17ba671c-6f49-47f4-8a80-9c8956d168ee}" ShowInViewForms="FALSE" Required="FALSE" Hidden="TRUE" CanToggleHidden="TRUE" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" />
         <Field Type="User" DisplayName="Navn" List="UserInfo" Required="FALSE" EnforceUniqueValues="FALSE" ShowField="ImnName" UserSelectionMode="PeopleOnly" UserSelectionScope="0" Group="KomInn" ID="{0192f419-3d7b-43c2-a6c5-92d7826945f6}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Navn" Name="Navn" />
         <Field Type="Number" DisplayName="Likes" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Group="KomInn" ID="{124e272b-c512-4ae9-b350-d94ecda3d861}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Likes" Name="Likes">
@@ -82,6 +82,7 @@
             </ArrayOfProperty>
           </Customization>
         </Field>
+        <Field Type="User" DisplayName="Nærmeste leder" List="UserInfo" Required="FALSE" EnforceUniqueValues="FALSE" ShowField="ImnName" UserSelectionMode="PeopleOnly" UserSelectionScope="0" Group="KomInn" ID="{6b5cc237-6b91-474a-932e-7b32071fb9ed}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Nærmeste_x0020_leder" Name="Nærmeste_x0020_leder" />
         <Field Type="User" DisplayName="Saksbehandler" List="UserInfo" Required="FALSE" EnforceUniqueValues="FALSE" ShowField="ImnName" UserSelectionMode="PeopleOnly" UserSelectionScope="0" Group="KomInn" ID="{a5d3a758-203a-4021-a789-731a8a20268c}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Saksbehandler" Name="Saksbehandler" />
         <Field Type="Choice" DisplayName="ForslagStatus" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Format="Dropdown" FillInChoice="FALSE" Group="KomInn" ID="{7d19bf60-b2b0-4990-8151-389d480f35f3}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="ForslagStatus" Name="ForslagStatus">
           <Default>Ny</Default>
@@ -101,9 +102,75 @@
         </Field>
         <Field Type="Note" DisplayName="Forslag til løsning" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" NumLines="6" RichText="FALSE" Sortable="FALSE" Group="KomInn" ID="{4a9b1472-b6fd-4b4f-b570-d286e8b9d20e}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Forslag_x0020_til_x0020_løsning" Name="Forslag_x0020_til_x0020_løsning">
         </Field>
-        <Field Type="Text" DisplayName="Nærmeste leder" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="KomInn" ID="{2d096182-f8c0-43c4-9c9e-ad55cdeabd5a}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Nærmeste_x0020_leder" Name="Nærmeste_x0020_leder">
+        <Field Type="Text" DisplayName="Kommunenummer" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="KomInn" ID="{e6a79483-c1d1-43f5-a1a1-9c575f3ac4ed}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Kommunenummer" Name="Kommunenummer">
         </Field>
         <Field Type="Text" DisplayName="Postnummer" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="KomInn" ID="{ac9b3991-7431-4d2e-a4e6-f9a96c99f0a0}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Postnummer" Name="Postnummer">
+        </Field>
+        <Field Type="TaxonomyFieldTypeMulti" DisplayName="Tags" List="{{listid:TaxonomyHiddenList}}" WebId="f0f500ae-b70c-4fc7-b64b-5715184dda2f" ShowField="Term1033" Required="FALSE" EnforceUniqueValues="FALSE" Mult="TRUE" Sortable="FALSE" Group="KomInn" ID="{57db7e98-492e-43b2-889c-5bb222806187}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Tags" Name="Tags">
+          <Default>
+          </Default>
+          <Customization>
+            <ArrayOfProperty>
+              <Property>
+                <Name>SspId</Name>
+                <Value xmlns:q1="http://www.w3.org/2001/XMLSchema" p4:type="q1:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">{sitecollectiontermstoreid}</Value>
+              </Property>
+              <Property>
+                <Name>GroupId</Name>
+              </Property>
+              <Property>
+                <Name>TermSetId</Name>
+                <Value xmlns:q2="http://www.w3.org/2001/XMLSchema" p4:type="q2:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">{termsetid:{sitecollectiontermgroupname}:ForslagTags}</Value>
+              </Property>
+              <Property>
+                <Name>AnchorId</Name>
+                <Value xmlns:q3="http://www.w3.org/2001/XMLSchema" p4:type="q3:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">00000000-0000-0000-0000-000000000000</Value>
+              </Property>
+              <Property>
+                <Name>UserCreated</Name>
+                <Value xmlns:q4="http://www.w3.org/2001/XMLSchema" p4:type="q4:boolean" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">false</Value>
+              </Property>
+              <Property>
+                <Name>Open</Name>
+                <Value xmlns:q5="http://www.w3.org/2001/XMLSchema" p4:type="q5:boolean" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">true</Value>
+              </Property>
+              <Property>
+                <Name>TextField</Name>
+                <Value xmlns:q6="http://www.w3.org/2001/XMLSchema" p4:type="q6:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">{8d7f7f09-3c3f-4caa-b586-5a87fc7113cc}</Value>
+              </Property>
+              <Property>
+                <Name>IsPathRendered</Name>
+                <Value xmlns:q7="http://www.w3.org/2001/XMLSchema" p4:type="q7:boolean" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">false</Value>
+              </Property>
+              <Property>
+                <Name>IsKeyword</Name>
+                <Value xmlns:q8="http://www.w3.org/2001/XMLSchema" p4:type="q8:boolean" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">false</Value>
+              </Property>
+              <Property>
+                <Name>TargetTemplate</Name>
+              </Property>
+              <Property>
+                <Name>CreateValuesInEditForm</Name>
+                <Value xmlns:q9="http://www.w3.org/2001/XMLSchema" p4:type="q9:boolean" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">false</Value>
+              </Property>
+              <Property>
+                <Name>FilterAssemblyStrongName</Name>
+                <Value xmlns:q10="http://www.w3.org/2001/XMLSchema" p4:type="q10:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">Microsoft.SharePoint.Taxonomy, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c</Value>
+              </Property>
+              <Property>
+                <Name>FilterClassName</Name>
+                <Value xmlns:q11="http://www.w3.org/2001/XMLSchema" p4:type="q11:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">Microsoft.SharePoint.Taxonomy.TaxonomyField</Value>
+              </Property>
+              <Property>
+                <Name>FilterMethodName</Name>
+                <Value xmlns:q12="http://www.w3.org/2001/XMLSchema" p4:type="q12:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">GetFilteringHtml</Value>
+              </Property>
+              <Property>
+                <Name>FilterJavascriptProperty</Name>
+                <Value xmlns:q13="http://www.w3.org/2001/XMLSchema" p4:type="q13:string" xmlns:p4="http://www.w3.org/2001/XMLSchema-instance">FilteringJavascript</Value>
+              </Property>
+            </ArrayOfProperty>
+          </Customization>
         </Field>
         <Field Type="Text" DisplayName="Kommune" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="KomInn" ID="{e5f6fdab-9920-493e-a9c8-37fbd213f5ea}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Kommune" Name="Kommune">
         </Field>
@@ -135,7 +202,6 @@
             <pnp:FieldRef ID="e5f6fdab-9920-493e-a9c8-37fbd213f5ea" Name="Kommune" />
             <pnp:FieldRef ID="52d72067-1544-4f90-bc36-8248e8326c7d" Name="Konkurransereferanse" />
             <pnp:FieldRef ID="124e272b-c512-4ae9-b350-d94ecda3d861" Name="Likes" />
-            <pnp:FieldRef ID="2d096182-f8c0-43c4-9c9e-ad55cdeabd5a" Name="Nærmeste_x0020_leder" />
             <pnp:FieldRef ID="0192f419-3d7b-43c2-a6c5-92d7826945f6" Name="Navn" />
             <pnp:FieldRef ID="368014e4-e593-4388-92fa-04d70490bd6e" Name="Nyttig_x0020_for_x0020_andre_x003F_" />
             <pnp:FieldRef ID="ac9b3991-7431-4d2e-a4e6-f9a96c99f0a0" Name="Postnummer" />
@@ -146,11 +212,15 @@
             <pnp:FieldRef ID="4a9b1472-b6fd-4b4f-b570-d286e8b9d20e" Name="Forslag_x0020_til_x0020_løsning" />
             <pnp:FieldRef ID="17ba671c-6f49-47f4-8a80-9c8956d168ee" Name="kad0c13056f543d098a626217b10ec09" Hidden="true" />
             <pnp:FieldRef ID="4ad0c130-56f5-43d0-98a6-26217b10ec09" Name="ForslagType" />
+            <pnp:FieldRef ID="e6a79483-c1d1-43f5-a1a1-9c575f3ac4ed" Name="Kommunenummer" />
+            <pnp:FieldRef ID="8d7f7f09-3c3f-4caa-b586-5a87fc7113cc" Name="l7db7e98492e43b2889c5bb222806187" Hidden="true" />
+            <pnp:FieldRef ID="57db7e98-492e-43b2-889c-5bb222806187" Name="Tags" />
+            <pnp:FieldRef ID="6b5cc237-6b91-474a-932e-7b32071fb9ed" Name="Nærmeste_x0020_leder" />
           </pnp:FieldRefs>
         </pnp:ContentType>
       </pnp:ContentTypes>
-      <pnp:Lists>
-      
+
+    <pnp:Lists>
         <pnp:ListInstance Title="Forslag" Description="" DocumentTemplate="" TemplateType="100" Url="Lists/Forslag" MinorVersionLimit="0" MaxVersionLimit="0" DraftVersionVisibility="0" TemplateFeatureID="00bfea71-de22-43b2-a848-c05709900100" ContentTypesEnabled="true" EnableFolderCreation="false">
           <pnp:ContentTypeBindings>
             <pnp:ContentTypeBinding ContentTypeID="0x0100F75F717C365A9948A76B964889E90F0D" Default="true" />
@@ -158,7 +228,7 @@
             <pnp:ContentTypeBinding ContentTypeID="0x0120" />
           </pnp:ContentTypeBindings>
           <pnp:Views>
-            <View Name="{0194F0B3-28AB-403F-AFE2-723E5B291789}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="/Lists/Forslag/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=23">
+            <View Name="{62E84314-9F3F-431F-BD1A-1317F8961B6B}" DefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="/Lists/Forslag/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=23">
               <Query>
                 <OrderBy>
                   <FieldRef Name="ID" />
@@ -172,6 +242,7 @@
             </View>
           </pnp:Views>
           <pnp:FieldRefs>
+            <pnp:FieldRef ID="8d7f7f09-3c3f-4caa-b586-5a87fc7113cc" Name="l7db7e98492e43b2889c5bb222806187" Hidden="true" DisplayName="Tags_0" />
             <pnp:FieldRef ID="17ba671c-6f49-47f4-8a80-9c8956d168ee" Name="kad0c13056f543d098a626217b10ec09" Hidden="true" DisplayName="ForslagType_0" />
             <pnp:FieldRef ID="e9429269-41f8-4f90-ab6e-305ad8cb6fe4" Name="Adresse" DisplayName="Adresse" />
             <pnp:FieldRef ID="024999eb-6b90-4d3a-9e2c-a345218f59d0" Name="Avdeling" DisplayName="Avdeling" />
@@ -180,7 +251,6 @@
             <pnp:FieldRef ID="e5f6fdab-9920-493e-a9c8-37fbd213f5ea" Name="Kommune" DisplayName="Kommune" />
             <pnp:FieldRef ID="52d72067-1544-4f90-bc36-8248e8326c7d" Name="Konkurransereferanse" DisplayName="Konkurransereferanse" />
             <pnp:FieldRef ID="124e272b-c512-4ae9-b350-d94ecda3d861" Name="Likes" DisplayName="Likes" />
-            <pnp:FieldRef ID="2d096182-f8c0-43c4-9c9e-ad55cdeabd5a" Name="N_x00e6_rmeste_x0020_leder" DisplayName="Nærmeste leder" />
             <pnp:FieldRef ID="0192f419-3d7b-43c2-a6c5-92d7826945f6" Name="Navn" DisplayName="Navn" />
             <pnp:FieldRef ID="368014e4-e593-4388-92fa-04d70490bd6e" Name="Nyttig_x0020_for_x0020_andre_x00" DisplayName="Nyttig for andre?" />
             <pnp:FieldRef ID="ac9b3991-7431-4d2e-a4e6-f9a96c99f0a0" Name="Postnummer" DisplayName="Postnummer" />
@@ -190,6 +260,9 @@
             <pnp:FieldRef ID="913161dd-54e0-4ddf-bb21-89425a1d74d1" Name="Virksomhet" DisplayName="Virksomhet" />
             <pnp:FieldRef ID="4a9b1472-b6fd-4b4f-b570-d286e8b9d20e" Name="Forslag_x0020_til_x0020_l_x00f8_" DisplayName="Forslag til løsning" />
             <pnp:FieldRef ID="4ad0c130-56f5-43d0-98a6-26217b10ec09" Name="ForslagType" DisplayName="ForslagType" />
+            <pnp:FieldRef ID="e6a79483-c1d1-43f5-a1a1-9c575f3ac4ed" Name="Kommunenummer" DisplayName="Kommunenummer" />
+            <pnp:FieldRef ID="57db7e98-492e-43b2-889c-5bb222806187" Name="Tags" DisplayName="Tags" />
+            <pnp:FieldRef ID="6b5cc237-6b91-474a-932e-7b32071fb9ed" Name="N_x00e6_rmeste_x0020_leder0" DisplayName="Nærmeste leder" />
           </pnp:FieldRefs>
         </pnp:ListInstance>
         <pnp:ListInstance Title="Kommentarer" Description="" DocumentTemplate="" TemplateType="100" Url="Lists/Kommentarer" MinorVersionLimit="0" MaxVersionLimit="0" DraftVersionVisibility="0" TemplateFeatureID="00bfea71-de22-43b2-a848-c05709900100" EnableFolderCreation="false">
@@ -198,7 +271,7 @@
             <pnp:ContentTypeBinding ContentTypeID="0x0120" />
           </pnp:ContentTypeBindings>
           <pnp:Views>
-            <View Name="{8D57E34E-673E-4C13-B65D-67C797CD0267}" DefaultView="TRUE" MobileView="TRUE" MobileDefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="/Lists/Kommentarer/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=23">
+            <View Name="{C15DE4DD-8067-4EC0-90C5-64EF73C87A88}" DefaultView="TRUE" Type="HTML" DisplayName="All Items" Url="/Lists/Kommentarer/AllItems.aspx" Level="1" BaseViewID="1" ContentTypeID="0x" ImageUrl="/_layouts/15/images/generic.png?rev=23">
               <Query>
                 <OrderBy>
                   <FieldRef Name="ID" />
@@ -217,8 +290,8 @@
             </View>
           </pnp:Views>
           <pnp:Fields>
-            <Field Type="Lookup" DisplayName="Forslag" Required="TRUE" EnforceUniqueValues="FALSE" List="{listid:Forslag}" ShowField="ID" UnlimitedLengthInDocumentLibrary="FALSE" RelationshipDeleteBehavior="None" ID="{5a563d82-4b74-4966-9f26-30c79cbe8edd}" SourceID="{ccf5b201-4417-4093-8d85-c3edd9ec4cde}" StaticName="Forslag" Name="Forslag" ColName="int1" RowOrdinal="0" />
-            <Field Type="Lookup" DisplayName="Forslag:Title (linked to item)" List="{listid:Forslag}" WebId="f0f500ae-b70c-4fc7-b64b-5715184dda2f" ShowField="LinkTitleNoMenu" FieldRef="5a563d82-4b74-4966-9f26-30c79cbe8edd" ReadOnly="TRUE" UnlimitedLengthInDocumentLibrary="FALSE" ID="{b444b5bf-ab3f-470d-abcb-6e8471954b54}" SourceID="{ccf5b201-4417-4093-8d85-c3edd9ec4cde}" StaticName="Forslag_x003a_Title_x0020__x0028" Name="Forslag_x003a_Title_x0020__x0028" Version="1" />
+            <Field Type="Lookup" DisplayName="Forslag" Required="TRUE" EnforceUniqueValues="FALSE" List="{listid:Forslag}" ShowField="ID" UnlimitedLengthInDocumentLibrary="FALSE" RelationshipDeleteBehavior="None" ID="{5a563d82-4b74-4966-9f26-30c79cbe8edd}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Forslag" Name="Forslag" ColName="int1" RowOrdinal="0" WebId="f0f500ae-b70c-4fc7-b64b-5715184dda2f" Version="36" />
+            <Field Type="Lookup" DisplayName="Forslag:Title (linked to item)" List="{listid:Forslag}" WebId="f0f500ae-b70c-4fc7-b64b-5715184dda2f" ShowField="LinkTitleNoMenu" FieldRef="5a563d82-4b74-4966-9f26-30c79cbe8edd" ReadOnly="TRUE" UnlimitedLengthInDocumentLibrary="FALSE" ID="{b444b5bf-ab3f-470d-abcb-6e8471954b54}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Forslag_x003a_Title_x0020__x0028" Name="Forslag_x003a_Title_x0020__x0028" Version="37" />
             <Field Type="Note" DisplayName="Kommentar" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" NumLines="6" RichText="FALSE" Sortable="FALSE" ID="{e2b1ad28-77d0-4e2d-909d-21c6c0914c91}" SourceID="{{listid:Kommentarer}}" StaticName="Kommentar" Name="Kommentar" ColName="ntext2" RowOrdinal="0" />
             <Field Type="User" DisplayName="Person" List="UserInfo" Required="FALSE" EnforceUniqueValues="FALSE" ShowField="ImnName" UserSelectionMode="PeopleOnly" UserSelectionScope="0" ID="{dba23b03-7ed8-4917-817b-a5e84d9c595e}" SourceID="{ccf5b201-4417-4093-8d85-c3edd9ec4cde}" StaticName="Person" Name="Person" ColName="int2" RowOrdinal="0" />
             <Field Type="Choice" DisplayName="Rolle" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" Format="Dropdown" FillInChoice="FALSE" ID="{cb0ca1a1-bcd9-402c-959a-941a991156c5}" SourceID="{{listid:Kommentarer}}" StaticName="Rolle" Name="Rolle" ColName="nvarchar3" RowOrdinal="0">
@@ -230,8 +303,10 @@
               </CHOICES>
             </Field>
           </pnp:Fields>
-        </pnp:ListInstance>      
+        </pnp:ListInstance>
       </pnp:Lists>
+
+
       <pnp:Pages>
         <pnp:Page Url="{site}/SitePages/Home.aspx" Overwrite="true" Layout="Custom">
           <pnp:Fields>
@@ -247,6 +322,11 @@
       <pnp:TermGroups>
         <pnp:TermGroup Name="{sitecollectiontermgroupname}" Description="" SiteCollectionTermGroup="true">
           <pnp:TermSets>
+            <pnp:TermSet Name="ForslagTags" Description="" IsOpenForTermCreation="true">
+              <pnp:Terms>
+                
+              </pnp:Terms>
+            </pnp:TermSet>
             <pnp:TermSet Name="ForslagType" Description="" IsOpenForTermCreation="true">
               <pnp:Terms>
                 <pnp:Term Name="Fag" SourceTermId="9652f5a1-571a-417a-a246-6dbc39f3c74b" />

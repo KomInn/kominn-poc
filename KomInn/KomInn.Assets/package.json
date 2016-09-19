@@ -1,0 +1,31 @@
+{
+  "name": "kominn",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "corejs-typeahead": "^0.11.1",
+    "gulp": "^3.9.1",
+    "gulp-sass": "^2.3.2",
+    "react": "^15.3.1",
+    "react-dom": "^15.3.1",
+    "require": "^2.4.20",
+    "source-map-loader": "^0.1.5",
+    "ts-loader": "^0.8.2",
+    "webpack": "^1.13.2",
+    "webpack-dev-server": "^1.15.2",
+    "webpack-stream": "^3.2.0",
+    "xtend": "^4.0.1"
+  },
+  "dependencies": {
+    "bootstrap": "^3.3.7",
+    "jquery": "^3.1.0",
+    "react": "^15.3.1",
+    "react-dom": "^15.3.1"
+  }
+}

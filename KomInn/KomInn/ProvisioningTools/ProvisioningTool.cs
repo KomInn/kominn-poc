@@ -19,15 +19,13 @@ namespace KomInn
     /// </summary>
     public enum Platform { Online = 16, Onprem = 15 };
 
-    public class ProvisioningTemplateTool
+    internal class ProvisioningTool
     {
         private string WebUrl;
         private string Username;
         private SecureString Password;
         private string Path;
         private Platform Platform;
-
-
 
         /// <summary>
         /// Tool for interacting with provisioning templates in the KomInn-project
@@ -36,15 +34,43 @@ namespace KomInn
         /// <param name="_password">Administrator password</param>
         /// <param name="_weburl">URL to the web</param>
         /// <param name="_path">Path to store / retrieve the template.xml file.</param>
-        public ProvisioningTemplateTool(string _username, SecureString _password, string _weburl, string _path, Platform _platform)
+        public ProvisioningTool(string _username, SecureString _password, string _weburl, string _path, Platform _platform)
         {
             Username = _username;
             Password = _password;
             WebUrl = _weburl;
             Path = _path;
-            Platform = _platform; 
+            Platform = _platform;
         }
-       
+
+        /// <summary>
+        /// Performs all installation tasks.
+        /// </summary>
+        public void InstallSolution()
+        {
+            using (var ctx = new ClientContext(WebUrl))
+            {
+                ctx.Credentials = ContextBasedCredentials;
+                ctx.RequestTimeout = Timeout.Infinite;
+
+                var template = ProvisioningTemplateFromFile;
+                ApplyProvisioningTemplate(template, ctx);
+            }
+
+
+        }
+
+
+
+        /// <summary>
+        /// Extracts the current web to the template.xml. 
+        /// </summary>
+        public void ExtractSolution()
+        {
+            var template = ProvisioningTemplateFromWeb;
+            SaveProvisioningTemplateXML(template);
+        }
+
         public ProvisioningTemplate ProvisioningTemplateFromWeb
         {
             get { return GetProvisioningTemplateFromWeb(); }
@@ -55,35 +81,31 @@ namespace KomInn
             get { return GetProvisioningTemplateFromFile(); }
         }
 
-        public bool ApplyProvisioningTemplate(ProvisioningTemplate template)
+        public bool ApplyProvisioningTemplate(ProvisioningTemplate template, ClientContext ctx)
         {
             try
             {
-                using (var ctx = new ClientContext(WebUrl))
+                Web web = ctx.Web;
+                ctx.Load(web);
+                ctx.ExecuteQueryRetry();
+
+                ProvisioningTemplateApplyingInformation ptai
+                    = new ProvisioningTemplateApplyingInformation();
+                ptai.ProgressDelegate = delegate (String message, Int32 progress, Int32 total)
                 {
-                    ctx.Credentials = ContextBasedCredentials;
-                    ctx.RequestTimeout = Timeout.Infinite;
+                    Console.WriteLine("{0:00}/{1:00} - {2}", progress, total, message);
+                };
 
-                    Web web = ctx.Web;
-                    ctx.Load(web);
-                    ctx.ExecuteQueryRetry();
+                web.ApplyProvisioningTemplate(template, ptai);
+                return true;
 
-                    ProvisioningTemplateApplyingInformation ptai
-                        = new ProvisioningTemplateApplyingInformation();
-                    ptai.ProgressDelegate = delegate (String message, Int32 progress, Int32 total)
-                    {
-                        Console.WriteLine("{0:00}/{1:00} - {2}", progress, total, message);
-                    };
-
-                    web.ApplyProvisioningTemplate(template, ptai);
-                    return true; 
-                }
-            }catch(Exception ex)
-            {
-                ConsoleLogger.WriteError("Could not apply provisioning template.\nException message: " + ex.Message + "\nStackTrace:\n"+ex.StackTrace);
-                return false; 
             }
-                
+            catch (Exception ex)
+            {
+                ConsoleLogger.WriteError("Could not apply provisioning template.\nException message: " + ex.Message + "\nStackTrace:\n" + ex.StackTrace);
+                return false;
+            }
+
         }
 
         /// <summary>
@@ -96,9 +118,9 @@ namespace KomInn
                        new XMLFileSystemTemplateProvider(Path, "");
             provider.SaveAs(template, "template.xml");
         }
-       
+
         private ProvisioningTemplate GetProvisioningTemplateFromFile()
-        {         
+        {
             try
             {
                 XMLFileSystemTemplateProvider provider = new XMLFileSystemTemplateProvider(Path, "");
@@ -107,17 +129,17 @@ namespace KomInn
             catch (Exception ex)
             {
                 ConsoleLogger.WriteError("Unable to retrieve template.\n" + ex.Message);
-                return null; 
-            }        
+                return null;
+            }
         }
 
         private ProvisioningTemplate GetProvisioningTemplateFromWeb()
         {
             using (var ctx = new ClientContext(WebUrl))
             {
-                ctx.Credentials = ContextBasedCredentials; 
+                ctx.Credentials = ContextBasedCredentials;
                 ctx.RequestTimeout = Timeout.Infinite;
-               
+
                 Web web = ctx.Web;
                 ctx.Load(web);
                 ctx.ExecuteQueryRetry();
@@ -125,7 +147,7 @@ namespace KomInn
                 ProvisioningTemplateCreationInformation ptci
                         = new ProvisioningTemplateCreationInformation(ctx.Web);
                 ptci.ProgressDelegate = delegate (String message, Int32 progress, Int32 total)
-                {                    
+                {
                     Console.WriteLine("{0:00}/{1:00} - {2}", progress, total, message);
                 };
 
@@ -150,5 +172,20 @@ namespace KomInn
             }
         }
 
+        private void CopyFiles()
+        {
+            using (var ctx = new ClientContext(WebUrl))
+            {
+                ctx.Credentials = ContextBasedCredentials;
+                ctx.RequestTimeout = Timeout.Infinite;
+
+                Web web = ctx.Web;
+                ctx.Load(web);
+                ctx.ExecuteQueryRetry();
+
+
+            }
+
+        }
     }
 }

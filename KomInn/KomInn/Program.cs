@@ -1,4 +1,5 @@
-﻿using System;
+﻿#define DEBUG
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security;
@@ -18,8 +19,41 @@ namespace KomInn
 @"KomInn. 
 Select your platform:
 1. SharePoint Online
-2. SharePoint 2013 (On-premises)");
+2. SharePoint 2013 (On-premises)
+");
+
             string choice = Console.ReadLine();
+#if DEBUG
+            if(choice == "111")
+            {
+                var pwd = Input.ReadSecureString();
+                var p = new ProvisioningTool("DEV\\Administrator", pwd, "http://kominn3.smebydev.dev/",  @"D:\Git\KomInn-poc\KomInn\KomInn.Assets\Provisioning", Platform.Onprem);
+                p.InstallSolution();
+                Console.WriteLine("Installend");
+                Console.ReadKey();
+                return; 
+            }
+            
+            if(choice == "112")
+            {
+                var pwd = Input.ReadSecureString();
+                var p = new ProvisioningTool("helges@kominndev.onmicrosoft.com", pwd, "https://kominndev.sharepoint.com/sites/kominn", @"D:\Git\KomInn-poc\KomInn\KomInn.Assets\Provisioning", Platform.Online);
+                p.InstallSolution();
+                Console.WriteLine("Installend");
+                Console.ReadKey();
+                return;
+            }
+            if (choice == "113")
+            {
+                var pwd = Input.ReadSecureString();
+                var p = new ProvisioningTool("helgesmeby@helgesmeby.net", pwd, "https://crayondev.sharepoint.com/sites/kominn2/", @"D:\Git\KomInn-poc\KomInn\KomInn.Assets\Provisioning", Platform.Online);
+                p.InstallSolution();
+                Console.WriteLine("Installend");
+                Console.ReadKey();
+                return;
+            }
+#endif
+
             var platform = (choice == "1") ? Platform.Online : Platform.Onprem;
 
             // Site URL
@@ -38,22 +72,18 @@ Select your platform:
 
             // Operation                    
             Console.WriteLine("Choose your operation and press Enter:");
-            Console.WriteLine("1. Import provisioning template from template.xml");
-            Console.WriteLine("2. Export provisioning template to template.xml");
+            Console.WriteLine("1. Install solution to " + url);
+            Console.WriteLine("2. Export solution to XML"); 
             var operation = Input.GetSpecificInput(new string[] { "1", "2" }); 
 
-            var templatetool = new ProvisioningTemplateTool(username, password, url, path, platform);
-            if(operation == "1")
+            var provtool = new ProvisioningTool(username, password, url, path, platform);
+            switch(operation.Trim())
             {
-                var template = templatetool.ProvisioningTemplateFromFile;
-                templatetool.ApplyProvisioningTemplate(template);                
+                case "1": provtool.InstallSolution();
+                    break;
+                case "2":  provtool.ExtractSolution();
+                    break;
             }
-            else
-            {
-                var template = templatetool.ProvisioningTemplateFromWeb;
-                templatetool.SaveProvisioningTemplateXML(template);               
-            }
-
             Console.WriteLine("Installer ends.");
 
 
