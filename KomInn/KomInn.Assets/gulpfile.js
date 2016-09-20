@@ -20,7 +20,8 @@ var npmmodules = {
     "react-dom":paths.npmmodules + "react-dom/dist/react-dom*.js",
     "bootstrap":paths.npmmodules + "bootstrap/dist/**/*",
     "jquery":paths.npmmodules + "jquery/dist/*.min.*",
-    "typeahead":paths.npmmodules + "corejs-typeahead/dist/*"    
+    "typeahead":paths.npmmodules + "corejs-typeahead/dist/*", 
+    "jquery.autogrow-textarea":paths.npmmodules + "jquery.autogrow-textarea/*.js"    
 };
 
 gulp.task("default", ['sass', 'copynpmmodules', 'tsc', 'copypages']);
@@ -36,7 +37,7 @@ gulp.task("sass", function () {
 /* TSX */
 gulp.task("tsc", ['copynpmmodules'], function() {
     return gulp.src('./Scripts/dependencies.js')
-        .pipe(webpack(require('./webpack.config.js')))
+        .pipe(webpack(require('./webpack.config.js')))               
         .pipe(gulp.dest(paths.lc_js))
         .pipe(gulp.dest(paths.sp_js));
 });

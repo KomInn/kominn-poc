@@ -90,6 +90,8 @@
 	var React = __webpack_require__(3);
 	var $ = __webpack_require__(6);
 	__webpack_require__(7);
+	__webpack_require__(10);
+	var SPTools = __webpack_require__(11);
 	var Option = (function () {
 	    function Option(v, t) {
 	        this.Value = v;
@@ -103,7 +105,7 @@
 	        _super.apply(this, arguments);
 	    }
 	    TextArea.prototype.render = function () {
-	        return React.createElement("div", {className: "form-group"}, React.createElement("label", null, this.props.Label), React.createElement("textarea", {type: "text", className: "form-control", onChange: this.handleChange.bind(this), value: this.props.Value}));
+	        return React.createElement("div", {className: "form-group"}, React.createElement("label", null, this.props.Label), React.createElement("textarea", {type: "text", className: "form-control", onChange: this.handleChange.bind(this), value: this.props.Value, placeholder: this.props.Placeholder}));
 	    };
 	    TextArea.prototype.handleChange = function (event) {
 	        this.props.OnChangeHandler({ Value: event.target.value, Name: this.props.Name });
@@ -116,7 +118,7 @@
 	        _super.apply(this, arguments);
 	    }
 	    TextField.prototype.render = function () {
-	        return React.createElement("div", {className: "form-group"}, React.createElement("label", null, this.props.Label), React.createElement("input", {type: "text", className: "form-control", onChange: this.handleChange.bind(this), value: this.props.Value}));
+	        return React.createElement("div", {className: "form-group"}, React.createElement("label", null, this.props.Label), React.createElement("input", {type: "text", className: "form-control", onChange: this.handleChange.bind(this), value: this.props.Value, placeholder: this.props.Placeholder}));
 	    };
 	    TextField.prototype.handleChange = function (event) {
 	        this.props.OnChangeHandler({ Value: event.target.value, Name: this.props.Name });
@@ -132,32 +134,14 @@
 	    }
 	    SPUserField.prototype.render = function () {
 	        this.props.Ref = this;
-	        return React.createElement("div", {className: "form-group"}, React.createElement("label", null, this.props.Label), React.createElement("input", {type: "text", className: "form-control pt-userfield", onChange: this.handleChange.bind(this), onKeyDown: this.handleUserResolve.bind(this), value: this.state.Text}));
+	        return React.createElement("div", {className: "form-group"}, React.createElement("label", null, this.props.Label), React.createElement("input", {type: "text", className: "form-control pt-userfield", onChange: this.handleChange.bind(this), onKeyDown: this.handleUserResolve.bind(this), value: this.state.Text, placeholder: "Skriv brukernavn og trykk Enter"}));
 	    };
 	    SPUserField.prototype.handleChange = function (event) {
 	        this.setState({ Text: event.target.value });
 	    };
 	    SPUserField.prototype.resolveUser = function () {
-	        var _this = this;
-	        var username = this.state.Text;
-	        console.log("USER RESOLVED HJANDLER");
-	        var payload = { 'logonName': username };
-	        var request = $.ajax({
-	            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/ensureuser",
-	            type: "POST",
-	            contentType: "application/json;odata=verbose",
-	            data: JSON.stringify(payload),
-	            headers: {
-	                "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-	                "accept": "application/json;odata=verbose"
-	            },
-	            success: function (d) {
-	                _this.user = { DisplayName: d.d.Title, Username: d.d.LoginName, UserId: d.d.Id };
-	                _this.setState({ Text: _this.user.DisplayName });
-	                _this.props.UsernameResolvedHandler(_this.user);
-	            },
-	            error: function (err) { console.log(err); }
-	        });
+	        var up = new SPTools.UserProfile();
+	        up.ensureUser(this.state.Text);
 	    };
 	    SPUserField.prototype.handleUserResolve = function (event) {
 	        if (event.keyCode != 13)
@@ -165,7 +149,6 @@
 	        this.resolveUser();
 	    };
 	    SPUserField.prototype.setText = function (text) {
-	        console.log("HI!");
 	        this.setState({ Text: text });
 	        this.resolveUser();
 	    };
@@ -246,11 +229,15 @@
 	    function NewSuggestionForm() {
 	        _super.call(this);
 	        this.state = {
-	            kommunenr: "0220", postnummer: "1384", adresse: "", avdeling: "", leder: { DisplayName: "", UserId: -1, Username: "" },
-	            mailadresse: "", telefon: "", dato: "", typeutfordring: { Name: "", Id: "" }, utfordring: "", forslag: "", nyttigforandre: "", virksomhet: ""
+	            kommunenr: "", postnummer: "", adresse: "", avdeling: "", leder: { DisplayName: "", UserId: -1, Username: "" },
+	            mailadresse: "", telefon: "", dato: "", typeutfordring: { Name: "", Id: "" }, utfordring: "", forslag: "", nyttigforandre: "", virksomhet: "",
+	            navn: { DisplayName: "", UserId: -1, Username: "" }, konkurransereferanse: "", submitted: false
 	        };
 	        this.loadAndAssignUserProfilePropsAsync();
 	    }
+	    NewSuggestionForm.prototype.componentDidMount = function () {
+	        $("textarea[class='form-control']").autogrow({ horizontal: false, vertical: true, characterSlop: 0 });
+	    };
 	    NewSuggestionForm.prototype.loadAndAssignUserProfilePropsAsync = function () {
 	        $.ajax({
 	            url: _spPageContextInfo.webAbsoluteUrl + "/_api/sp.userprofiles.peoplemanager/getmyproperties",
@@ -268,8 +255,16 @@
 	            this.setState({ telefon: this.findKey(props, "CellPhone").Value });
 	            this.setState({ virksomhet: this.findKey(props, "SPS-JobTitle").Value });
 	            this.setState({ dato: this.getTodaysDate() });
-	            var manager = this.findKey(props, "Manager").Value;
-	            this.refs.LederTxtHook.setText(manager);
+	            this.setState({ konkurransereferanse: GetUrlKeyValue("ref") });
+	            //var manager = this.findKey(props, "Manager").Value; 
+	            // Navn                
+	            this.setState({ navn: {
+	                    DisplayName: e.d.DisplayName,
+	                    Username: e.d.AccountName,
+	                    UserId: _spPageContextInfo.userId
+	                }
+	            });
+	            this.refs.UserTxtHook.setText(this.state.navn.DisplayName);
 	        }
 	    };
 	    NewSuggestionForm.prototype.findKey = function (coll, key) {
@@ -292,9 +287,14 @@
 	        item.set_item("E_x002d_postadresse", this.state.mailadresse);
 	        item.set_item("Forslag_x0020_til_x0020_l_x00f8_", this.state.forslag);
 	        item.set_item("ForslagStatus", "Sendt inn");
-	        item.set_item("Kommune", "Asker"); // TODO: Resolve from kommunenr
+	        item.set_item("Kommune", this.state.kommune);
 	        item.set_item("Kommunenummer", this.state.kommunenr);
-	        item.set_item("Konkurransereferanse", ""); // TODO: Resolve from querystring
+	        item.set_item("Konkurransereferanse", this.state.konkurransereferanse);
+	        item.set_item("Nyttig_x0020_for_x0020_andre_x00", this.state.nyttigforandre);
+	        item.set_item("Postnummer", this.state.postnummer);
+	        item.set_item("Telefon", this.state.avdeling);
+	        item.set_item("Utfordring", this.state.utfordring);
+	        item.set_item("Virksomhet", this.state.virksomhet);
 	        var manager = new SP.FieldUserValue();
 	        manager.set_lookupId(this.state.leder.UserId);
 	        item.set_item("N_x00e6_rmeste_x0020_leder", manager);
@@ -307,11 +307,6 @@
 	        taxSingle.set_label(this.state.typeutfordring.Name);
 	        taxSingle.set_wssId(-1);
 	        item.set_item("ForslagType", taxSingle);
-	        item.set_item("Nyttig_x0020_for_x0020_andre_x00", this.state.nyttigforandre);
-	        item.set_item("Postnummer", this.state.postnummer);
-	        item.set_item("Telefon", this.state.avdeling);
-	        item.set_item("Utfordring", this.state.utfordring);
-	        item.set_item("Virksomhet", this.state.virksomhet);
 	        item.update();
 	        context.load(item);
 	        context.executeQueryAsync(s, f);
@@ -333,17 +328,73 @@
 	    NewSuggestionForm.prototype.typeUtfordringSelectedHandler = function (d) {
 	        this.setState({ typeutfordring: d });
 	    };
-	    NewSuggestionForm.prototype.lederResolvedHandler = function (u) {
+	    NewSuggestionForm.prototype.userResolvedHandler = function (u) {
 	        this.setState({ leder: u });
 	    };
 	    NewSuggestionForm.prototype.debugMsg = function (a) {
+	        console.log(this.state);
+	        var canSubmit = true;
+	        if (this.state.utfordring.length <= 0)
+	            canSubmit = false;
+	        if (this.state.forslag.length >= 0)
+	            canSubmit = false;
+	        if (this.state.nyttigforandre.length <= 0)
+	            canSubmit = false;
+	        this.setState({ submitted: true });
+	    };
+	    NewSuggestionForm.prototype.postnrLookup = function (d) {
+	        var _this = this;
+	        this.setState({ postnummer: d.Value });
+	        if (d.Value.length != 4) {
+	            var ld = new SPTools.ListData();
+	            ld.getDataFromList("Kommunenumre", "?$select=Kommune,Kommunenummer&$filter=Postnummer eq " + d.Value)
+	                .done(function (result) {
+	                console.log(result);
+	                if (result.d.results.length <= 0)
+	                    return;
+	                _this.state.kommune = result.d.results[0].Kommune;
+	                _this.state.kommunenr = result.d.results[0].Kommunenummer;
+	            });
+	        }
 	    };
 	    NewSuggestionForm.prototype.render = function () {
-	        return React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12 col-sm-4 col-md-4 col-md-push-4 col-sm-push-4"}, React.createElement(SPTaxonomyField, {Label: "Type nytte / nytteverdi", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.typeutfordring.Name, Name: "typeutfordring", Termset: "ForslagType", LCID: 1033, TaxonomySelectedHandler: this.typeUtfordringSelectedHandler.bind(this)}), React.createElement(TextArea, {Label: "Utfordring", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.utfordring, Name: "utfordring"}), React.createElement(TextArea, {Label: "Forslag til løsning", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.forslag, Name: "forslag"}), React.createElement(TextArea, {Label: "Nyttig for andre?", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.nyttigforandre, Name: "nyttigforandre"}), React.createElement("input", {type: "button", onClick: this.submitForm.bind(this), value: "Send inn"}), React.createElement("input", {type: "button", onClick: this.debugMsg.bind(this), value: "DEBUG"})), React.createElement("div", {className: "col-xs-12 col-sm-4  col-md-4 col-md-pull-4 col-sm-pull-4"}, React.createElement(TextField, {Label: "Kommunenr", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.kommunenr, Name: "kommunenr"}), React.createElement(TextField, {Label: "Postnr.", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.postnummer, Name: "postnummer"}), React.createElement(TextField, {Label: "Adresse", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.adresse, Name: "adresse"}), React.createElement(TextField, {Label: "Avdeling", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.avdeling, Name: "avdeling"}), React.createElement(TextField, {Label: "Virksomhet", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.virksomhet, Name: "virksomhet"}), React.createElement(SPUserField, {Label: "Nærmeste leder", Value: this.state.leder.DisplayName, Name: "leder", UsernameResolvedHandler: this.lederResolvedHandler.bind(this), ref: "LederTxtHook"}), React.createElement(TextField, {Label: "Mailadresse", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.mailadresse, Name: "mailadresse"}), React.createElement(TextField, {Label: "Telefon", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.telefon, Name: "telefon"}), React.createElement(TextField, {Label: "Dato", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.dato, Name: "dato"})));
+	        if (!this.state.submitted)
+	            return React.createElement(ThankYouPage, null);
+	        return React.createElement("div", null, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("h1", null, "Nytt forslag"), React.createElement("p", null, "Tekst her?"))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12 col-sm-4 col-md-4 "}, React.createElement(TextField, {Label: "Postnummer", OnChangeHandler: this.postnrLookup.bind(this), Value: this.state.postnummer, Name: "postnummer"}), React.createElement(TextArea, {Label: "Utfordring", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.utfordring, Name: "utfordring", Placeholder: "Fortell om utfordringen"}), React.createElement(TextArea, {Label: "Forslag til løsning", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.forslag, Name: "forslag"}), React.createElement(TextArea, {Label: "Nyttig for andre?", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.nyttigforandre, Name: "nyttigforandre"}), React.createElement(SPTaxonomyField, {Label: "Type nytte / nytteverdi", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.typeutfordring.Name, Name: "typeutfordring", Termset: "ForslagType", LCID: 1033, TaxonomySelectedHandler: this.typeUtfordringSelectedHandler.bind(this)}), React.createElement("input", {type: "button", onClick: this.submitForm.bind(this), value: "Send inn"}), React.createElement("input", {type: "button", onClick: this.debugMsg.bind(this), value: "DEBUG"})), React.createElement("div", {className: "col-xs-12 col-sm-4  col-md-4 "}, React.createElement(SPUserField, {Label: "Navn", Value: this.state.navn.DisplayName, Name: "navn", UsernameResolvedHandler: this.userResolvedHandler.bind(this), ref: "UserTxtHook"}), React.createElement(TextField, {Label: "Adresse", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.adresse, Name: "adresse"}), React.createElement(TextField, {Label: "Mailadresse", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.mailadresse, Name: "mailadresse"}), React.createElement(TextField, {Label: "Telefon", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.telefon, Name: "telefon"}))));
 	    };
 	    return NewSuggestionForm;
 	}(React.Component));
 	exports.NewSuggestionForm = NewSuggestionForm;
+	var Component = (function (_super) {
+	    __extends(Component, _super);
+	    function Component() {
+	        _super.apply(this, arguments);
+	    }
+	    Component.prototype.render = function () {
+	        if (this.props.template.isValid)
+	            return React.createElement("div", null, "Hi i'm Dave");
+	        else
+	            return React.createElement("div", null, "Hi, i'm INVALID!");
+	    };
+	    return Component;
+	}(React.Component));
+	var ThankYouPage = (function (_super) {
+	    __extends(ThankYouPage, _super);
+	    function ThankYouPage() {
+	        _super.call(this);
+	        this.state = { component: { value: "", name: "", isValid: true } };
+	    }
+	    ThankYouPage.prototype.onClickHandler = function () {
+	        this.setState({ component: { isValid: !this.state.component.isValid } });
+	    };
+	    ThankYouPage.prototype.render = function () {
+	        return React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("h1", null, "Takk for ditt bidrag!"), React.createElement("p", null, "Du hører fra oss snarlig."), React.createElement("input", {type: "button", onClick: this.onClickHandler.bind(this)}), React.createElement(Component, {template: this.state.component}), React.createElement("a", {href: "/SitePages/Home.aspx"}, "Tilbake til oversikten")));
+	    };
+	    return ThankYouPage;
+	}(React.Component));
+	/*
+	<SPUserField Label="Nærmeste leder" Value={this.state.leder.DisplayName} Name="leder" UsernameResolvedHandler={this.lederResolvedHandler.bind(this)} ref="LederTxtHook"  />
+	*/ 
 
 
 /***/ },
@@ -12241,6 +12292,259 @@
 	    throw new Error('process.chdir is not supported');
 	};
 	process.umask = function() { return 0; };
+
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;// Based off https://code.google.com/p/gaequery/source/browse/trunk/src/static/scripts/jquery.autogrow-textarea.js?r=2
+	// Modified by David Beck
+	
+	( function( factory ) {
+	    // UMD wrapper
+	    if ( true ) {
+	        // AMD
+	        !(__WEBPACK_AMD_DEFINE_ARRAY__ = [ __webpack_require__(6) ], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	    } else if ( typeof exports !== 'undefined' ) {
+	        // Node/CommonJS
+	        module.exports = factory( require( 'jquery' ) );
+	    } else {
+	        // Browser globals
+	        factory( jQuery );
+	    }
+	}( function( $ ) {
+	
+	    /*
+	     * Auto-growing textareas; technique ripped from Facebook
+	     */
+	    $.fn.autogrow = function(options) {
+	        
+	        options = $.extend( {
+	            vertical: true,
+	            horizontal: false,
+	            characterSlop: 0
+	        }, options);
+	
+	        this.filter('textarea,input').each(function() {
+	            
+	            var $this       = $(this),
+	                borderBox   = $this.css( 'box-sizing' ) === 'border-box',
+	                // minHeight   = borderBox ? $this.outerHeight() : $this.height(),
+	                maxHeight   = $this.attr( "maxHeight" ),
+	                minWidth    = typeof( $this.attr( "minWidth" ) ) == "undefined" ? 0 : $this.attr( "minWidth" );
+	            
+	            if( typeof( maxHeight ) == "undefined" ) maxHeight = 1000000;
+	            
+	            var shadow = $('<div class="autogrow-shadow"></div>').css( {
+	                position:   'absolute',
+	                top:        -10000,
+	                left:       -10000,
+	                fontSize:   $this.css('fontSize'),
+	                fontFamily: $this.css('fontFamily'),
+	                fontWeight: $this.css('fontWeight'),
+	                lineHeight: $this.css('lineHeight'),
+	                paddingLeft:    $this.css('paddingLeft'),
+	                paddingRight:    $this.css('paddingRight'),
+	                paddingTop:    $this.css('paddingTop'),
+	                paddingBottom:    $this.css('paddingBottom'),
+	                borderTop:    $this.css('borderTop'),
+	                borderBottom:    $this.css('borderBottom'),
+	                borderLeft:    $this.css('borderLeft'),
+	                borderRight:    $this.css('borderRight'),
+	                resize:     'none'
+	            } ).appendTo(document.body);
+	
+	            shadow.html( 'a' );
+	            var characterWidth = shadow.width();
+	            shadow.html( '' );
+	            
+	            var update = function( val ) {
+	    
+	                var times = function(string, number) {
+	                    for (var i = 0, r = ''; i < number; i ++) r += string;
+	                    return r;
+	                };
+	                
+	                if( typeof val === 'undefined' ) val = this.value;
+	                if( val === '' && $(this).attr("placeholder") ) val = $(this).attr("placeholder");
+	                
+	                if( options.vertical )
+	                    val = val.replace(/&/g, '&amp;')
+	                        .replace(/</g, '&lt;')
+	                        .replace(/>/g, '&gt;')
+	                        .replace(/\n$/, '<br/>&nbsp;')
+	                        .replace(/\n/g, '<br/>')
+	                        .replace(/ {2,}/g, function(space) { return times('&nbsp;', space.length -1) + ' '; });
+	                else
+	                    val = escapeHtml( val );
+	
+	                //if( options.horizontal )
+	                //  val = $.trim( val );
+	                
+	                // if( $(this).prop( 'tagName' ).toUpperCase() === 'INPUT' )
+	                //  shadow.text(val).css( "width", "auto" );
+	                // else
+	                shadow.html( val ).css( "width", "auto" ); // need to use html here otherwise no way to count spaces (with html we can use &nbsp;)
+	                
+	                if( options.horizontal )
+	                {
+	                    var slopWidth = options.characterSlop * characterWidth + 2;
+	
+	                    var newWidth = Math.max( shadow.width() + slopWidth, minWidth );
+	                    var maxWidth = options.maxWidth;
+	                    //if( typeof( maxWidth ) === "undefined" ) maxWidth = $this.parent().width() - 12; // not sure why we were doing this but seems like a bad idea. doesn't work with inline-block parents for one thing, since it is the text area that should be "pushing" them to be wider
+	                    if( maxWidth ) newWidth = Math.min( newWidth, maxWidth );
+	                    $(this).css( "width", newWidth );
+	                }
+	                                
+	                if( options.vertical )
+	                {
+	                    var shadowWidth = $(this).width();
+	                    if( ! borderBox ) shadowWidth = shadowWidth - parseInt($this.css('paddingLeft'),10) - parseInt($this.css('paddingRight'),10);
+	                    shadow.css( "width", shadowWidth );
+	                    var shadowHeight = borderBox ? shadow.outerHeight() : shadow.height();
+	
+	                    $(this).css( "height", "auto" );
+	                    minHeight = borderBox ? $this.outerHeight() : $this.height();
+	
+	                    var newHeight = Math.min( Math.max( shadowHeight, minHeight ), maxHeight );
+	                    $(this).css( "height", newHeight );
+	                    $(this).css( "overflow", newHeight == maxHeight ? "auto" : "hidden" );
+	                }
+	            };
+	            
+	            $(this)
+	                .change(function(){update.call( this );return true;})
+	                .keyup(function(){update.call( this );return true;})
+	                .keypress(function( event ) {
+	                    if( event.ctrlKey || event.metaKey ) return;
+	
+	                    var val = this.value;
+	                    var caretInfo = _getCaretInfo( this );
+	
+	                    var typedChar = event.which === 13 ? "\n" : String.fromCharCode( event.which );
+	                    var valAfterKeypress = val.slice( 0, caretInfo.start ) + typedChar + val.slice( caretInfo.end );
+	                    update.call( this, valAfterKeypress );
+	                    return true;
+	                })
+	                .bind( "update.autogrow", function(){ update.apply(this); } )
+	                .bind( "remove.autogrow", function() {
+	                    shadow.remove();
+	                } );
+	            
+	            update.apply(this);
+	            
+	        });
+	        
+	        return this;
+	    };
+	
+	    // comes from https://github.com/madapaja/jquery.selection/blob/master/src/jquery.selection.js
+	    var _getCaretInfo = function(element){
+	        var res = {
+	            text: '',
+	            start: 0,
+	            end: 0
+	        };
+	
+	        if (!element.value) {
+	            /* no value or empty string */
+	            return res;
+	        }
+	
+	        try {
+	            if (window.getSelection) {
+	                /* except IE */
+	                res.start = element.selectionStart;
+	                res.end = element.selectionEnd;
+	                res.text = element.value.slice(res.start, res.end);
+	            } else if (doc.selection) {
+	                /* for IE */
+	                element.focus();
+	
+	                var range = doc.selection.createRange(),
+	                    range2 = doc.body.createTextRange();
+	
+	                res.text = range.text;
+	
+	                try {
+	                    range2.moveToElementText(element);
+	                    range2.setEndPoint('StartToStart', range);
+	                } catch (e) {
+	                    range2 = element.createTextRange();
+	                    range2.setEndPoint('StartToStart', range);
+	                }
+	
+	                res.start = element.value.length - range2.text.length;
+	                res.end = res.start + range.text.length;
+	            }
+	        } catch (e) {
+	            /* give up */
+	        }
+	
+	        return res;
+	    };
+	
+	    var entityMap = {
+	        "&": "&amp;",
+	        "<": "&lt;",
+	        ">": "&gt;",
+	        '"': '&quot;',
+	        "'": '&#39;',
+	        "/": '&#x2F;',
+	        " ": '&nbsp;'
+	    };
+	
+	    function escapeHtml(string) {
+	        return String(string).replace(/[&<>"'\/\ ]/g, function (s) {
+	            return entityMap[s];
+	         } );
+	    }
+	} ) );
+
+
+/***/ },
+/* 11 */
+/***/ function(module, exports) {
+
+	"use strict";
+	$.ajaxSetup({ headers: { "Accept": "application/json;odata=verbose" } });
+	var UserProfile = (function () {
+	    function UserProfile() {
+	    }
+	    UserProfile.prototype.ensureUser = function (username) {
+	        var payload = { 'logonName': username };
+	        return $.ajax({
+	            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/ensureuser",
+	            type: "POST",
+	            contentType: "application/json;odata=verbose",
+	            data: JSON.stringify(payload),
+	            headers: {
+	                "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+	                "accept": "application/json;odata=verbose"
+	            } }).done(function (data) { return data; })
+	            .fail(function (err) { return err; });
+	    };
+	    return UserProfile;
+	}());
+	exports.UserProfile = UserProfile;
+	var Taxonomy = (function () {
+	    function Taxonomy() {
+	    }
+	    return Taxonomy;
+	}());
+	exports.Taxonomy = Taxonomy;
+	var ListData = (function () {
+	    function ListData() {
+	    }
+	    ListData.prototype.getDataFromList = function (listName, odata) {
+	        return $.get(_spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('" + listName + "')/Items" + odata)
+	            .done(function (data) { return data; });
+	    };
+	    return ListData;
+	}());
+	exports.ListData = ListData;
 
 
 /***/ }

@@ -8,19 +8,23 @@
 
 <%-- The markup and script in the following Content element will be placed in the <head> of the page --%>
 <asp:Content ContentPlaceHolderID="PlaceHolderAdditionalPageHead" runat="server">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+   
     <script src="../SiteAssets/lib/jquery/jquery.min.js" ></script>
      <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/4.0/1/MicrosoftAjax.js"></script>
     <script type="text/javascript" src="../_layouts/15/sp.runtime.js"></script>
     <script type="text/javascript" src="../_layouts/15/sp.js"></script>
     <script type="text/javascript" src="../_layouts/15/sp.ui.controls.js"></script>
       <script type="text/javascript" src="../_layouts/15/sp.taxonomy.js"></script>
+      
   
     <meta name="WebPartPageExpansion" content="full" />
      
      
       <script src="../SiteAssets/lib/bootstrap/js/bootstrap.min.js"></script> 
       <script src="../SiteAssets/lib/typeahead/bloodhound.js"></script>
-      <script src="../SiteAssets/lib/typeahead/typeahead.jquery.js"></script>   
+      <script src="../SiteAssets/lib/typeahead/typeahead.jquery.js"></script>
+      <script src="../SiteAssets/lib/jquery.autogrow-textarea/jquery.autogrow-textarea.js" ></script>   
         <link rel="stylesheet" href="../SiteAssets/lib/bootstrap/css/bootstrap.min.css" />
       <link rel="stylesheet" href="../SiteAssets/css/Style.css" />
 </asp:Content>
@@ -34,21 +38,11 @@
 <asp:Content ContentPlaceHolderID="PlaceHolderMain" runat="server">
 
      <div class="container">
-            <div class="row">
-                <div class="col-xs-12">
-                    <h1 >Nytt forslag</h1>
-                </div>
-            </div>
-            <form>          
-                <div id="form"></div>
-            </form>            
-        </div>
-            
+        <div id="form"></div>                       
+     </div>
 
-
-    
-        <script src="../SiteAssets/lib/react/react.min.js"></script>
-        <script src="../SiteAssets/lib/react-dom/react-dom.min.js"></script>
-        <script src="../SiteAssets/js/bundle.js"></script>
+      <script src="../SiteAssets/lib/react/react.min.js"></script>
+      <script src="../SiteAssets/lib/react-dom/react-dom.min.js"></script>
+      <script src="../SiteAssets/js/bundle.js"></script>
 
 </asp:Content>

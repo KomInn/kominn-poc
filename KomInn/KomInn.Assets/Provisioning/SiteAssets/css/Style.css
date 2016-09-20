@@ -34,3 +34,13 @@ body {
 
 .tt-suggestion p {
   margin: 0; }
+
+#contentBox {
+  min-width: 0px;
+  margin: 0; }
+
+#ctl00_PlaceHolderLeftNavBar_QuickLaunchNavigationManager {
+  display: none; }
+
+.form-group textarea {
+  min-height: 100px; }
