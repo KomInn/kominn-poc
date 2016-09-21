@@ -11,19 +11,26 @@ import * as SPTools from "./SPTools"
     }
 
     
-
+    interface Validator {
+        Required:boolean,      
+        validate?:boolean
+    }
     interface ChangedFieldValues { Value:string, Name:string }
-    interface InputFieldProps { Label:string, OnChangeHandler?(evt:ChangedFieldValues):void, Value:string, Name:string, Placeholder?:string, Hidden?:boolean }
+    interface InputFieldProps { Label:string, OnChangeHandler?(evt:ChangedFieldValues):void, Value:string, Name:string, Placeholder?:string, Validate?:boolean }
     interface TaxonomyFieldProps extends InputFieldProps { Termset?:string, LCID?:number, TaxonomySelectedHandler(evt:Term):void }
     interface UserFieldProps extends InputFieldProps { UsernameResolvedHandler(user:User):void, Username?:string, DisplayName?:string, Ref?:SPUserField }
 
 
     class TextArea extends React.Component<InputFieldProps, {}>  
     {
-       
+        
         render() {
-            
-            return <div className="form-group"><label>{this.props.Label}</label> 
+            var markErrorClass = "";
+            if(this.props.Validate)
+                markErrorClass = (this.props.Value.length > 0) ? "" : "label-error"; 
+
+        
+            return <div className="form-group"><label className={markErrorClass}>{this.props.Label}</label> 
             <textarea type="text" className="form-control" onChange={this.handleChange.bind(this)} value={this.props.Value} placeholder={this.props.Placeholder}></textarea></div>
         }
         handleChange(event:any)
@@ -35,6 +42,7 @@ import * as SPTools from "./SPTools"
     class TextField extends React.Component<InputFieldProps, {}>
     {
         render() {
+            
             return <div className="form-group"><label>{this.props.Label}</label> 
             <input type="text" className="form-control" onChange={this.handleChange.bind(this)} value={this.props.Value} placeholder={this.props.Placeholder}  /></div>
         }
@@ -71,7 +79,11 @@ import * as SPTools from "./SPTools"
         resolveUser()
         {
            var up = new SPTools.UserProfile();
-           up.ensureUser(this.state.Text);
+           up.ensureUser(this.state.Text).done((result:any) => {
+               let user:User = {DisplayName: result.d.Title, Username:result.d.LoginName, UserId:result.d.Id  };
+               this.setState({Text:user.DisplayName});
+               this.props.UsernameResolvedHandler(user);              
+           });
         }
 
         handleUserResolve(event:any)
@@ -154,8 +166,7 @@ import * as SPTools from "./SPTools"
         
         public CBSync:(datums:Term[]) => void;
         initTypeahead()
-        {
-            console.log(this.terms);
+        {           
             var bo: Bloodhound.BloodhoundOptions<Term> = { 
                     datumTokenizer:(d) => {                       
                         return Bloodhound.tokenizers.whitespace(d.Name); 
@@ -204,6 +215,10 @@ import * as SPTools from "./SPTools"
         navn?:User;   
         konkurransereferanse?:string;
         submitted?:boolean;
+        validateUtfordring?:boolean;
+        validateForslag?:boolean;
+        validateNyttigforandre?:boolean; 
+        showValidationFailMessage?:boolean;
         
     }
 
@@ -254,7 +269,21 @@ import * as SPTools from "./SPTools"
                     this.setState({virksomhet:this.findKey(props, "SPS-JobTitle").Value});
                     this.setState({dato:this.getTodaysDate()});
                     this.setState({konkurransereferanse: GetUrlKeyValue("ref")});
-                    //var manager = this.findKey(props, "Manager").Value; 
+                    
+                    var manager = this.findKey(props, "Manager").Value;
+                    var up = new SPTools.UserProfile();
+                    up.ensureUser(manager).done( ((d:any) => {
+                                console.log(d);
+                                this.setState({
+                                    leder: {
+                                            DisplayName:d.d.Title, 
+                                            Username:d.d.LoginName,
+                                            UserId:d.d.Id
+                                    }
+                                });
+                                console.log(this.state.leder);
+
+                      }).bind(this));
                     // Navn                
                     this.setState(
                     {navn:
@@ -264,7 +293,7 @@ import * as SPTools from "./SPTools"
                             UserId:_spPageContextInfo.userId
                         }
                     });
-                    this.refs.UserTxtHook.setText(this.state.navn.DisplayName);
+                    this.refs.UserTxtHook.setText(this.state.navn.Username);
             }
 
             
@@ -288,6 +317,11 @@ import * as SPTools from "./SPTools"
     
 
         submitForm(data:any) {
+            if(!this.doesFormValidate())
+            {              
+                return; 
+            }
+
             var context = SP.ClientContext.get_current();
             var list = context.get_web().get_lists().getByTitle("Forslag"); 
             var itemcreationinfo = new SP.ListItemCreationInformation();
@@ -313,20 +347,24 @@ import * as SPTools from "./SPTools"
             var self = new SP.FieldUserValue();
             self.set_lookupId(_spPageContextInfo.userId);
             item.set_item("Navn", self); 
-
-            // ForslagType
-            var taxSingle = new SP.Taxonomy.TaxonomyFieldValue();            
-            taxSingle.set_termGuid(new SP.Guid(this.state.typeutfordring.Id)); 
-            taxSingle.set_label(this.state.typeutfordring.Name);
-            taxSingle.set_wssId(-1);
-            item.set_item("ForslagType", taxSingle);        
+            
+            if(this.state.typeutfordring.Name.length > 0)
+            {
+                // ForslagType
+                var taxSingle = new SP.Taxonomy.TaxonomyFieldValue();            
+                taxSingle.set_termGuid(new SP.Guid(this.state.typeutfordring.Id)); 
+                taxSingle.set_label(this.state.typeutfordring.Name);
+                taxSingle.set_wssId(-1);
+                item.set_item("ForslagType", taxSingle);   
+            }     
 
             item.update(); 
             context.load(item);
-            context.executeQueryAsync(s, f);
+            context.executeQueryAsync(s.bind(this), f);
             function s(d:any){
                 console.log("Success!");
                 console.log(d);
+                this.setState({submitted:true});
             }
 
             function f(d:any, args:any)
@@ -353,31 +391,50 @@ import * as SPTools from "./SPTools"
 
         userResolvedHandler(u:User)
         {
-            this.setState({leder:u});        
+            this.setState({navn:u});        
         }
 
         debugMsg(a:any)
         {            
             console.log(this.state);
+           
+        }
+
+        doesFormValidate():boolean
+        {
             var canSubmit = true;
+            console.log(this.state);
             if(this.state.utfordring.length <= 0)
+            {
+                this.setState({validateUtfordring:true});
                 canSubmit = false;
+                console.log("1");
+            }
             
-            if(this.state.forslag.length >= 0)
-                canSubmit = false; 
+            if(this.state.forslag.length <= 0)
+            {
+                this.setState({validateForslag:true});
+                canSubmit = false;             
+            } 
             
             if(this.state.nyttigforandre.length <= 0)
-                canSubmit = false; 
+            {
+                this.setState({validateNyttigforandre:true});
+                canSubmit = false;              
+            } 
+            if(!canSubmit)
+              this.setState({showValidationFailMessage:true});
 
-            this.setState({submitted:true});
+            return canSubmit; 
         }
 
         postnrLookup(d:ChangedFieldValues)
         {
             this.setState({postnummer:d.Value});
-            if(d.Value.length != 4)
+            if(d.Value.length != 4 || d.Value == this.state.postnummer)
+                return; 
+            
 
-            {
                 var ld = new SPTools.ListData();
                 ld.getDataFromList("Kommunenumre", "?$select=Kommune,Kommunenummer&$filter=Postnummer eq " + d.Value)
                     .done((result:any) => 
@@ -389,12 +446,19 @@ import * as SPTools from "./SPTools"
                         this.state.kommune = result.d.results[0].Kommune;
                         this.state.kommunenr = result.d.results[0].Kommunenummer;  
                     });
-                }
+                
         }
 
         render() { 
-            if(!this.state.submitted)
+
+            let textAreaValidator:Validator = { Required:true,validate:true };
+
+            if(this.state.submitted)
                 return <ThankYouPage />
+
+            var hideErrorLabel:any = { display:"none", color:"black" }; 
+            if(this.state.showValidationFailMessage)
+                hideErrorLabel = { display: "block", color:"red"};
 
             return <div><div className="row">
                         <div className="col-xs-12">
@@ -405,12 +469,12 @@ import * as SPTools from "./SPTools"
                     <div className="row">
                         <div className="col-xs-12 col-sm-4 col-md-4 ">   
                             <TextField Label="Postnummer" OnChangeHandler={this.postnrLookup.bind(this)} Value={this.state.postnummer} Name="postnummer" />
-                            <TextArea Label="Utfordring" OnChangeHandler={this.changeEvent.bind(this)} Value={this.state.utfordring} Name="utfordring" Placeholder="Fortell om utfordringen" />
-                            <TextArea Label="Forslag til løsning" OnChangeHandler={this.changeEvent.bind(this)} Value={this.state.forslag} Name="forslag"/>
-                            <TextArea Label="Nyttig for andre?" OnChangeHandler={this.changeEvent.bind(this)} Value={this.state.nyttigforandre} Name="nyttigforandre"/>
+                            <TextArea Label="Utfordring *" OnChangeHandler={this.changeEvent.bind(this)} Value={this.state.utfordring} Name="utfordring" Placeholder="Fortell om utfordringen" Validate={this.state.validateUtfordring} />
+                            <TextArea Label="Forslag til løsning *" OnChangeHandler={this.changeEvent.bind(this)} Value={this.state.forslag} Name="forslag"   Validate={this.state.validateForslag}  />
+                            <TextArea Label="Nyttig for andre? *" OnChangeHandler={this.changeEvent.bind(this)} Value={this.state.nyttigforandre} Name="nyttigforandre" Validate={this.state.validateNyttigforandre} />
                             <SPTaxonomyField Label="Type nytte / nytteverdi" OnChangeHandler={this.changeEvent.bind(this)} Value={this.state.typeutfordring.Name} Name="typeutfordring" Termset="ForslagType" LCID={1033} TaxonomySelectedHandler={this.typeUtfordringSelectedHandler.bind(this)} />
-                            <input type="button" onClick={this.submitForm.bind(this)} value="Send inn"/>
-                            <input type="button" onClick={this.debugMsg.bind(this)} value="DEBUG" />
+                            <p class="error-label" style={hideErrorLabel}>Vennligst fyll ut feltene i rødt.</p>
+                            <input type="button" onClick={this.submitForm.bind(this)} value="Send inn"/>                           
                         </div>
                         <div className="col-xs-12 col-sm-4  col-md-4 ">                                                
                             <SPUserField Label="Navn" Value={this.state.navn.DisplayName} Name="navn" UsernameResolvedHandler={this.userResolvedHandler.bind(this)} ref="UserTxtHook"  />
@@ -422,6 +486,8 @@ import * as SPTools from "./SPTools"
                 </div>
         }
     }
+    
+
 
     class ThankYouPage extends React.Component<void, {}>
     {

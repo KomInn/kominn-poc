@@ -39,8 +39,26 @@ body {
   min-width: 0px;
   margin: 0; }
 
-#ctl00_PlaceHolderLeftNavBar_QuickLaunchNavigationManager {
+.ms-core-navigation {
   display: none; }
 
 .form-group textarea {
   min-height: 100px; }
+
+.form-group .label-error {
+  color: red; }
+
+.btn-lg {
+  text-align: center;
+  margin-top: 15px; }
+
+/* Custom overrides for carousel */
+.carousel .carousel-control-wrapper {
+  border: 1px solid black;
+  height: 50px; }
+  .carousel .carousel-control-wrapper .left {
+    float: left; }
+  .carousel .carousel-control-wrapper .right {
+    float: right; }
+  .carousel .carousel-control-wrapper .carousel-control {
+    z-index: 6; }

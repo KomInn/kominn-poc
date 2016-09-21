@@ -21,11 +21,8 @@
     <meta name="WebPartPageExpansion" content="full" />
      
      
-      <script src="../SiteAssets/lib/bootstrap/js/bootstrap.min.js"></script> 
-      <script src="../SiteAssets/lib/typeahead/bloodhound.js"></script>
-      <script src="../SiteAssets/lib/typeahead/typeahead.jquery.js"></script>
-      <script src="../SiteAssets/lib/jquery.autogrow-textarea/jquery.autogrow-textarea.js" ></script>   
-        <link rel="stylesheet" href="../SiteAssets/lib/bootstrap/css/bootstrap.min.css" />
+      <script src="../SiteAssets/lib/bootstrap/js/bootstrap.min.js"></script>
+      <link rel="stylesheet" href="../SiteAssets/lib/bootstrap/css/bootstrap.min.css" />
       <link rel="stylesheet" href="../SiteAssets/css/Style.css" />
 </asp:Content>
 
@@ -38,7 +35,7 @@
 <asp:Content ContentPlaceHolderID="PlaceHolderMain" runat="server">
 
      <div class="container">
-        <div id="form"></div>                       
+        <div id="allsuggestions"></div>                       
      </div>
 
       <script src="../SiteAssets/lib/react/react.min.js"></script>

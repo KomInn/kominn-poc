@@ -1,4 +1,3 @@
-/* Webpack for --watch */
 var webpack = require('webpack');
 
 module.exports = {
@@ -6,10 +5,10 @@ module.exports = {
         "./Scripts/dependencies.js"
     ],
     output: {
-        filename: "./Provisioning/SiteAssets/js/bundle.js",        
+        filename: "bundle.js",        
      },
     // Enable sourcemaps for debugging webpack's output.
-    devtool: "",//"source-map",
+    devtool: "source-map",
 
     resolve: {
         // Add '.ts' and '.tsx' as resolvable extensions.

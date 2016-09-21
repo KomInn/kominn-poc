@@ -51,7 +51,7 @@ body {
 
 }
 
-#ctl00_PlaceHolderLeftNavBar_QuickLaunchNavigationManager 
+.ms-core-navigation /* Hide left sidebar in SharePoint */ 
 {
   display:none;
 }
@@ -62,4 +62,44 @@ body {
   {
     min-height:100px;
   }
+  .label-error
+  {
+    color:red; 
+  }
 }
+
+.btn-lg
+{
+  text-align:center; 
+  margin-top:15px;
+}
+
+
+
+
+/* Custom overrides for carousel */
+.carousel {
+
+  .carousel-control-wrapper
+  {
+      border:1px solid black;
+      height:50px;
+     .left{
+        float:left;
+        
+      }
+      .right{
+        float:right;
+       
+       
+      }
+    .carousel-control
+    {
+     z-index:6;
+     
+    
+    }
+  }
+
+}
+

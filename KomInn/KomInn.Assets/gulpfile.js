@@ -60,7 +60,7 @@ gulp.task('sasscompile', function () {
 });
 
 gulp.task('tscauto', function() {
-    gulp.watch("./Provisioning/SiteAssets/js/bundle.js", ["distributejs"])
+    gulp.watch("./Provisioning/SiteAssets/js/bundle.js", ["distributejs","sass"])
 });
 
 gulp.task("distributejs", function() {
