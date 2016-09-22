@@ -1,4 +1,18 @@
 $white:#FFFFFF;
+$kiGray:#E8E8E8;
+$kiDarkGray:#A5A5A5;
+$kiGreen: #5cb85c;
+$kiBorderGreen: #4cae4c;
+$kiGrayTransparent:rgba(232,232,232,0.5);
+
+
+.kiGradient
+{  
+background: -moz-linear-gradient(top, rgba(232,232,232,0.65) 0%, rgba(5,5,5,0.19) 98%, rgba(0,0,0,0.19) 100%); /* FF3.6-15 */
+background: -webkit-linear-gradient(top, rgba(232,232,232,0.65) 0%,rgba(5,5,5,0.19) 98%,rgba(0,0,0,0.19) 100%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(to bottom, rgba(232,232,232,0.65) 0%,rgba(5,5,5,0.19) 98%,rgba(0,0,0,0.19) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a6e8e8e8', endColorstr='#30000000',GradientType=0 ); /* IE6-9 */
+}
 
 body {
     background-color:$white; 
@@ -78,28 +92,175 @@ body {
 
 
 /* Custom overrides for carousel */
-.carousel {
+.carousel-indicators-wrap {
+  width: 100%;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  *zoom: 1;
+}
 
-  .carousel-control-wrapper
-  {
-      border:1px solid black;
-      height:50px;
-     .left{
-        float:left;
-        
-      }
-      .right{
-        float:right;
-       
-       
-      }
-    .carousel-control
-    {
-     z-index:6;
-     
-    
-    }
+/* line 52, ../../var/www/lego-external-prod.chaordix.com/releases/20160919200316/community/static/scss/style/bootstrap-overide.scss */
+.carousel-indicators {
+  position: relative;
+  display: inline-block;
+  right: 0;
+  top: 0;
+   padding:0; 
+  width:auto; 
+  left:0;
+  margin:0;
+  margin-bottom:0;
+}
+@media screen and (max-width: 480px) {
+  /* line 52, ../../var/www/lego-external-prod.chaordix.com/releases/20160919200316/community/static/scss/style/bootstrap-overide.scss */
+  .carousel-indicators {
+    display: none;
   }
+}
+
+/* line 62, ../../var/www/lego-external-prod.chaordix.com/releases/20160919200316/community/static/scss/style/bootstrap-overide.scss */
+.carousel-indicators li {
+  
+  width: 20px;
+  height: 20px;
+  margin-left: 10px !important;
+  background-color:gray;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px; 
+  margin-top:0px;
+  margin-bottom:0px;
+ 
+}
+/* line 69, ../../var/www/lego-external-prod.chaordix.com/releases/20160919200316/community/static/scss/style/bootstrap-overide.scss */
+.carousel-indicators li:first-child {
+  margin-left: 0;
+  margin-right:10px;
+}
+
+/* line 74, ../../var/www/lego-external-prod.chaordix.com/releases/20160919200316/community/static/scss/style/bootstrap-overide.scss */
+.carousel-indicators .active {
+  background-color: #666666;
+  width:20px;
+  height:20px;
+  margin:auto;
+      background-color: #5cb85c;
+    
+    border-color: #4cae4c;
 
 }
 
+/* line 78, ../../var/www/lego-external-prod.chaordix.com/releases/20160919200316/community/static/scss/style/bootstrap-overide.scss */
+.carousel-control {
+  position: relative;
+  float: none;
+  width: 50px;
+  height: 50px;
+  margin-top: -4px;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 40px;
+  top: 5px;
+  color: #666666 !important;
+  text-align: center;
+  background: none !important;
+  border: none;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  border-radius: 0;
+  opacity: 0.5;
+  filter: alpha(opacity=50);
+  margin-right: 20px;
+  left: 0;
+  
+}
+@media screen and (max-width: 480px) {
+  /* line 78, ../../var/www/lego-external-prod.chaordix.com/releases/20160919200316/community/static/scss/style/bootstrap-overide.scss */
+  .carousel-control {
+    float: left;
+  }
+}
+
+/* line 102, ../../var/www/lego-external-prod.chaordix.com/releases/20160919200316/community/static/scss/style/bootstrap-overide.scss */
+.carousel-control.right {
+  width: 50px;
+  height: 50px;
+  float: none;
+  top: 5px;
+  left: 0;
+  right: 0;
+  margin-left: 20px;
+  margin-right: 0;
+}
+@media screen and (max-width: 480px) {
+  /* line 102, ../../var/www/lego-external-prod.chaordix.com/releases/20160919200316/community/static/scss/style/bootstrap-overide.scss */
+  .carousel-control.right {
+    float: right;
+  }
+}
+
+/* line 116, ../../var/www/lego-external-prod.chaordix.com/releases/20160919200316/community/static/scss/style/bootstrap-overide.scss */
+.carousel-list {
+  margin: 0;
+  padding: 0;
+}
+/* line 119, ../../var/www/lego-external-prod.chaordix.com/releases/20160919200316/community/static/scss/style/bootstrap-overide.scss */
+.carousel-list li {
+  list-style: none;
+}
+
+/* line 124, ../../var/www/lego-external-prod.chaordix.com/releases/20160919200316/community/static/scss/style/bootstrap-overide.scss */
+.control-group {
+  margin-bottom: 15px;
+}
+
+.ki-shadow-box-item
+{
+ margin:10px;
+  height:250px;
+  width:230px;
+  background-color:$kiGrayTransparent;
+  position:relative; 
+  box-shadow: -2px 2px 5px $kiDarkGray;
+}
+.carousel-item{
+  height:100%;
+  header {
+    padding:5px;
+    font-weight:bold;
+    background-color:$kiGreen;
+    border-bottom:1px solid $kiBorderGreen;
+  }
+  
+  main{
+   word-break:break-word;
+    padding:5px;
+
+  }
+  
+  footer {
+      position:absolute;
+      bottom:0;
+      padding:5px;
+      font-weight:bold;
+      .icon {
+        margin-right:5px;
+      }    
+      .dateperson {
+        font-size:10px;
+      }
+    }
+}
+
+
+  
+
+ 
+.glyphicon {
+  margin-right:3px !important;
+  }
+
+  .iconspace {
+    margin-left:10px;
+  }

@@ -12613,7 +12613,7 @@
 	        });
 	    };
 	    AllSuggestions.prototype.render = function () {
-	        return React.createElement("div", null, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-2"}, React.createElement("h1", null, "KomInn")), React.createElement("div", {className: "col-xs-4"}, React.createElement(NewSuggestionButton, null)), React.createElement("div", {className: "col-xs-6"})), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("p", null, "KomInn er en kommunal forslagsportal der du kan foreslå forbedringer og skape nye ideer."))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("h1", null, "Alle forslag"), React.createElement(SuggestionList, {Type: SuggestionType.Submitted}))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("h1", null, "Suksesshistorier"), React.createElement(SuggestionList, {Type: SuggestionType.SuccessStories}))));
+	        return React.createElement("div", null, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-2"}, React.createElement("h1", null, "KomInn")), React.createElement("div", {className: "col-xs-4"}, React.createElement(NewSuggestionButton, null)), React.createElement("div", {className: "col-xs-6"})), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("p", null, "KomInn er en kommunal forslagsportal der du kan foreslå forbedringer og skape nye ideer."))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement(SuggestionList, {Type: SuggestionType.Submitted, Title: "Mottatte forslag"}))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement(SuggestionList, {Type: SuggestionType.SuccessStories, Title: "Suksesshistorier"}))));
 	    };
 	    return AllSuggestions;
 	}(React.Component));
@@ -12636,11 +12636,104 @@
 	    function SuggestionList() {
 	        _super.call(this);
 	        this.id = SP.Guid.newGuid().toString();
+	        this.state = { partitions: new Array() };
 	    }
+	    SuggestionList.prototype.componentWillMount = function () {
+	        var _this = this;
+	        var odataFilter = "";
+	        if (this.props.Type == SuggestionType.SuccessStories)
+	            odataFilter = "&$filter=ForslagStatus eq 'Realisert'";
+	        var sArr = new Array();
+	        var listData = new SPTools.ListData();
+	        listData.getDataFromList("Forslag", "?$select=Utfordring,Likes,ForslagStatus,Forslag_x0020_til_x0020_l_x00f8_,Created,Tags,Navn/Title&$expand=Navn&$orderby=Created desc" + odataFilter)
+	            .done((function (e) {
+	            _this.numSuggestions = e.d.results.length;
+	            if (_this.numSuggestions <= 0)
+	                return;
+	            console.log(e);
+	            for (var _i = 0, _a = e.d.results; _i < _a.length; _i++) {
+	                var item = _a[_i];
+	                sArr.push({ ForslagTilLosning: item.Forslag_x0020_til_x0020_l_x00f8_,
+	                    Created: _this.formatDate(item.Created),
+	                    Utfordring: item.Utfordring,
+	                    Likes: item.Likes,
+	                    Navn: item.Navn.Title,
+	                    AntallKommentarer: "0",
+	                    Tags: "Fag" });
+	            }
+	            _this.partitionSuggestions(sArr);
+	            console.log(_this.state);
+	        }).bind(this))
+	            .fail(function (e) { console.log(e); });
+	    };
+	    SuggestionList.prototype.partitionSuggestions = function (forslag) {
+	        var p = Array();
+	        var partition = new Array();
+	        for (var i = 0; i < forslag.length; i++) {
+	            partition.push(forslag[i]);
+	            if (partition.length == 4) {
+	                p.push(partition);
+	                partition = new Array();
+	            }
+	        }
+	        if (partition.length > 0)
+	            p.push(partition);
+	        this.setState({ partitions: p });
+	        console.log(this.state);
+	        console.log(p);
+	    };
+	    SuggestionList.prototype.formatDate = function (netdate) {
+	        var year = netdate.substr(0, 4);
+	        var month = netdate.substr(5, 2);
+	        var day = netdate.substr(8, 2);
+	        return day + "." + month + "." + year;
+	    };
+	    SuggestionList.prototype.renderIndicators = function () {
+	        if (this.numSuggestions <= 3)
+	            return React.createElement("div", null);
+	        return (React.createElement("div", {className: "carousel-indicators-wrap"}, React.createElement("a", {className: "carousel-control left glyphicon glyphicon-chevron-left ", href: '#' + this.id, "data-slide": "prev"}), React.createElement("ol", {className: "carousel-indicators"}, React.createElement("li", {"data-target": '#' + this.id, "data-slide-to": "0", className: "active"}), React.createElement("li", {"data-target": '#' + this.id, "data-slide-to": "1", className: ""})), React.createElement("a", {className: "carousel-control right glyphicon glyphicon-chevron-right", href: '#' + this.id, "data-slide": "next"})));
+	    };
 	    SuggestionList.prototype.render = function () {
-	        return React.createElement("div", null, React.createElement("div", {id: this.id, className: "carousel slide"}, React.createElement("div", {className: "carousel-inner"}, React.createElement("div", {className: "item active"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-sm-2 col-xs-6"}, React.createElement("a", {href: "#x"}, React.createElement("img", {src: "images/whole_squid.jpg", alt: "Image", className: "img-responsive"}))), React.createElement("div", {className: "col-sm-2 col-xs-6"}, React.createElement("a", {href: "#x"}, React.createElement("img", {src: "images/whole_cuttlefish.jpg", alt: "Image", className: "img-responsive"}))), React.createElement("div", {className: "col-sm-2 col-xs-6"}, React.createElement("a", {href: "#x"}, React.createElement("img", {src: "images/whole_cleaned_squid.jpg", alt: "Image", className: "img-responsive"}))), React.createElement("div", {className: "col-sm-2 col-xs-6"}, React.createElement("a", {href: "#x"}, React.createElement("img", {src: "images/whole_cleaned_octopus.jpg", alt: "Image", className: "img-responsive"}))), React.createElement("div", {className: "col-sm-2 col-xs-6"}, React.createElement("a", {href: "#x"}, React.createElement("img", {src: "images/whole_cleaned_cuttlefish.jpg", alt: "Image", className: "img-responsive"}))), React.createElement("div", {className: "col-sm-2 col-xs-6"}, React.createElement("a", {href: "#x"}, React.createElement("img", {src: "images/reef_cod.jpg", alt: "Image", className: "img-responsive"}))))), React.createElement("div", {className: "item"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-sm-2 col-xs-6"}, React.createElement("a", {href: "#x"}, React.createElement("img", {src: "images/leather_jacktfish.jpg", alt: "Image", class: "img-responsive"}))), React.createElement("div", {className: "col-sm-2 col-xs-6"}, React.createElement("a", {href: "#x"}, React.createElement("img", {src: "images/ribbonfish.jpg", alt: "Image", class: "img-responsive"}))), React.createElement("div", {className: "col-sm-2 col-xs-6"}, React.createElement("a", {href: "#x"}, React.createElement("img", {src: "images/croaker1.jpg", alt: "Image", class: "img-responsive"}))), React.createElement("div", {className: "col-sm-2 col-xs-6"}, React.createElement("a", {href: "#x"}, React.createElement("img", {src: "images/shrimp_black_tiger.jpg", alt: "Image", class: "img-responsive"}))), React.createElement("div", {className: "col-sm-2 col-xs-6"}, React.createElement("a", {href: "#x"}, React.createElement("img", {src: "images/whole_cuttlefish.jpg", alt: "Image", class: "img-responsive"}))), React.createElement("div", {className: "col-sm-2 col-xs-6"}, React.createElement("a", {href: "#x"}, React.createElement("img", {src: "images/whole_cleaned_squid.jpg", alt: "Image", class: "img-responsive"})))))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12 carousel-control-wrapper "}, React.createElement("div", {className: "col-xs-3"}), React.createElement("div", {className: "col-xs-3"}, React.createElement("a", {className: "left carousel-control", href: '#' + this.id, "data-slide": "prev"}, React.createElement("i", {className: "fa ta fa-chevron-left fa-4"}))), React.createElement("div", {className: "col-xs-3"}, React.createElement("a", {className: "right carousel-control", href: '#' + this.id, "data-slide": "next"}, React.createElement("i", {className: "fa fa-chevron-right fa-4"}))), React.createElement("div", {className: "col-xs-3"})))));
+	        if (this.numSuggestions <= 0)
+	            return React.createElement("div", null);
+	        return (React.createElement("div", null, React.createElement("h1", null, this.props.Title), React.createElement("div", {id: this.id, className: "carousel slide", "data-interval": "false"}, React.createElement("div", {className: "carousel-inner"}, this.state.partitions.map(function (item, index) {
+	            return React.createElement(CarouselViewItem, {forslag: item, index: index});
+	        })), this.renderIndicators())));
 	    };
 	    return SuggestionList;
+	}(React.Component));
+	var CarouselViewItem = (function (_super) {
+	    __extends(CarouselViewItem, _super);
+	    function CarouselViewItem() {
+	        _super.apply(this, arguments);
+	    }
+	    CarouselViewItem.prototype.render = function () {
+	        var active = (this.props.index == 0) ? "active" : "";
+	        return (React.createElement("div", {className: "item " + active}, React.createElement("div", {className: "row"}, this.props.forslag.map(function (item, index) {
+	            return React.createElement(CarouselItem, {forslag: item});
+	        }))));
+	    };
+	    return CarouselViewItem;
+	}(React.Component));
+	var CarouselItem = (function (_super) {
+	    __extends(CarouselItem, _super);
+	    function CarouselItem() {
+	        _super.apply(this, arguments);
+	    }
+	    CarouselItem.prototype.renderTags = function () {
+	        if (this.props.forslag.Tags == null)
+	            return;
+	        return (React.createElement("span", null, React.createElement("span", {className: "icon glyphicon glyphicon-tag iconspace"}), this.props.forslag.Tags));
+	    };
+	    CarouselItem.prototype.renderLikes = function () {
+	        if (this.props.forslag.Likes == null)
+	            return;
+	        return (React.createElement("span", null, React.createElement("span", {className: "icon glyphicon glyphicon-thumbs-up"}), this.props.forslag.Likes));
+	    };
+	    CarouselItem.prototype.render = function () {
+	        return (React.createElement("div", {className: "col-sm-3 col-xs-6 "}, React.createElement("section", {className: "ki-shadow-box-item"}, React.createElement("article", {className: "carousel-item kiGradient"}, React.createElement("header", null, this.props.forslag.Utfordring), React.createElement("main", {className: ""}, React.createElement("p", null, this.props.forslag.ForslagTilLosning)), React.createElement("footer", null, React.createElement("span", {className: "icon glyphicon glyphicon-thumbs-up"}), this.props.forslag.Likes, React.createElement("span", {className: "icon glyphicon glyphicon-comment iconspace"}), this.props.forslag.AntallKommentarer, this.renderTags(), React.createElement("div", {className: "dateperson"}, React.createElement("span", {className: "glyphicon glyphicon-calendar"}), this.props.forslag.Created, React.createElement("span", {className: "glyphicon glyphicon-user iconspace"}), this.props.forslag.Navn))))));
+	    };
+	    return CarouselItem;
 	}(React.Component));
 
 
