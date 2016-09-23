@@ -12609,7 +12609,7 @@
 	    AllSuggestions.prototype.componentHasMounted = function () {
 	        var ld = new SPTools.ListData();
 	        ld.getDataFromList("Forslag", "").done(function (d) {
-	            console.log(d);
+	            // console.log(d);
 	        });
 	    };
 	    AllSuggestions.prototype.render = function () {
@@ -12636,8 +12636,9 @@
 	    function SuggestionList() {
 	        _super.call(this);
 	        this.id = SP.Guid.newGuid().toString();
-	        this.state = { partitions: new Array() };
+	        this.state = { partitions: new Array(), windowWidth: window.innerWidth, suggestions: new Array() };
 	        this.numSuggestions = 0;
+	        window.addEventListener('resize', this.handleResize.bind(this));
 	    }
 	    SuggestionList.prototype.componentWillMount = function () {
 	        var _this = this;
@@ -12651,7 +12652,6 @@
 	            _this.numSuggestions = e.d.results.length;
 	            if (_this.numSuggestions <= 0)
 	                return;
-	            console.log(e);
 	            for (var _i = 0, _a = e.d.results; _i < _a.length; _i++) {
 	                var item = _a[_i];
 	                sArr.push({ ForslagTilLosning: item.Forslag_x0020_til_x0020_l_x00f8_,
@@ -12662,17 +12662,17 @@
 	                    AntallKommentarer: "0",
 	                    Tags: "Fag" });
 	            }
-	            _this.partitionSuggestions(sArr);
-	            console.log(_this.state);
+	            _this.setState({ suggestions: sArr });
+	            _this.partitionSuggestions(sArr, 4);
 	        }).bind(this))
 	            .fail(function (e) { console.log(e); });
 	    };
-	    SuggestionList.prototype.partitionSuggestions = function (forslag) {
+	    SuggestionList.prototype.partitionSuggestions = function (forslag, partitionSize) {
 	        var p = Array();
 	        var partition = new Array();
 	        for (var i = 0; i < forslag.length; i++) {
 	            partition.push(forslag[i]);
-	            if (partition.length == 4) {
+	            if (partition.length == partitionSize) {
 	                p.push(partition);
 	                partition = new Array();
 	            }
@@ -12680,8 +12680,23 @@
 	        if (partition.length > 0)
 	            p.push(partition);
 	        this.setState({ partitions: p });
-	        console.log(this.state);
-	        console.log(p);
+	    };
+	    SuggestionList.prototype.handleResize = function () {
+	        this.setState({ windowWidth: window.innerWidth });
+	        console.log("Setting window size");
+	        var width = this.state.windowWidth;
+	        var parts = 4;
+	        if (width <= 544)
+	            parts = 1;
+	        else if (width >= 544 && width < 768)
+	            parts = 2;
+	        else if (width >= 768 && width < 992)
+	            parts = 3;
+	        else if (width >= 992 && width < 1200)
+	            parts = 3;
+	        else if (width >= 1200)
+	            parts = 4;
+	        this.partitionSuggestions(this.state.suggestions, parts);
 	    };
 	    SuggestionList.prototype.formatDate = function (netdate) {
 	        var year = netdate.substr(0, 4);
@@ -12691,10 +12706,11 @@
 	    };
 	    SuggestionList.prototype.renderIndicators = function () {
 	        var _this = this;
-	        console.log(this.numSuggestions);
 	        if (this.numSuggestions <= 3)
 	            return React.createElement("div", null);
 	        return (React.createElement("div", {className: "carousel-indicators-wrap"}, React.createElement("a", {className: "carousel-control left glyphicon glyphicon-chevron-left ", href: '#' + this.id, "data-slide": "prev"}), React.createElement("ol", {className: "carousel-indicators"}, this.state.partitions.map(function (item, index) {
+	            if (window.innerWidth < 544)
+	                return React.createElement("span", null);
 	            var active = (index == 0) ? "active" : "";
 	            return React.createElement("li", {"data-target": '#' + _this.id, "data-slide-to": index, className: active});
 	        })), React.createElement("a", {className: "carousel-control right glyphicon glyphicon-chevron-right", href: '#' + this.id, "data-slide": "next"})));
@@ -12702,6 +12718,7 @@
 	    SuggestionList.prototype.render = function () {
 	        if (this.numSuggestions <= 0)
 	            return React.createElement("div", null);
+	        console.log(this.state.windowWidth);
 	        return (React.createElement("div", null, React.createElement("h1", null, this.props.Title), React.createElement("div", {id: this.id, className: "carousel slide", "data-interval": "false"}, React.createElement("div", {className: "carousel-inner"}, this.state.partitions.map(function (item, index) {
 	            return React.createElement(CarouselViewItem, {forslag: item, index: index});
 	        })), this.renderIndicators())));
@@ -12737,7 +12754,8 @@
 	        return (React.createElement("span", null, React.createElement("span", {className: "icon glyphicon glyphicon-thumbs-up"}), this.props.forslag.Likes));
 	    };
 	    CarouselItem.prototype.render = function () {
-	        return (React.createElement("div", {className: "col-sm-3 col-xs-6 "}, React.createElement("section", {className: "ki-shadow-box-item"}, React.createElement("article", {className: "carousel-item kiGradient"}, React.createElement("header", null, this.props.forslag.Utfordring), React.createElement("main", {className: ""}, React.createElement("p", null, this.props.forslag.ForslagTilLosning)), React.createElement("footer", null, React.createElement("span", {className: "icon glyphicon glyphicon-thumbs-up"}), this.props.forslag.Likes, React.createElement("span", {className: "icon glyphicon glyphicon-comment iconspace"}), this.props.forslag.AntallKommentarer, this.renderTags(), React.createElement("div", {className: "dateperson"}, React.createElement("span", {className: "glyphicon glyphicon-calendar"}), this.props.forslag.Created, React.createElement("span", {className: "glyphicon glyphicon-user iconspace"}), this.props.forslag.Navn))))));
+	        var fullWidth = (window.innerWidth < 544) ? "fullwidth" : "";
+	        return (React.createElement("div", {className: "col-sm-4 col-xs-6 col-md-4 col-lg-3 " + fullWidth}, React.createElement("section", {className: "ki-shadow-box-item " + fullWidth}, React.createElement("article", {className: "carousel-item kiGradient"}, React.createElement("header", null, this.props.forslag.Utfordring), React.createElement("main", {className: ""}, React.createElement("p", null, this.props.forslag.ForslagTilLosning)), React.createElement("footer", null, React.createElement("span", {className: "icon glyphicon glyphicon-thumbs-up"}), this.props.forslag.Likes, React.createElement("span", {className: "icon glyphicon glyphicon-comment iconspace"}), this.props.forslag.AntallKommentarer, this.renderTags(), React.createElement("div", {className: "dateperson"}, React.createElement("span", {className: "glyphicon glyphicon-calendar"}), this.props.forslag.Created, React.createElement("span", {className: "glyphicon glyphicon-user iconspace"}), this.props.forslag.Navn))))));
 	    };
 	    return CarouselItem;
 	}(React.Component));

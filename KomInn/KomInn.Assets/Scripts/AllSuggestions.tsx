@@ -2,7 +2,7 @@ import * as React from "react";
 import * as $ from "jquery";
 import * as SPTools from "./SPTools"
 
-interface Forslag {
+export interface Forslag {
     Adresse?:string; 
     Avdeling?:string;
     Created:string;
@@ -26,6 +26,7 @@ interface Forslag {
     CreatedBy?:string; 
     ModifiedBy?:string; 
     AntallKommentarer?:string;
+    Id?:string;
 }
 enum SuggestionType { "Submitted", "SuccessStories" };
 export class AllSuggestions extends React.Component<void, SuggestionListState>
@@ -111,7 +112,7 @@ class SuggestionList extends React.Component<Suggestion, SuggestionListState>
             odataFilter = "&$filter=ForslagStatus eq 'Realisert'";
         var sArr = new Array<Forslag>();
         var listData = new SPTools.ListData();
-        listData.getDataFromList("Forslag", "?$select=Utfordring,Likes,ForslagStatus,Forslag_x0020_til_x0020_l_x00f8_,Created,Tags,Navn/Title&$expand=Navn&$orderby=Created desc" + odataFilter )        
+        listData.getDataFromList("Forslag", "?$select=ID,Utfordring,Likes,ForslagStatus,Forslag_x0020_til_x0020_l_x00f8_,Created,Tags,Navn/Title&$expand=Navn&$orderby=Created desc" + odataFilter )        
         .done( ((e:any) => { 
                 this.numSuggestions  = e.d.results.length; 
                 if(this.numSuggestions <= 0)
@@ -157,8 +158,7 @@ class SuggestionList extends React.Component<Suggestion, SuggestionListState>
 
   handleResize()
   {
-      this.setState({windowWidth:window.innerWidth});
-      console.log("Setting window size");
+      this.setState({windowWidth:window.innerWidth});     
       var width = this.state.windowWidth; 
       var parts = 4;
       if(width <= 544) // xs
@@ -171,16 +171,9 @@ class SuggestionList extends React.Component<Suggestion, SuggestionListState>
             parts = 3;
         else if(width >= 1200) // lg
             parts = 4;
-      
-
-        
 
     this.partitionSuggestions(this.state.suggestions, parts);
-
-         
-         
   }
-
 
     formatDate(netdate:string):string
     {
@@ -199,9 +192,6 @@ class SuggestionList extends React.Component<Suggestion, SuggestionListState>
                     <a className="carousel-control left glyphicon glyphicon-chevron-left " href={'#'+this.id} data-slide="prev"></a>
                     <ol className="carousel-indicators">
                         {this.state.partitions.map((item, index) => {
-                            if(window.innerWidth < 544)    
-                                return <span></span>;
-
                             var active = (index == 0) ? "active" : "";
 
                             return <li data-target={'#'+this.id} data-slide-to={index} className={active}></li>
@@ -212,10 +202,13 @@ class SuggestionList extends React.Component<Suggestion, SuggestionListState>
     } 
     
     render() {   
-
+        
         if(this.numSuggestions <= 0)
             return <div></div>;
-console.log(this.state.windowWidth);
+
+console.log("RENDERING!");
+        console.log(this.state);
+
     return (        
         <div>
             <h1>{this.props.Title}</h1>              
@@ -236,6 +229,7 @@ class CarouselViewItem extends React.Component<CarouselViewProps, {}>{
     render()
     {      
         var active = (this.props.index == 0) ? "active" : "";
+        console.log(this.props.index);
         return(
             <div className={`item ${active}`}>
                         <div className="row">

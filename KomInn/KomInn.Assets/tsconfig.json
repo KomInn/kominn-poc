@@ -10,6 +10,8 @@
     "files": [
         "./typings/index.d.ts",
         "./Scripts/NewSuggestionForm.tsx",
+        "./Scripts/AllSuggestions.tsx",
+        "./Scripts/ViewSuggestion.tsx",        
         "./Scripts/index.tsx",
         "./Scripts/SPTools.tsx"
     ]

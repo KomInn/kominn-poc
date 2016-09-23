@@ -13,7 +13,7 @@
                             headers: {
                                 "X-RequestDigest": $("#__REQUESTDIGEST").val(),
                                 "accept": "application/json;odata=verbose"
-                            }}).done((data:any) => { return data; })
+                            }}).then((data:any) => { return data; })
                             .fail((err:any) => { return err });
         }
 
@@ -32,5 +32,3 @@
                 .done((data:any) => { return data });
         }
     }
-
-
