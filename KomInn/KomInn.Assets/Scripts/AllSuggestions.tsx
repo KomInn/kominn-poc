@@ -34,7 +34,7 @@ export class AllSuggestions extends React.Component<void, SuggestionListState>
     {
         var ld = new SPTools.ListData();
         ld.getDataFromList("Forslag", "").done( (d:any) => {
-            console.log(d);
+           // console.log(d);
         });
         
     }
@@ -90,7 +90,7 @@ class NewSuggestionButton extends React.Component<void, {}>
 }
 
 interface Suggestion { Type:SuggestionType, Title:string }
-interface SuggestionListState { partitions?:Array<Array<Forslag>> }
+interface SuggestionListState { partitions?:Array<Array<Forslag>>, windowWidth?:number, suggestions?:Array<Forslag> }
 class SuggestionList extends React.Component<Suggestion, SuggestionListState>
 {         
     id:string;
@@ -99,13 +99,14 @@ class SuggestionList extends React.Component<Suggestion, SuggestionListState>
     {
         super();
         this.id = SP.Guid.newGuid().toString();        
-        this.state = { partitions:new Array<Array<Forslag>>() };
-         
+        this.state = { partitions:new Array<Array<Forslag>>(), windowWidth:window.innerWidth, suggestions:new Array<Forslag>() };
+        this.numSuggestions = 0;
+        window.addEventListener('resize', this.handleResize.bind(this));
     }
 
-    componentWillMount()
+    componentWillMount() 
     {
-        var odataFilter = ""; 
+        var odataFilter = "&$filter=ForslagStatus ne 'Realisert'"; 
         if(this.props.Type == SuggestionType.SuccessStories)
             odataFilter = "&$filter=ForslagStatus eq 'Realisert'";
         var sArr = new Array<Forslag>();
@@ -116,7 +117,7 @@ class SuggestionList extends React.Component<Suggestion, SuggestionListState>
                 if(this.numSuggestions <= 0)
                     return;
 
-                console.log(e);
+             
                 for(let item of e.d.results)
                 {
                 sArr.push(
@@ -128,33 +129,56 @@ class SuggestionList extends React.Component<Suggestion, SuggestionListState>
                     AntallKommentarer:"0",
                 Tags:"Fag"});
                 }
-                
-                this.partitionSuggestions(sArr);
-                console.log(this.state);
+                this.setState({suggestions:sArr});
+                this.partitionSuggestions(sArr, 4);               
         }).bind(this))
         .fail( (e:any) => { console.log(e); });
     }
 
-
-  partitionSuggestions(forslag:Array<Forslag>)
+  partitionSuggestions(forslag:Array<Forslag>, partitionSize:number)
   {
          var p = Array<Array<Forslag>>();
          var partition = new Array<Forslag>();         
          for(var i=0;i<forslag.length;i++)
          {            
             partition.push(forslag[i]);             
-            if(partition.length == 4)
+            if(partition.length == partitionSize)
             {                
                 p.push(partition);
                 partition = new Array<Forslag>();
             }
          }    
          if(partition.length > 0)    
-         p.push(partition);
+            p.push(partition);
 
          this.setState({partitions:p});
-         console.log(this.state);
-         console.log(p);
+         
+  }
+
+  handleResize()
+  {
+      this.setState({windowWidth:window.innerWidth});
+      console.log("Setting window size");
+      var width = this.state.windowWidth; 
+      var parts = 4;
+      if(width <= 544) // xs
+            parts = 1;   
+      else if(width >= 544 && width < 768  ) // sm
+        parts = 2;
+        else if(width >= 768 && width < 992)
+            parts = 3;
+      else if(width >= 992 && width < 1200) // md
+            parts = 3;
+        else if(width >= 1200) // lg
+            parts = 4;
+      
+
+        
+
+    this.partitionSuggestions(this.state.suggestions, parts);
+
+         
+         
   }
 
 
@@ -167,26 +191,32 @@ class SuggestionList extends React.Component<Suggestion, SuggestionListState>
     }
 
     renderIndicators()
-    {
+    {        
         if(this.numSuggestions <= 3)
-            return <div></div>; 
+            return <div></div>;
 
         return ( <div className="carousel-indicators-wrap" >
                     <a className="carousel-control left glyphicon glyphicon-chevron-left " href={'#'+this.id} data-slide="prev"></a>
                     <ol className="carousel-indicators">
-                        <li data-target={'#'+this.id} data-slide-to="0" className="active"></li>                    
-                        <li data-target={'#'+this.id} data-slide-to="1" className=""></li>
-                    </ol>
+                        {this.state.partitions.map((item, index) => {
+                            if(window.innerWidth < 544)    
+                                return <span></span>;
+
+                            var active = (index == 0) ? "active" : "";
+
+                            return <li data-target={'#'+this.id} data-slide-to={index} className={active}></li>
+                        })}                        
+                    </ol> 
                     <a className="carousel-control right glyphicon glyphicon-chevron-right" href={'#'+this.id} data-slide="next"></a>
                 </div>);
-    }
+    } 
     
     render() {   
 
         if(this.numSuggestions <= 0)
             return <div></div>;
-
-        return (        
+console.log(this.state.windowWidth);
+    return (        
         <div>
             <h1>{this.props.Title}</h1>              
             <div id={this.id} className="carousel slide" data-interval="false">   
@@ -229,6 +259,8 @@ class CarouselItem extends React.Component<CarouselItemProps, {}>
         if(this.props.forslag.Tags == null)
          return;
 
+         
+
          return (
              <span>
                     <span className="icon glyphicon glyphicon-tag iconspace"></span>{this.props.forslag.Tags}
@@ -247,16 +279,16 @@ class CarouselItem extends React.Component<CarouselItemProps, {}>
                 <span className="icon glyphicon glyphicon-thumbs-up"></span>{this.props.forslag.Likes}
             </span>
         );
-        
+         
     }
     
 
     render()
     {       
-       
+       var fullWidth = (window.innerWidth < 544) ? "fullwidth" : ""
         return (
-         <div className="col-sm-3 col-xs-6 ">
-            <section className="ki-shadow-box-item">
+         <div className={`col-sm-4 col-xs-6 col-md-4 col-lg-3 ${fullWidth}`}>
+            <section className={`ki-shadow-box-item ${fullWidth}`}>
                 <article className="carousel-item kiGradient">
                     <header>{this.props.forslag.Utfordring}</header>
                         <main className="">                                                        

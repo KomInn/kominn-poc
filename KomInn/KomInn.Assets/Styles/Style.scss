@@ -100,7 +100,7 @@ body {
   *zoom: 1;
 }
 
-/* line 52, ../../var/www/lego-external-prod.chaordix.com/releases/20160919200316/community/static/scss/style/bootstrap-overide.scss */
+
 .carousel-indicators {
   position: relative;
   display: inline-block;
@@ -111,17 +111,8 @@ body {
   left:0;
   margin:0;
   margin-bottom:0;
-}
-@media screen and (max-width: 480px) {
-  /* line 52, ../../var/www/lego-external-prod.chaordix.com/releases/20160919200316/community/static/scss/style/bootstrap-overide.scss */
-  .carousel-indicators {
-    display: none;
-  }
-}
-
-/* line 62, ../../var/www/lego-external-prod.chaordix.com/releases/20160919200316/community/static/scss/style/bootstrap-overide.scss */
-.carousel-indicators li {
   
+  li {  
   width: 20px;
   height: 20px;
   margin-left: 10px !important;
@@ -130,28 +121,35 @@ body {
   -webkit-border-radius: 10px;
   border-radius: 10px; 
   margin-top:0px;
-  margin-bottom:0px;
- 
-}
-/* line 69, ../../var/www/lego-external-prod.chaordix.com/releases/20160919200316/community/static/scss/style/bootstrap-overide.scss */
-.carousel-indicators li:first-child {
-  margin-left: 0;
-  margin-right:10px;
-}
+  margin-bottom:0px; 
+  }
 
-/* line 74, ../../var/www/lego-external-prod.chaordix.com/releases/20160919200316/community/static/scss/style/bootstrap-overide.scss */
-.carousel-indicators .active {
+  .active {
   background-color: #666666;
   width:20px;
   height:20px;
   margin:auto;
-      background-color: #5cb85c;
-    
-    border-color: #4cae4c;
+  background-color: $kiGreen;    
+  border-color: $kiBorderGreen;
+  }
+
 
 }
+@media screen and (max-width: 480px) {
+  
+  .carousel-indicators {
+    display: none;
+  }
+}
 
-/* line 78, ../../var/www/lego-external-prod.chaordix.com/releases/20160919200316/community/static/scss/style/bootstrap-overide.scss */
+
+
+
+
+
+
+
+
 .carousel-control {
   position: relative;
   float: none;
@@ -174,16 +172,7 @@ body {
   margin-right: 20px;
   left: 0;
   
-}
-@media screen and (max-width: 480px) {
-  /* line 78, ../../var/www/lego-external-prod.chaordix.com/releases/20160919200316/community/static/scss/style/bootstrap-overide.scss */
-  .carousel-control {
-    float: left;
-  }
-}
-
-/* line 102, ../../var/www/lego-external-prod.chaordix.com/releases/20160919200316/community/static/scss/style/bootstrap-overide.scss */
-.carousel-control.right {
+  .right {
   width: 50px;
   height: 50px;
   float: none;
@@ -192,25 +181,34 @@ body {
   right: 0;
   margin-left: 20px;
   margin-right: 0;
+  }
 }
-@media screen and (max-width: 480px) {
-  /* line 102, ../../var/www/lego-external-prod.chaordix.com/releases/20160919200316/community/static/scss/style/bootstrap-overide.scss */
+@media screen and (max-width: 544px) {
+  
+  .carousel-control {
+    float: left;
+  }
+} 
+
+
+
+@media screen and (max-width: 544px) {
+  
   .carousel-control.right {
     float: right;
   }
 }
 
-/* line 116, ../../var/www/lego-external-prod.chaordix.com/releases/20160919200316/community/static/scss/style/bootstrap-overide.scss */
+
 .carousel-list {
   margin: 0;
   padding: 0;
-}
-/* line 119, ../../var/www/lego-external-prod.chaordix.com/releases/20160919200316/community/static/scss/style/bootstrap-overide.scss */
-.carousel-list li {
+
+ li {
   list-style: none;
 }
+}
 
-/* line 124, ../../var/www/lego-external-prod.chaordix.com/releases/20160919200316/community/static/scss/style/bootstrap-overide.scss */
 .control-group {
   margin-bottom: 15px;
 }
@@ -254,7 +252,9 @@ body {
 }
 
 
-  
+  .fullwidth {
+    width:100% !important;
+  }
 
  
 .glyphicon {
