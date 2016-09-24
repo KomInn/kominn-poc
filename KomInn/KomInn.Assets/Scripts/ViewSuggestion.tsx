@@ -26,7 +26,7 @@ interface Forslag {
     Kommune?:string;
     Kommunenummer?:string; 
     Konkurransereferanse?:string; 
-    Likes?:string; 
+    Likes?:number; 
     Modified?:string; 
     NarmesteLeder?:SPUser; 
     Navn?:SPUser; 
@@ -71,6 +71,11 @@ class ForslagTool
         {
             var listItem = enumerator.get_current();
             let f:Forslag = { Id:listItem.get_item("ID") };
+            
+            f.Navn = { DisplayName:"", LoginName:"", Id:-1 };
+            f.NarmesteLeder = { DisplayName:"", LoginName:"", Id:-1 };
+            f.ForslagType = { Id:"", Title:"" };
+            f.Tags = new Array<SPTaxonomyTerm>();
             // Navn SPUser
             let navnField:SP.FieldUserValue = listItem.get_item('Navn');
             if(navnField != null)
@@ -134,6 +139,8 @@ class ForslagTool
             f.Utfordring = listItem.get_item("Utfordring"); 
             f.Virksomhet = listItem.get_item("Virksomhet");
             
+
+
             fArr.push(f); 
             }
             Callback(fArr);
@@ -154,25 +161,42 @@ class ForslagTool
 
 }
 
-interface ViewSuggestionData { Suggestion:Forslag }
+interface ViewSuggestionData { Suggestion?:Forslag, LikeEventHandler?():void, LikesThis?:boolean  }
 export class ViewSuggestion extends React.Component<void, ViewSuggestionData>
 {
+    private self:SPUser;
+    private likeItemId:number; 
     constructor()
     {
         super();
-        this.state = { Suggestion:{ Id:-1 } };
-        
+        this.state = { Suggestion:{ Id:-1, Likes:0 }, LikesThis:false };
+        this.self = { DisplayName:"", LoginName:"", Id:_spPageContextInfo.userId }
+        this.likeItemId = -1;         
     }
 
     componentWillMount()
     {
-        
-            new ForslagTool().GetById((arr:Array<Forslag>) => {
+        var suggestionId = 23;
+        // Load suggestion
+        new ForslagTool().GetById((arr:Array<Forslag>) => 
+        {
             if(arr.length <= 0)
-                return; 
+                return;               
+            
             
             this.setState({Suggestion:arr[0]});
-        }, 23);
+        
+        
+        }, suggestionId);
+            new SPTools.AppFunctions().likeStatus(suggestionId).done( ((result:any) => {
+                if(result.d.results.length <= 0)
+                    return; 
+
+                this.setState({LikesThis:true });               
+                this.likeItemId = result.d.results[0].Id;   
+            }).bind(this));
+         
+
     }
 
     render()
@@ -181,24 +205,180 @@ export class ViewSuggestion extends React.Component<void, ViewSuggestionData>
             return <div></div>
     return (
             <div>
-                <SuggestionDataView Suggestion={this.state.Suggestion} />
+                <SuggestionDataView Suggestion={this.state.Suggestion} LikeEventHandler={this.HandleLikeClick.bind(this)} LikesThis={this.state.LikesThis} />
                 <SuggestionComments Suggestion={this.state.Suggestion} />
             </div>
             )
+    }
+
+    HandleLikeClick()
+    {
+        if(this.state.LikesThis)
+            this.Unlike();
+        else
+            this.Like();
+    }
+
+    Unlike() {      
+         if(this.likeItemId <= 0)
+            return; 
+
+         var context = SP.ClientContext.get_current();
+         var list = context.get_web().get_lists().getByTitle("Likerklikk"); 
+         var item = list.getItemById(this.likeItemId);
+         item.deleteObject();
+         context.executeQueryAsync( (r:any) => {            
+            this.state.Suggestion.Likes -= 1; 
+            this.setState({Suggestion:this.state.Suggestion}); 
+            this.setState({LikesThis:false});
+            this.UpdateLikeCountInList();
+         },
+         (err:any) => {
+             console.log(err); 
+         });
+
+         
+
+
+    }
+
+    Like() {
+            var context = SP.ClientContext.get_current();
+            var list = context.get_web().get_lists().getByTitle("Likerklikk"); 
+            var itemcreationinfo = new SP.ListItemCreationInformation();
+            var item = list.addItem(itemcreationinfo);
+            
+            var suggestionFieldValue = new SP.FieldLookupValue();
+            suggestionFieldValue.set_lookupId(this.state.Suggestion.Id);
+            
+            var person = new SP.FieldUserValue();
+            person.set_lookupId(this.self.Id); 
+
+            item.set_item("Forslag", suggestionFieldValue);
+            item.set_item("Person", person);
+            
+        this.setState({LikesThis:true}); 
+
+            item.update();
+            context.load(item);
+            context.executeQueryAsync( ((result:any) => 
+            {
+                this.likeItemId = item.get_id();                
+                this.state.Suggestion.Likes += 1;                  
+                this.setState({Suggestion:this.state.Suggestion});
+                this.UpdateLikeCountInList();
+            
+            }).bind(this),
+            (err:any) => { console.log(err); });
+    }
+
+    UpdateLikeCountInList()
+    {        
+         var context = SP.ClientContext.get_current();
+         var list = context.get_web().get_lists().getByTitle("Forslag"); 
+         var item = list.getItemById(this.state.Suggestion.Id);
+         
+         console.log(this.state.Suggestion.Likes);
+         item.set_item("Likes", this.state.Suggestion.Likes);
+         item.update();
+         context.executeQueryAsync( ((r:any) => {
+                         
+         }).bind(this),
+         (err:any) => {
+             console.log(err); 
+         });
     }
 }
 
 class SuggestionDataView extends React.Component<ViewSuggestionData, {}>
 {
     render() {
+        console.log(this.props.Suggestion);
         return (
-            <div>
-               <SuggestionDataHeader Text="Forslag" Display="" />
-               <SuggestionDataRow Text="Forslagsstiller:" Display={this.props.Suggestion.Navn.DisplayName} />
-               <SuggestionDataRow Text="Kommune:" Display={this.props.Suggestion.Kommune} />
-            </div>)
+            <div className="row">
+                <div className="col-xs-6">
+                    <SuggestionDataHeader Text="Forslag" Display="" />
+                    <SuggestionDataRow Text="Forslagsstiller:" Display={this.props.Suggestion.Navn.DisplayName} />
+                    <SuggestionDataRow Text="Kommune:" Display={this.props.Suggestion.Kommune} />
+                    <SuggestionDataRow Text="Type:" Display={this.props.Suggestion.ForslagType.Title} />
+                    <SuggestionDataRow Text="Utfordring:" Display={this.props.Suggestion.Utfordring} />
+                    <SuggestionDataRow Text="Nyttig for andre?:" Display={this.props.Suggestion.NyttigForAndre} />                    
+                    <SuggestionDataRow Text="Forslag til løsning:" Display={this.props.Suggestion.ForslagTilLosning} />
+                    <hr/>
+                    <SuggestionDataViewFooter Suggestion={this.props.Suggestion} LikeEventHandler={this.props.LikeEventHandler} LikesThis={this.props.LikesThis} />
+                    </div>
+                <div className="col-xs-6">
+                </div>
+            </div>
+            )
     }
 } 
+
+class SuggestionDataViewFooter extends React.Component<ViewSuggestionData, {}>{
+    
+    handleLikeClick()
+    {
+        this.props.LikeEventHandler();
+    }
+
+    renderLikes()
+    {
+        if(this.props.Suggestion.Likes <= 0)
+            return <div></div>
+
+        var likes = this.props.Suggestion.Likes; 
+        
+
+        return <div className="col-xs-4 likes"><span className="glyphicon glyphicon-thumbs-up"></span>{this.props.Suggestion.Likes}</div>
+    }
+
+
+    renderTags()
+    {
+              if(this.props.Suggestion.Tags.length <= 0)
+                return (
+                 <div></div>
+             );
+
+             return (
+            <div className="col-xs-4 tags">                            
+                <ul>
+                {this.props.Suggestion.Tags.map( (value:SPTaxonomyTerm, index:number) => {
+                   
+                    return <li><span className="glyphicon glyphicon-tag"></span>{value.Title}</li>
+                })}
+                </ul>
+            </div>)
+    }
+
+    renderLikebutton()
+    {
+        
+        var btnType = (this.props.LikesThis) ? "btn-primary disabled" : "btn-success"; 
+        var text = (this.props.LikesThis) ? "Du liker dette" : "Godt forslag!"
+        return (
+                    <div className="likebutton col-xs-4">
+                        <div className={`btn-xs btn-like ${btnType}`} onClick={this.handleLikeClick.bind(this)}><span className="glyphicon glyphicon-thumbs-up"></span>
+                        {text}
+                        </div>
+                    </div>
+        );
+    }
+
+    render()
+    {
+        return ( 
+            <div className="row">
+                <div className="dataviewfooter">                                       
+                    {this.renderLikebutton()}                                   
+                    {this.renderLikes()}                   
+                    {this.renderTags()}
+                </div>
+            </div>
+            
+        )
+    }
+}
 
 interface ViewDataField { Text:string, Display:string }
 class SuggestionDataHeader extends React.Component<ViewDataField, {}>

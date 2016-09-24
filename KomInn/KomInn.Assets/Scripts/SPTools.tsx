@@ -29,6 +29,18 @@
         public getDataFromList(listName:string, odata:string):JQueryPromise<any>
         {
             return $.get(_spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('"+listName+"')/Items"+odata)
-                .done((data:any) => { return data });
+                .then((data:any) => { return data });
+        }
+    }
+
+    export class AppFunctions
+    {
+        public likeStatus(itemId:number):JQueryPromise<any>
+        {
+            return new ListData().getDataFromList("Likerklikk", "?$select=*,Forslag/Id,Person/Id&$expand=Forslag,Person&$filter=Forslag/Id eq " + itemId + " and Person/Id eq " + _spPageContextInfo.userId ).then((d:any) => {                
+                return d;  
+            });
+
+
         }
     }

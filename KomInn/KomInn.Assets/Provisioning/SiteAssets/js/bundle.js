@@ -12582,11 +12582,22 @@
 	    }
 	    ListData.prototype.getDataFromList = function (listName, odata) {
 	        return $.get(_spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('" + listName + "')/Items" + odata)
-	            .done(function (data) { return data; });
+	            .then(function (data) { return data; });
 	    };
 	    return ListData;
 	}());
 	exports.ListData = ListData;
+	var AppFunctions = (function () {
+	    function AppFunctions() {
+	    }
+	    AppFunctions.prototype.likeStatus = function (itemId) {
+	        return new ListData().getDataFromList("Likerklikk", "?$select=*,Forslag/Id,Person/Id&$expand=Forslag,Person&$filter=Forslag/Id eq " + itemId + " and Person/Id eq " + _spPageContextInfo.userId).then(function (d) {
+	            return d;
+	        });
+	    };
+	    return AppFunctions;
+	}());
+	exports.AppFunctions = AppFunctions;
 
 
 /***/ },
@@ -12778,6 +12789,7 @@
 	};
 	///<reference path="../typings/globals/sharepoint/index.d.ts" /> 
 	var React = __webpack_require__(3);
+	var SPTools = __webpack_require__(11);
 	var ForslagTool = (function () {
 	    function ForslagTool() {
 	    }
@@ -12801,6 +12813,10 @@
 	            while (enumerator.moveNext()) {
 	                var listItem = enumerator.get_current();
 	                var f = { Id: listItem.get_item("ID") };
+	                f.Navn = { DisplayName: "", LoginName: "", Id: -1 };
+	                f.NarmesteLeder = { DisplayName: "", LoginName: "", Id: -1 };
+	                f.ForslagType = { Id: "", Title: "" };
+	                f.Tags = new Array();
 	                // Navn SPUser
 	                var navnField = listItem.get_item('Navn');
 	                if (navnField != null) {
@@ -12872,20 +12888,87 @@
 	    __extends(ViewSuggestion, _super);
 	    function ViewSuggestion() {
 	        _super.call(this);
-	        this.state = { Suggestion: { Id: -1 } };
+	        this.state = { Suggestion: { Id: -1, Likes: 0 }, LikesThis: false };
+	        this.self = { DisplayName: "", LoginName: "", Id: _spPageContextInfo.userId };
+	        this.likeItemId = -1;
 	    }
 	    ViewSuggestion.prototype.componentWillMount = function () {
 	        var _this = this;
+	        var suggestionId = 23;
+	        // Load suggestion
 	        new ForslagTool().GetById(function (arr) {
 	            if (arr.length <= 0)
 	                return;
 	            _this.setState({ Suggestion: arr[0] });
-	        }, 23);
+	        }, suggestionId);
+	        new SPTools.AppFunctions().likeStatus(suggestionId).done((function (result) {
+	            if (result.d.results.length <= 0)
+	                return;
+	            _this.setState({ LikesThis: true });
+	            _this.likeItemId = result.d.results[0].Id;
+	        }).bind(this));
 	    };
 	    ViewSuggestion.prototype.render = function () {
 	        if (this.state.Suggestion.Id == -1)
 	            return React.createElement("div", null);
-	        return (React.createElement("div", null, React.createElement(SuggestionDataView, {Suggestion: this.state.Suggestion}), React.createElement(SuggestionComments, {Suggestion: this.state.Suggestion})));
+	        return (React.createElement("div", null, React.createElement(SuggestionDataView, {Suggestion: this.state.Suggestion, LikeEventHandler: this.HandleLikeClick.bind(this), LikesThis: this.state.LikesThis}), React.createElement(SuggestionComments, {Suggestion: this.state.Suggestion})));
+	    };
+	    ViewSuggestion.prototype.HandleLikeClick = function () {
+	        if (this.state.LikesThis)
+	            this.Unlike();
+	        else
+	            this.Like();
+	    };
+	    ViewSuggestion.prototype.Unlike = function () {
+	        var _this = this;
+	        if (this.likeItemId <= 0)
+	            return;
+	        var context = SP.ClientContext.get_current();
+	        var list = context.get_web().get_lists().getByTitle("Likerklikk");
+	        var item = list.getItemById(this.likeItemId);
+	        item.deleteObject();
+	        context.executeQueryAsync(function (r) {
+	            _this.state.Suggestion.Likes -= 1;
+	            _this.setState({ Suggestion: _this.state.Suggestion });
+	            _this.setState({ LikesThis: false });
+	            _this.UpdateLikeCountInList();
+	        }, function (err) {
+	            console.log(err);
+	        });
+	    };
+	    ViewSuggestion.prototype.Like = function () {
+	        var _this = this;
+	        var context = SP.ClientContext.get_current();
+	        var list = context.get_web().get_lists().getByTitle("Likerklikk");
+	        var itemcreationinfo = new SP.ListItemCreationInformation();
+	        var item = list.addItem(itemcreationinfo);
+	        var suggestionFieldValue = new SP.FieldLookupValue();
+	        suggestionFieldValue.set_lookupId(this.state.Suggestion.Id);
+	        var person = new SP.FieldUserValue();
+	        person.set_lookupId(this.self.Id);
+	        item.set_item("Forslag", suggestionFieldValue);
+	        item.set_item("Person", person);
+	        this.setState({ LikesThis: true });
+	        item.update();
+	        context.load(item);
+	        context.executeQueryAsync((function (result) {
+	            _this.likeItemId = item.get_id();
+	            _this.state.Suggestion.Likes += 1;
+	            _this.setState({ Suggestion: _this.state.Suggestion });
+	            _this.UpdateLikeCountInList();
+	        }).bind(this), function (err) { console.log(err); });
+	    };
+	    ViewSuggestion.prototype.UpdateLikeCountInList = function () {
+	        var context = SP.ClientContext.get_current();
+	        var list = context.get_web().get_lists().getByTitle("Forslag");
+	        var item = list.getItemById(this.state.Suggestion.Id);
+	        console.log(this.state.Suggestion.Likes);
+	        item.set_item("Likes", this.state.Suggestion.Likes);
+	        item.update();
+	        context.executeQueryAsync((function (r) {
+	        }).bind(this), function (err) {
+	            console.log(err);
+	        });
 	    };
 	    return ViewSuggestion;
 	}(React.Component));
@@ -12896,9 +12979,41 @@
 	        _super.apply(this, arguments);
 	    }
 	    SuggestionDataView.prototype.render = function () {
-	        return (React.createElement("div", null, React.createElement(SuggestionDataHeader, {Text: "Forslag", Display: ""}), React.createElement(SuggestionDataRow, {Text: "Forslagsstiller:", Display: this.props.Suggestion.Navn.DisplayName}), React.createElement(SuggestionDataRow, {Text: "Kommune:", Display: this.props.Suggestion.Kommune})));
+	        console.log(this.props.Suggestion);
+	        return (React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-6"}, React.createElement(SuggestionDataHeader, {Text: "Forslag", Display: ""}), React.createElement(SuggestionDataRow, {Text: "Forslagsstiller:", Display: this.props.Suggestion.Navn.DisplayName}), React.createElement(SuggestionDataRow, {Text: "Kommune:", Display: this.props.Suggestion.Kommune}), React.createElement(SuggestionDataRow, {Text: "Type:", Display: this.props.Suggestion.ForslagType.Title}), React.createElement(SuggestionDataRow, {Text: "Utfordring:", Display: this.props.Suggestion.Utfordring}), React.createElement(SuggestionDataRow, {Text: "Nyttig for andre?:", Display: this.props.Suggestion.NyttigForAndre}), React.createElement(SuggestionDataRow, {Text: "Forslag til løsning:", Display: this.props.Suggestion.ForslagTilLosning}), React.createElement("hr", null), React.createElement(SuggestionDataViewFooter, {Suggestion: this.props.Suggestion, LikeEventHandler: this.props.LikeEventHandler, LikesThis: this.props.LikesThis})), React.createElement("div", {className: "col-xs-6"})));
 	    };
 	    return SuggestionDataView;
+	}(React.Component));
+	var SuggestionDataViewFooter = (function (_super) {
+	    __extends(SuggestionDataViewFooter, _super);
+	    function SuggestionDataViewFooter() {
+	        _super.apply(this, arguments);
+	    }
+	    SuggestionDataViewFooter.prototype.handleLikeClick = function () {
+	        this.props.LikeEventHandler();
+	    };
+	    SuggestionDataViewFooter.prototype.renderLikes = function () {
+	        if (this.props.Suggestion.Likes <= 0)
+	            return React.createElement("div", null);
+	        var likes = this.props.Suggestion.Likes;
+	        return React.createElement("div", {className: "col-xs-4 likes"}, React.createElement("span", {className: "glyphicon glyphicon-thumbs-up"}), this.props.Suggestion.Likes);
+	    };
+	    SuggestionDataViewFooter.prototype.renderTags = function () {
+	        if (this.props.Suggestion.Tags.length <= 0)
+	            return (React.createElement("div", null));
+	        return (React.createElement("div", {className: "col-xs-4 tags"}, React.createElement("ul", null, this.props.Suggestion.Tags.map(function (value, index) {
+	            return React.createElement("li", null, React.createElement("span", {className: "glyphicon glyphicon-tag"}), value.Title);
+	        }))));
+	    };
+	    SuggestionDataViewFooter.prototype.renderLikebutton = function () {
+	        var btnType = (this.props.LikesThis) ? "btn-primary disabled" : "btn-success";
+	        var text = (this.props.LikesThis) ? "Du liker dette" : "Godt forslag!";
+	        return (React.createElement("div", {className: "likebutton col-xs-4"}, React.createElement("div", {className: "btn-xs btn-like " + btnType, onClick: this.handleLikeClick.bind(this)}, React.createElement("span", {className: "glyphicon glyphicon-thumbs-up"}), text)));
+	    };
+	    SuggestionDataViewFooter.prototype.render = function () {
+	        return (React.createElement("div", {className: "row"}, React.createElement("div", {className: "dataviewfooter"}, this.renderLikebutton(), this.renderLikes(), this.renderTags())));
+	    };
+	    return SuggestionDataViewFooter;
 	}(React.Component));
 	var SuggestionDataHeader = (function (_super) {
 	    __extends(SuggestionDataHeader, _super);

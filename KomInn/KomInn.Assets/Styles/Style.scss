@@ -264,3 +264,45 @@ body {
   .iconspace {
     margin-left:10px;
   }
+
+hr{
+  margin-top:5px;
+  margin-bottom:5px;
+}
+
+  .dataviewfooter
+  {
+    font-size:12px;
+    .tags
+    {
+      ul { list-style-type:none;
+        display:inline-block;
+        padding-left:5px;
+        li {
+          display:inline-block;
+              border: 1px solid $kiBorderGreen;
+              background-color: $kiGreen;
+              color:white;
+    padding: 2px;
+    border-radius: 5px;
+    margin-right: 3px;
+    font-size:10px;
+        }
+      }
+
+    }
+    .likebutton {
+      .btn-like
+      {
+        width:110px;
+        text-align:center; 
+        height:30px;
+        padding-top:6px;
+        cursor:pointer;
+      }
+    }
+    .likes{
+      font-size:19px;
+      margin-top:3px;
+    }
+  }

@@ -186,3 +186,32 @@ body {
 
 .iconspace {
   margin-left: 10px; }
+
+hr {
+  margin-top: 5px;
+  margin-bottom: 5px; }
+
+.dataviewfooter {
+  font-size: 12px; }
+  .dataviewfooter .tags ul {
+    list-style-type: none;
+    display: inline-block;
+    padding-left: 5px; }
+    .dataviewfooter .tags ul li {
+      display: inline-block;
+      border: 1px solid #4cae4c;
+      background-color: #5cb85c;
+      color: white;
+      padding: 2px;
+      border-radius: 5px;
+      margin-right: 3px;
+      font-size: 10px; }
+  .dataviewfooter .likebutton .btn-like {
+    width: 110px;
+    text-align: center;
+    height: 30px;
+    padding-top: 6px;
+    cursor: pointer; }
+  .dataviewfooter .likes {
+    font-size: 19px;
+    margin-top: 3px; }
