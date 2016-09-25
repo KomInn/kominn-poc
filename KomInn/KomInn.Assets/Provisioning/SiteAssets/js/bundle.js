@@ -108,7 +108,7 @@
 	var $ = __webpack_require__(6);
 	__webpack_require__(7);
 	__webpack_require__(10);
-	var SPTools = __webpack_require__(11);
+	var SPTools_1 = __webpack_require__(11);
 	var Option = (function () {
 	    function Option(v, t) {
 	        this.Value = v;
@@ -161,7 +161,7 @@
 	    };
 	    SPUserField.prototype.resolveUser = function () {
 	        var _this = this;
-	        var up = new SPTools.UserProfile();
+	        var up = new SPTools_1.UserProfile();
 	        up.ensureUser(this.state.Text).done(function (result) {
 	            var user = { DisplayName: result.d.Title, Username: result.d.LoginName, UserId: result.d.Id };
 	            _this.setState({ Text: user.DisplayName });
@@ -282,7 +282,7 @@
 	            this.setState({ dato: this.getTodaysDate() });
 	            this.setState({ konkurransereferanse: GetUrlKeyValue("ref") });
 	            var manager = this.findKey(props, "Manager").Value;
-	            var up = new SPTools.UserProfile();
+	            var up = new SPTools_1.UserProfile();
 	            up.ensureUser(manager).done((function (d) {
 	                console.log(d);
 	                _this.setState({
@@ -402,8 +402,7 @@
 	        this.setState({ postnummer: d.Value });
 	        if (d.Value.length != 4 || d.Value == this.state.postnummer)
 	            return;
-	        var ld = new SPTools.ListData();
-	        ld.getDataFromList("Kommunenumre", "?$select=Kommune,Kommunenummer&$filter=Postnummer eq " + d.Value)
+	        SPTools_1.ListData.getDataFromList("Kommunenumre", "?$select=Kommune,Kommunenummer&$filter=Postnummer eq " + d.Value)
 	            .done(function (result) {
 	            console.log(result);
 	            if (result.d.results.length <= 0)
@@ -12550,6 +12549,9 @@
 /* 11 */
 /***/ function(module, exports) {
 
+	/* SPTools.tsx
+	   Description: Data handler adapters for solution data management.
+	*/
 	"use strict";
 	$.ajaxSetup({ headers: { "Accept": "application/json;odata=verbose" } });
 	var UserProfile = (function () {
@@ -12568,6 +12570,20 @@
 	            } }).then(function (data) { return data; })
 	            .fail(function (err) { return err; });
 	    };
+	    // Returns the profile picture URL for the specified user
+	    UserProfile.GetProfileImageFor = function (username) {
+	        var df = $.Deferred();
+	        new UserProfile().ensureUser(username).done(function (user) {
+	            console.log(user);
+	            return $.get(_spPageContextInfo.webAbsoluteUrl +
+	                "/_api/sp.userprofiles.peoplemanager/GetPropertiesFor(accountname=@v)?@v='" + user.d.LoginName.replace("#", "%23") + "'").done(function (res) {
+	                console.log(res);
+	                console.log(res.d.PictureUrl);
+	                df.resolve(res.d.PictureUrl);
+	            });
+	        });
+	        return df.promise();
+	    };
 	    return UserProfile;
 	}());
 	exports.UserProfile = UserProfile;
@@ -12580,24 +12596,289 @@
 	var ListData = (function () {
 	    function ListData() {
 	    }
-	    ListData.prototype.getDataFromList = function (listName, odata) {
+	    ListData.getDataFromList = function (listName, odata) {
 	        return $.get(_spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('" + listName + "')/Items" + odata)
 	            .then(function (data) { return data; });
 	    };
 	    return ListData;
 	}());
 	exports.ListData = ListData;
-	var AppFunctions = (function () {
-	    function AppFunctions() {
+	var Like = (function () {
+	    function Like(suggestion) {
+	        if (suggestion == null)
+	            return;
+	        this.SuggestionItem = suggestion;
+	        this.UserLikesThis = false;
+	        this.Loaded = false;
+	        this.Processing = false;
 	    }
-	    AppFunctions.prototype.likeStatus = function (itemId) {
-	        return new ListData().getDataFromList("Likerklikk", "?$select=*,Forslag/Id,Person/Id&$expand=Forslag,Person&$filter=Forslag/Id eq " + itemId + " and Person/Id eq " + _spPageContextInfo.userId).then(function (d) {
-	            return d;
-	        });
+	    Like.LoadForSuggestion = function (suggestion) {
+	        var df = $.Deferred();
+	        ListData.getDataFromList("Likerklikk", "?$select=*,Forslag/Id,Person/Id&$expand=Forslag,Person&$filter=Forslag/Id eq " + suggestion.Id + " and Person/Id eq " + _spPageContextInfo.userId)
+	            .then((function (d) {
+	            var like = new Like(suggestion);
+	            like.Loaded = true;
+	            if (d.d.results.length <= 0) {
+	                df.resolve(like);
+	                return;
+	            }
+	            like.UserLikesThis = true;
+	            like.setLikeListItemId(d.d.results[0].Id);
+	            df.resolve(like);
+	        }).bind(this), function () { df.reject(); });
+	        return df.promise();
 	    };
-	    return AppFunctions;
+	    Like.prototype.LikeUnlike = function () {
+	        if (this.UserLikesThis)
+	            return this.Unlike();
+	        else
+	            return this.Like();
+	    };
+	    Like.prototype.setLikeListItemId = function (id) {
+	        this.LikeListItemId = id;
+	    };
+	    // Returns: number of likes
+	    Like.prototype.Like = function () {
+	        var _this = this;
+	        var df = $.Deferred();
+	        if (this.Processing) {
+	            df.reject();
+	            return df.promise();
+	        }
+	        this.Processing = true;
+	        var context = SP.ClientContext.get_current();
+	        var list = context.get_web().get_lists().getByTitle("Likerklikk");
+	        var itemcreationinfo = new SP.ListItemCreationInformation();
+	        var item = list.addItem(itemcreationinfo);
+	        var suggestionFieldValue = new SP.FieldLookupValue();
+	        suggestionFieldValue.set_lookupId(this.SuggestionItem.Id);
+	        var person = new SP.FieldUserValue();
+	        person.set_lookupId(_spPageContextInfo.userId);
+	        item.set_item("Forslag", suggestionFieldValue);
+	        item.set_item("Person", person);
+	        item.update();
+	        context.load(item);
+	        context.executeQueryAsync((function (result) {
+	            _this.SuggestionItem.Likes += 1;
+	            _this.UpdateLikeCountInList().then(function () {
+	                _this.LikeListItemId = item.get_id();
+	                _this.UserLikesThis = true;
+	                _this.Processing = false;
+	                df.resolve(_this.SuggestionItem.Likes);
+	            });
+	        }).bind(this), function (err) {
+	            console.log(err);
+	            df.reject(err);
+	        });
+	        return df.promise();
+	    };
+	    // Returns: number of likes
+	    Like.prototype.Unlike = function () {
+	        var _this = this;
+	        var df = $.Deferred();
+	        if (this.Processing || !this.UserLikesThis) {
+	            df.reject();
+	            return df.promise();
+	        }
+	        this.Processing = true;
+	        var context = SP.ClientContext.get_current();
+	        var list = context.get_web().get_lists().getByTitle("Likerklikk");
+	        var item = list.getItemById(this.LikeListItemId);
+	        item.deleteObject();
+	        context.executeQueryAsync((function (r) {
+	            _this.SuggestionItem.Likes -= 1;
+	            _this.UpdateLikeCountInList().then(function () {
+	                _this.UserLikesThis = false;
+	                _this.Processing = false;
+	                df.resolve(_this.SuggestionItem.Likes);
+	            });
+	        }).bind(this), function (err) {
+	            df.reject(err);
+	        });
+	        return df.promise();
+	    };
+	    Like.prototype.UpdateLikeCountInList = function () {
+	        var df = $.Deferred();
+	        var context = SP.ClientContext.get_current();
+	        var list = context.get_web().get_lists().getByTitle("Forslag");
+	        var item = list.getItemById(this.SuggestionItem.Id);
+	        item.set_item("Likes", this.SuggestionItem.Likes);
+	        item.update();
+	        context.executeQueryAsync((function (r) {
+	            df.resolve();
+	        }).bind(this), function (err) {
+	            console.log(err);
+	            df.reject(err);
+	        });
+	        return df.promise();
+	    };
+	    return Like;
 	}());
-	exports.AppFunctions = AppFunctions;
+	exports.Like = Like;
+	;
+	var Comments = (function () {
+	    function Comments() {
+	    }
+	    Comments.AllComments = function (suggestion) {
+	        var _this = this;
+	        var df = $.Deferred();
+	        ListData.getDataFromList("Kommentarer", "?$select=Kommentar,Forslag/Id,Person/Title,Created,Person/Id,Person/UserName&$expand=Forslag,Person&$filter=Forslag/Id eq " + suggestion.Id).then((function (d) {
+	            var comments = new Array();
+	            for (var i = 0; i < d.d.results.length; i++) {
+	                var item = d.d.results[i];
+	                comments.push({
+	                    Text: item.Kommentar.replace(/\r?\n/g, '<br />'),
+	                    Person: {
+	                        DisplayName: item.Person.Title,
+	                        LoginName: item.Person.UserName,
+	                        Id: item.Person.Id
+	                    },
+	                    Timestamp: _this.formatDate(item.Created),
+	                    Image: ""
+	                });
+	            }
+	            df.resolve(comments);
+	        }).bind(this), function (err) {
+	            console.log(err);
+	            df.reject();
+	        });
+	        return df.promise();
+	    };
+	    Comments.NewComment = function () {
+	    };
+	    Comments.DeleteComment = function () {
+	    };
+	    Comments.formatDate = function (netdate) {
+	        var year = netdate.substr(0, 4);
+	        var month = netdate.substr(5, 2);
+	        var day = netdate.substr(8, 2);
+	        return day + "." + month + "." + year;
+	    };
+	    return Comments;
+	}());
+	exports.Comments = Comments;
+	var Suggestion = (function () {
+	    function Suggestion(item_id) {
+	        if (item_id == undefined) {
+	            this.Id = -1;
+	            return;
+	        }
+	        this.Id = item_id;
+	    }
+	    return Suggestion;
+	}());
+	exports.Suggestion = Suggestion;
+	/* Suggestions.cs
+	   Description: Static manager class for suggestions. Wrapper for async loading.
+	*/
+	var Suggestions = (function () {
+	    function Suggestions() {
+	    }
+	    Suggestions.GetById = function (id) {
+	        var deferred = $.Deferred();
+	        var suggestions = Suggestions.GetByQuery("<View><Query><Where><Eq><FieldRef Name='ID'  /><Value Type='Number'>" + id + "</Value></Eq></Where></Query></View>")
+	            .then(function (res) {
+	            deferred.resolve(res[0]);
+	        });
+	        return deferred.promise();
+	    };
+	    Suggestions.GetAll = function () {
+	        return Suggestions.GetByQuery("");
+	    };
+	    Suggestions.GetByQuery = function (CAMLQuery) {
+	        var deferred = $.Deferred();
+	        var fArr = new Array();
+	        var query = new SP.CamlQuery();
+	        query.set_viewXml(CAMLQuery);
+	        var clientContext = SP.ClientContext.get_current();
+	        var oList = clientContext.get_web().get_lists().getByTitle('Forslag');
+	        var items = oList.getItems(query);
+	        clientContext.load(items);
+	        clientContext.executeQueryAsync(function () {
+	            if (items.get_count() <= 0) {
+	                deferred.resolve(fArr);
+	                return;
+	            }
+	            var enumerator = items.getEnumerator();
+	            while (enumerator.moveNext()) {
+	                var listItem = enumerator.get_current();
+	                var f = new Suggestion(listItem.get_item("ID"));
+	                // Init default values
+	                f.Navn = { DisplayName: "", LoginName: "", Id: -1 };
+	                f.NarmesteLeder = { DisplayName: "", LoginName: "", Id: -1 };
+	                f.ForslagType = { Id: "", Title: "" };
+	                f.Tags = new Array();
+	                // Navn SPUser
+	                var navnField = listItem.get_item('Navn');
+	                if (navnField != null) {
+	                    f.Navn = { DisplayName: navnField.get_lookupValue(),
+	                        LoginName: "",
+	                        Id: navnField.get_lookupId() };
+	                }
+	                // Manager
+	                var managerField = listItem.get_item("N_x00e6_rmeste_x0020_leder");
+	                if (managerField != null) {
+	                    f.NarmesteLeder = {
+	                        DisplayName: managerField.get_lookupValue(),
+	                        LoginName: "",
+	                        Id: managerField.get_lookupId()
+	                    };
+	                }
+	                // ForslagType 
+	                var taxField = listItem.get_item("ForslagType");
+	                if (taxField != null) {
+	                    f.ForslagType = {
+	                        Id: taxField.get_termGuid().toString(),
+	                        Title: taxField.get_label()
+	                    };
+	                }
+	                // Tags
+	                var tagsField = listItem.get_item("Tags");
+	                if (tagsField != null) {
+	                    f.Tags = Array();
+	                    var allTags = tagsField.getEnumerator();
+	                    while (allTags.moveNext()) {
+	                        var cItem = allTags.get_current();
+	                        f.Tags.push({ Id: cItem.get_termGuid().toString(),
+	                            Title: cItem.get_label() });
+	                    }
+	                }
+	                f.Adresse = listItem.get_item("Adresse");
+	                f.Attachments = listItem.get_item("Attachments");
+	                f.Avdeling = listItem.get_item("Avdeling");
+	                f.Created = listItem.get_item("Created");
+	                f.Epostadresse = listItem.get_item("E_x002d_postadresse");
+	                f.ForslagStatus = listItem.get_item("ForslagStatus");
+	                f.ForslagTilLosning = listItem.get_item("Forslag_x0020_til_x0020_l_x00f8_");
+	                f.Id = listItem.get_item("ID");
+	                f.Kommune = listItem.get_item("Kommune");
+	                f.Kommunenummer = listItem.get_item("Kommunenummer");
+	                f.Konkurransereferanse = listItem.get_item("Konkurransereferanse");
+	                f.Likes = listItem.get_item("Likes");
+	                f.NyttigForAndre = listItem.get_item("Nyttig_x0020_for_x0020_andre_x00");
+	                f.Postnummer = listItem.get_item("Postnummer");
+	                f.Telefon = listItem.get_item("Telefon");
+	                f.Utfordring = listItem.get_item("Utfordring");
+	                f.Virksomhet = listItem.get_item("Virksomhet");
+	                fArr.push(f);
+	            }
+	            deferred.resolve(fArr);
+	        }, function (sender, args) {
+	            console.log(args.get_message());
+	            deferred.reject(args);
+	        });
+	        var promiseResult = deferred.promise();
+	        return promiseResult;
+	    };
+	    Suggestions.prototype.formatDate = function (netdate) {
+	        var year = netdate.substr(0, 4);
+	        var month = netdate.substr(5, 2);
+	        var day = netdate.substr(8, 2);
+	        return day + "." + month + "." + year;
+	    };
+	    return Suggestions;
+	}());
+	exports.Suggestions = Suggestions;
 
 
 /***/ },
@@ -12611,7 +12892,7 @@
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var React = __webpack_require__(3);
-	var SPTools = __webpack_require__(11);
+	var SPTools_1 = __webpack_require__(11);
 	var SuggestionType;
 	(function (SuggestionType) {
 	    SuggestionType[SuggestionType["Submitted"] = 0] = "Submitted";
@@ -12624,8 +12905,7 @@
 	        _super.apply(this, arguments);
 	    }
 	    AllSuggestions.prototype.componentHasMounted = function () {
-	        var ld = new SPTools.ListData();
-	        ld.getDataFromList("Forslag", "").done(function (d) {
+	        SPTools_1.ListData.getDataFromList("Forslag", "").done(function (d) {
 	            // console.log(d);
 	        });
 	    };
@@ -12663,8 +12943,7 @@
 	        if (this.props.Type == SuggestionType.SuccessStories)
 	            odataFilter = "&$filter=ForslagStatus eq 'Realisert'";
 	        var sArr = new Array();
-	        var listData = new SPTools.ListData();
-	        listData.getDataFromList("Forslag", "?$select=ID,Utfordring,Likes,ForslagStatus,Forslag_x0020_til_x0020_l_x00f8_,Created,Tags,Navn/Title&$expand=Navn&$orderby=Created desc" + odataFilter)
+	        SPTools_1.ListData.getDataFromList("Forslag", "?$select=ID,Utfordring,Likes,ForslagStatus,Forslag_x0020_til_x0020_l_x00f8_,Created,Tags,Navn/Title&$expand=Navn&$orderby=Created desc" + odataFilter)
 	            .done((function (e) {
 	            _this.numSuggestions = e.d.results.length;
 	            if (_this.numSuggestions <= 0)
@@ -12789,184 +13068,39 @@
 	};
 	///<reference path="../typings/globals/sharepoint/index.d.ts" /> 
 	var React = __webpack_require__(3);
-	var SPTools = __webpack_require__(11);
-	var ForslagTool = (function () {
-	    function ForslagTool() {
-	    }
-	    ForslagTool.prototype.GetById = function (Callback, Id) {
-	        this.GetAllItems(Callback, "<View><Query><Where><Eq><FieldRef Name='ID'  /><Value Type='Number'>" + Id + "</Value></Eq></Where></Query></View>");
-	    };
-	    ForslagTool.prototype.GetAllItems = function (Callback, CAMLQuery) {
-	        var fArr = new Array();
-	        var query = new SP.CamlQuery();
-	        query.set_viewXml(CAMLQuery);
-	        var clientContext = SP.ClientContext.get_current();
-	        var oList = clientContext.get_web().get_lists().getByTitle('Forslag');
-	        var items = oList.getItems(query);
-	        clientContext.load(items);
-	        clientContext.executeQueryAsync(function () {
-	            if (items.get_count() <= 0) {
-	                Callback(fArr);
-	                return;
-	            }
-	            var enumerator = items.getEnumerator();
-	            while (enumerator.moveNext()) {
-	                var listItem = enumerator.get_current();
-	                var f = { Id: listItem.get_item("ID") };
-	                f.Navn = { DisplayName: "", LoginName: "", Id: -1 };
-	                f.NarmesteLeder = { DisplayName: "", LoginName: "", Id: -1 };
-	                f.ForslagType = { Id: "", Title: "" };
-	                f.Tags = new Array();
-	                // Navn SPUser
-	                var navnField = listItem.get_item('Navn');
-	                if (navnField != null) {
-	                    f.Navn = { DisplayName: navnField.get_lookupValue(),
-	                        LoginName: "",
-	                        Id: navnField.get_lookupId() };
-	                }
-	                // Manager
-	                var managerField = listItem.get_item("N_x00e6_rmeste_x0020_leder");
-	                if (managerField != null) {
-	                    f.NarmesteLeder = {
-	                        DisplayName: managerField.get_lookupValue(),
-	                        LoginName: "",
-	                        Id: managerField.get_lookupId()
-	                    };
-	                }
-	                // ForslagType 
-	                var taxField = listItem.get_item("ForslagType");
-	                if (taxField != null) {
-	                    f.ForslagType = {
-	                        Id: taxField.get_termGuid().toString(),
-	                        Title: taxField.get_label()
-	                    };
-	                }
-	                // Tags
-	                var tagsField = listItem.get_item("Tags");
-	                if (tagsField != null) {
-	                    f.Tags = Array();
-	                    var allTags = tagsField.getEnumerator();
-	                    while (allTags.moveNext()) {
-	                        var cItem = allTags.get_current();
-	                        f.Tags.push({ Id: cItem.get_termGuid().toString(),
-	                            Title: cItem.get_label() });
-	                    }
-	                }
-	                f.Adresse = listItem.get_item("Adresse");
-	                f.Attachments = listItem.get_item("Attachments");
-	                f.Avdeling = listItem.get_item("Avdeling");
-	                f.Created = listItem.get_item("Created");
-	                f.Epostadresse = listItem.get_item("E_x002d_postadresse");
-	                f.ForslagStatus = listItem.get_item("ForslagStatus");
-	                f.ForslagTilLosning = listItem.get_item("Forslag_x0020_til_x0020_l_x00f8_");
-	                f.Id = listItem.get_item("ID");
-	                f.Kommune = listItem.get_item("Kommune");
-	                f.Kommunenummer = listItem.get_item("Kommunenummer");
-	                f.Konkurransereferanse = listItem.get_item("Konkurransereferanse");
-	                f.Likes = listItem.get_item("Likes");
-	                f.NyttigForAndre = listItem.get_item("Nyttig_x0020_for_x0020_andre_x00");
-	                f.Postnummer = listItem.get_item("Postnummer");
-	                f.Telefon = listItem.get_item("Telefon");
-	                f.Utfordring = listItem.get_item("Utfordring");
-	                f.Virksomhet = listItem.get_item("Virksomhet");
-	                fArr.push(f);
-	            }
-	            Callback(fArr);
-	        }, function (sender, args) {
-	            console.log(args.get_message());
-	        });
-	    };
-	    ForslagTool.prototype.formatDate = function (netdate) {
-	        var year = netdate.substr(0, 4);
-	        var month = netdate.substr(5, 2);
-	        var day = netdate.substr(8, 2);
-	        return day + "." + month + "." + year;
-	    };
-	    return ForslagTool;
-	}());
+	var SPTools_1 = __webpack_require__(11);
 	var ViewSuggestion = (function (_super) {
 	    __extends(ViewSuggestion, _super);
 	    function ViewSuggestion() {
 	        _super.call(this);
-	        this.state = { Suggestion: { Id: -1, Likes: 0 }, LikesThis: false };
+	        this.state = { Suggestion: new SPTools_1.Suggestion(), Like: new SPTools_1.Like(null) };
 	        this.self = { DisplayName: "", LoginName: "", Id: _spPageContextInfo.userId };
-	        this.likeItemId = -1;
 	    }
 	    ViewSuggestion.prototype.componentWillMount = function () {
 	        var _this = this;
-	        var suggestionId = 23;
-	        // Load suggestion
-	        new ForslagTool().GetById(function (arr) {
-	            if (arr.length <= 0)
-	                return;
-	            _this.setState({ Suggestion: arr[0] });
-	        }, suggestionId);
-	        new SPTools.AppFunctions().likeStatus(suggestionId).done((function (result) {
-	            if (result.d.results.length <= 0)
-	                return;
-	            _this.setState({ LikesThis: true });
-	            _this.likeItemId = result.d.results[0].Id;
+	        var suggestionId = -1;
+	        var sId = GetUrlKeyValue("ref");
+	        if (sId == "")
+	            sId = "23"; // DEBUG ONLY, TODO:REMOVE
+	        suggestionId = parseInt(sId);
+	        SPTools_1.Suggestions.GetById(suggestionId).done((function (res) {
+	            _this.setState({ Suggestion: res });
+	            SPTools_1.Like.LoadForSuggestion(res).done((function (like) {
+	                _this.setState({ Like: like });
+	            }).bind(_this));
 	        }).bind(this));
 	    };
 	    ViewSuggestion.prototype.render = function () {
 	        if (this.state.Suggestion.Id == -1)
 	            return React.createElement("div", null);
-	        return (React.createElement("div", null, React.createElement(SuggestionDataView, {Suggestion: this.state.Suggestion, LikeEventHandler: this.HandleLikeClick.bind(this), LikesThis: this.state.LikesThis}), React.createElement(SuggestionComments, {Suggestion: this.state.Suggestion})));
+	        return (React.createElement("div", null, React.createElement(SuggestionDataView, {Suggestion: this.state.Suggestion, LikeEventHandler: this.HandleLikeClick.bind(this), Like: this.state.Like}), React.createElement(SuggestionComments, {Suggestion: this.state.Suggestion})));
 	    };
 	    ViewSuggestion.prototype.HandleLikeClick = function () {
-	        if (this.state.LikesThis)
-	            this.Unlike();
-	        else
-	            this.Like();
-	    };
-	    ViewSuggestion.prototype.Unlike = function () {
 	        var _this = this;
-	        if (this.likeItemId <= 0)
-	            return;
-	        var context = SP.ClientContext.get_current();
-	        var list = context.get_web().get_lists().getByTitle("Likerklikk");
-	        var item = list.getItemById(this.likeItemId);
-	        item.deleteObject();
-	        context.executeQueryAsync(function (r) {
-	            _this.state.Suggestion.Likes -= 1;
+	        this.state.Like.LikeUnlike().done(function (numLikes) {
+	            _this.state.Suggestion.Likes = numLikes;
 	            _this.setState({ Suggestion: _this.state.Suggestion });
-	            _this.setState({ LikesThis: false });
-	            _this.UpdateLikeCountInList();
-	        }, function (err) {
-	            console.log(err);
-	        });
-	    };
-	    ViewSuggestion.prototype.Like = function () {
-	        var _this = this;
-	        var context = SP.ClientContext.get_current();
-	        var list = context.get_web().get_lists().getByTitle("Likerklikk");
-	        var itemcreationinfo = new SP.ListItemCreationInformation();
-	        var item = list.addItem(itemcreationinfo);
-	        var suggestionFieldValue = new SP.FieldLookupValue();
-	        suggestionFieldValue.set_lookupId(this.state.Suggestion.Id);
-	        var person = new SP.FieldUserValue();
-	        person.set_lookupId(this.self.Id);
-	        item.set_item("Forslag", suggestionFieldValue);
-	        item.set_item("Person", person);
-	        this.setState({ LikesThis: true });
-	        item.update();
-	        context.load(item);
-	        context.executeQueryAsync((function (result) {
-	            _this.likeItemId = item.get_id();
-	            _this.state.Suggestion.Likes += 1;
-	            _this.setState({ Suggestion: _this.state.Suggestion });
-	            _this.UpdateLikeCountInList();
-	        }).bind(this), function (err) { console.log(err); });
-	    };
-	    ViewSuggestion.prototype.UpdateLikeCountInList = function () {
-	        var context = SP.ClientContext.get_current();
-	        var list = context.get_web().get_lists().getByTitle("Forslag");
-	        var item = list.getItemById(this.state.Suggestion.Id);
-	        console.log(this.state.Suggestion.Likes);
-	        item.set_item("Likes", this.state.Suggestion.Likes);
-	        item.update();
-	        context.executeQueryAsync((function (r) {
-	        }).bind(this), function (err) {
+	        }).fail(function (err) {
 	            console.log(err);
 	        });
 	    };
@@ -12980,7 +13114,7 @@
 	    }
 	    SuggestionDataView.prototype.render = function () {
 	        console.log(this.props.Suggestion);
-	        return (React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-6"}, React.createElement(SuggestionDataHeader, {Text: "Forslag", Display: ""}), React.createElement(SuggestionDataRow, {Text: "Forslagsstiller:", Display: this.props.Suggestion.Navn.DisplayName}), React.createElement(SuggestionDataRow, {Text: "Kommune:", Display: this.props.Suggestion.Kommune}), React.createElement(SuggestionDataRow, {Text: "Type:", Display: this.props.Suggestion.ForslagType.Title}), React.createElement(SuggestionDataRow, {Text: "Utfordring:", Display: this.props.Suggestion.Utfordring}), React.createElement(SuggestionDataRow, {Text: "Nyttig for andre?:", Display: this.props.Suggestion.NyttigForAndre}), React.createElement(SuggestionDataRow, {Text: "Forslag til løsning:", Display: this.props.Suggestion.ForslagTilLosning}), React.createElement("hr", null), React.createElement(SuggestionDataViewFooter, {Suggestion: this.props.Suggestion, LikeEventHandler: this.props.LikeEventHandler, LikesThis: this.props.LikesThis})), React.createElement("div", {className: "col-xs-6"})));
+	        return (React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12 col-md-6"}, React.createElement(SuggestionDataHeader, {Text: "Forslag", Display: ""}), React.createElement(SuggestionDataRow, {Text: "Forslagsstiller:", Display: this.props.Suggestion.Navn.DisplayName}), React.createElement(SuggestionDataRow, {Text: "Kommune:", Display: this.props.Suggestion.Kommune}), React.createElement(SuggestionDataRow, {Text: "Type:", Display: this.props.Suggestion.ForslagType.Title}), React.createElement(SuggestionDataRow, {Text: "Utfordring:", Display: this.props.Suggestion.Utfordring}), React.createElement(SuggestionDataRow, {Text: "Nyttig for andre?:", Display: this.props.Suggestion.NyttigForAndre}), React.createElement(SuggestionDataRow, {Text: "Forslag til løsning:", Display: this.props.Suggestion.ForslagTilLosning}), React.createElement("hr", null), React.createElement(SuggestionDataViewFooter, {Suggestion: this.props.Suggestion, LikeEventHandler: this.props.LikeEventHandler, Like: this.props.Like})), React.createElement("div", {className: "col-md-6"})));
 	    };
 	    return SuggestionDataView;
 	}(React.Component));
@@ -13006,8 +13140,10 @@
 	        }))));
 	    };
 	    SuggestionDataViewFooter.prototype.renderLikebutton = function () {
-	        var btnType = (this.props.LikesThis) ? "btn-primary disabled" : "btn-success";
-	        var text = (this.props.LikesThis) ? "Du liker dette" : "Godt forslag!";
+	        if (!this.props.Like.Loaded || this.props.Like.Processing)
+	            return React.createElement("div", {className: "btn-xs btn-like"});
+	        var btnType = (this.props.Like.UserLikesThis) ? "btn-primary disabled" : "btn-success";
+	        var text = (this.props.Like.UserLikesThis) ? "Du liker dette" : "Godt forslag!";
 	        return (React.createElement("div", {className: "likebutton col-xs-4"}, React.createElement("div", {className: "btn-xs btn-like " + btnType, onClick: this.handleLikeClick.bind(this)}, React.createElement("span", {className: "glyphicon glyphicon-thumbs-up"}), text)));
 	    };
 	    SuggestionDataViewFooter.prototype.render = function () {
@@ -13038,12 +13174,64 @@
 	var SuggestionComments = (function (_super) {
 	    __extends(SuggestionComments, _super);
 	    function SuggestionComments() {
-	        _super.apply(this, arguments);
+	        _super.call(this);
+	        this.state = { Comments: new Array() };
 	    }
+	    SuggestionComments.prototype.componentWillMount = function () {
+	        var _this = this;
+	        SPTools_1.Comments.AllComments(this.props.Suggestion).done((function (result) {
+	        }).bind(this)).then((function (r) {
+	            for (var i = 0; i < r.length; i++) {
+	                SPTools_1.UserProfile.GetProfileImageFor(r[i].Person.LoginName).done((function (result) {
+	                    console.log("DU");
+	                    console.log(result);
+	                    console.log(r);
+	                    console.log(r[i]);
+	                    if (result != undefined)
+	                        r[i].Image = result;
+	                }).bind(_this));
+	            }
+	            _this.setState({ Comments: r });
+	        }).bind(this));
+	        ;
+	    };
 	    SuggestionComments.prototype.render = function () {
-	        return React.createElement("div", null);
+	        return (React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12 col-md-6"}, React.createElement("hr", null), React.createElement(NewCommentBox, null), React.createElement(CommentsList, {Comments: this.state.Comments}))));
 	    };
 	    return SuggestionComments;
+	}(React.Component));
+	var NewCommentBox = (function (_super) {
+	    __extends(NewCommentBox, _super);
+	    function NewCommentBox() {
+	        _super.call(this);
+	        this.state = { Comment: { Text: "" }, ShowNewComment: false };
+	    }
+	    NewCommentBox.prototype.handleTextChanged = function (e) {
+	        this.state.Comment.Text = e.target.value;
+	        this.setState({ Comment: this.state.Comment });
+	    };
+	    NewCommentBox.prototype.handleShowNewComment = function (e) {
+	        this.setState({ ShowNewComment: !this.state.ShowNewComment });
+	    };
+	    NewCommentBox.prototype.render = function () {
+	        if (!this.state.ShowNewComment)
+	            return (React.createElement("div", {className: "row newcomment"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("div", {className: "btn-xs btn-like btn-success", onClick: this.handleShowNewComment.bind(this)}, "Ny kommentar"))));
+	        return (React.createElement("div", null, React.createElement("div", {className: "row newcomment"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("textarea", {value: this.state.Comment.Text, onChange: this.handleTextChanged.bind(this)}))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("div", {className: "btn-xs btn-like btn-success"}, "Send")))));
+	    };
+	    return NewCommentBox;
+	}(React.Component));
+	var CommentsList = (function (_super) {
+	    __extends(CommentsList, _super);
+	    function CommentsList() {
+	        _super.apply(this, arguments);
+	    }
+	    CommentsList.prototype.render = function () {
+	        console.log(this.props);
+	        return (React.createElement("div", {className: "row comments"}, React.createElement("div", {className: "col-xs-12"}, this.props.Comments.map((function (item, index) {
+	            return (React.createElement("div", {className: "comment"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-2"}, item.Image), React.createElement("div", {className: "col-xs-10"}, React.createElement("h4", null, item.Person.DisplayName), React.createElement("div", {dangerouslySetInnerHTML: { __html: item.Text }}), React.createElement("div", {className: "datefooter"}, item.Timestamp)))));
+	        }).bind(this)))));
+	    };
+	    return CommentsList;
 	}(React.Component));
 
 

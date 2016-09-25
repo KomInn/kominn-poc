@@ -2,7 +2,7 @@ import * as React from "react";
 import * as $ from "jquery";
 import "../Provisioning/SiteAssets/lib/typeahead/typeahead.jquery.js"
 import "../Provisioning/SiteAssets/lib/jquery.autogrow-textarea/jquery.autogrow-textarea.js"
-import * as SPTools from "./SPTools"
+import {ListData, UserProfile } from "./SPTools"
 
 
     class Option {
@@ -78,7 +78,7 @@ import * as SPTools from "./SPTools"
 
         resolveUser()
         {
-           var up = new SPTools.UserProfile();
+           var up = new UserProfile();
            up.ensureUser(this.state.Text).done((result:any) => {
                let user:User = {DisplayName: result.d.Title, Username:result.d.LoginName, UserId:result.d.Id  };
                this.setState({Text:user.DisplayName});
@@ -271,7 +271,7 @@ import * as SPTools from "./SPTools"
                     this.setState({konkurransereferanse: GetUrlKeyValue("ref")});
                     
                     var manager = this.findKey(props, "Manager").Value;
-                    var up = new SPTools.UserProfile();
+                    var up = new UserProfile();
                     up.ensureUser(manager).done( ((d:any) => {
                                 console.log(d);
                                 this.setState({
@@ -435,8 +435,8 @@ import * as SPTools from "./SPTools"
                 return; 
             
 
-                var ld = new SPTools.ListData();
-                ld.getDataFromList("Kommunenumre", "?$select=Kommune,Kommunenummer&$filter=Postnummer eq " + d.Value)
+                
+                ListData.getDataFromList("Kommunenumre", "?$select=Kommune,Kommunenummer&$filter=Postnummer eq " + d.Value)
                     .done((result:any) => 
                     { 
                         console.log(result);

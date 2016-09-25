@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as $ from "jquery";
-import * as SPTools from "./SPTools"
+import { ListData } from "./SPTools"
 
 export interface Forslag {
     Adresse?:string; 
@@ -33,11 +33,10 @@ export class AllSuggestions extends React.Component<void, SuggestionListState>
 {
     componentHasMounted()
     {
-        var ld = new SPTools.ListData();
-        ld.getDataFromList("Forslag", "").done( (d:any) => {
-           // console.log(d);
-        });
         
+        ListData.getDataFromList("Forslag", "").done( (d:any) => {
+           // console.log(d);
+        });        
     }
 
     render()
@@ -111,8 +110,8 @@ class SuggestionList extends React.Component<Suggestion, SuggestionListState>
         if(this.props.Type == SuggestionType.SuccessStories)
             odataFilter = "&$filter=ForslagStatus eq 'Realisert'";
         var sArr = new Array<Forslag>();
-        var listData = new SPTools.ListData();
-        listData.getDataFromList("Forslag", "?$select=ID,Utfordring,Likes,ForslagStatus,Forslag_x0020_til_x0020_l_x00f8_,Created,Tags,Navn/Title&$expand=Navn&$orderby=Created desc" + odataFilter )        
+        
+        ListData.getDataFromList("Forslag", "?$select=ID,Utfordring,Likes,ForslagStatus,Forslag_x0020_til_x0020_l_x00f8_,Created,Tags,Navn/Title&$expand=Navn&$orderby=Created desc" + odataFilter )        
         .done( ((e:any) => { 
                 this.numSuggestions  = e.d.results.length; 
                 if(this.numSuggestions <= 0)

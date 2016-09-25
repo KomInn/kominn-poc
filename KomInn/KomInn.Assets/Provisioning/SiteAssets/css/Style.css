@@ -215,3 +215,9 @@ hr {
   .dataviewfooter .likes {
     font-size: 19px;
     margin-top: 3px; }
+
+.newcomment textarea {
+  width: 100%; }
+
+.newcomment .btn-success {
+  width: 200px; }
