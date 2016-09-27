@@ -41,8 +41,7 @@ import {ListData, UserProfile } from "./SPTools"
 
     class TextField extends React.Component<InputFieldProps, {}>
     {
-        render() {
-            
+        render() {            
             return <div className="form-group"><label>{this.props.Label}</label> 
             <input type="text" className="form-control" onChange={this.handleChange.bind(this)} value={this.props.Value} placeholder={this.props.Placeholder}  /></div>
         }
@@ -78,8 +77,8 @@ import {ListData, UserProfile } from "./SPTools"
 
         resolveUser()
         {
-           var up = new UserProfile();
-           up.ensureUser(this.state.Text).done((result:any) => {
+           
+           UserProfile.ensureUser(this.state.Text).done((result:any) => {
                let user:User = {DisplayName: result.d.Title, Username:result.d.LoginName, UserId:result.d.Id  };
                this.setState({Text:user.DisplayName});
                this.props.UsernameResolvedHandler(user);              
@@ -120,7 +119,7 @@ import {ListData, UserProfile } from "./SPTools"
         render(){          
             return <div className="form-group"><label>{this.props.Label}</label>
                 <div id="bloodhound">
-                    <input className="typeahead form-control" type="text" />
+                    <input className="typeahead form-control" value={""} type="text" />
                 </div>
             </div>      
         }
@@ -225,11 +224,7 @@ import {ListData, UserProfile } from "./SPTools"
 
     interface UserProfileProperty { Key:string, Value:string, ValueType:string };
 
-    export class NewSuggestionForm extends React.Component<void, FormDataState> {   
-        
-        state:FormDataState;
-        
-        
+    export class NewSuggestionForm extends React.Component<void, FormDataState> {  
         constructor() {
             super(); 
             
@@ -270,9 +265,8 @@ import {ListData, UserProfile } from "./SPTools"
                     this.setState({dato:this.getTodaysDate()});
                     this.setState({konkurransereferanse: GetUrlKeyValue("ref")});
                     
-                    var manager = this.findKey(props, "Manager").Value;
-                    var up = new UserProfile();
-                    up.ensureUser(manager).done( ((d:any) => {
+                    var manager = this.findKey(props, "Manager").Value;                    
+                    UserProfile.ensureUser(manager).done( ((d:any) => {
                                 console.log(d);
                                 this.setState({
                                     leder: {
@@ -500,7 +494,7 @@ import {ListData, UserProfile } from "./SPTools"
                     <h1>Takk for ditt bidrag!</h1>
                     <p>Du hører fra oss snarlig.</p>
                    
-                    <a href="/SitePages/Home.aspx">Tilbake til oversikten</a>
+                    <a href="../SitePages/Home.aspx">Tilbake til oversikten</a>
                 </div>
             </div>
         }

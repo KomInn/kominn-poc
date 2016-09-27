@@ -185,7 +185,7 @@ body {
   margin-right: 3px !important; }
 
 .iconspace {
-  margin-left: 10px; }
+  margin-right: 10px; }
 
 hr {
   margin-top: 5px;
@@ -216,8 +216,31 @@ hr {
     font-size: 19px;
     margin-top: 3px; }
 
-.newcomment textarea {
-  width: 100%; }
+.newcomment {
+  margin-bottom: 10px; }
+  .newcomment textarea {
+    width: 100%; }
+  .newcomment .btn-success {
+    padding: 5px;
+    margin-top: 5px;
+    cursor: pointer;
+    text-align: center; }
+  .newcomment .btn-newcomment {
+    width: 110px; }
+  .newcomment .btn-send {
+    width: 40px; }
 
-.newcomment .btn-success {
-  width: 200px; }
+.comments .comment {
+  margin-top: 10px; }
+  .comments .comment h4 {
+    margin-top: 0; }
+
+.comments .profilepicture {
+  border-radius: 100%;
+  font-size: 70px; }
+
+.comments .datefooter {
+  font-size: 9px; }
+
+.clickable {
+  cursor: pointer; }

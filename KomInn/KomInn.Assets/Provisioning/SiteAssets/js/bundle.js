@@ -161,8 +161,7 @@
 	    };
 	    SPUserField.prototype.resolveUser = function () {
 	        var _this = this;
-	        var up = new SPTools_1.UserProfile();
-	        up.ensureUser(this.state.Text).done(function (result) {
+	        SPTools_1.UserProfile.ensureUser(this.state.Text).done(function (result) {
 	            var user = { DisplayName: result.d.Title, Username: result.d.LoginName, UserId: result.d.Id };
 	            _this.setState({ Text: user.DisplayName });
 	            _this.props.UsernameResolvedHandler(user);
@@ -190,7 +189,7 @@
 	        ExecuteOrDelayUntilScriptLoaded((function () { _this.getTaxonomyArray(_this.props.Termset, _this.props.LCID); }).bind(this), "sp.js");
 	    };
 	    SPTaxonomyField.prototype.render = function () {
-	        return React.createElement("div", {className: "form-group"}, React.createElement("label", null, this.props.Label), React.createElement("div", {id: "bloodhound"}, React.createElement("input", {className: "typeahead form-control", type: "text"})));
+	        return React.createElement("div", {className: "form-group"}, React.createElement("label", null, this.props.Label), React.createElement("div", {id: "bloodhound"}, React.createElement("input", {className: "typeahead form-control", value: "", type: "text"})));
 	    };
 	    SPTaxonomyField.prototype.handleChange = function (event) {
 	        this.props.OnChangeHandler({ Value: event.target.value, Name: this.props.Name });
@@ -282,8 +281,7 @@
 	            this.setState({ dato: this.getTodaysDate() });
 	            this.setState({ konkurransereferanse: GetUrlKeyValue("ref") });
 	            var manager = this.findKey(props, "Manager").Value;
-	            var up = new SPTools_1.UserProfile();
-	            up.ensureUser(manager).done((function (d) {
+	            SPTools_1.UserProfile.ensureUser(manager).done((function (d) {
 	                console.log(d);
 	                _this.setState({
 	                    leder: {
@@ -429,7 +427,7 @@
 	        _super.apply(this, arguments);
 	    }
 	    ThankYouPage.prototype.render = function () {
-	        return React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("h1", null, "Takk for ditt bidrag!"), React.createElement("p", null, "Du hører fra oss snarlig."), React.createElement("a", {href: "/SitePages/Home.aspx"}, "Tilbake til oversikten")));
+	        return React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("h1", null, "Takk for ditt bidrag!"), React.createElement("p", null, "Du hører fra oss snarlig."), React.createElement("a", {href: "../SitePages/Home.aspx"}, "Tilbake til oversikten")));
 	    };
 	    return ThankYouPage;
 	}(React.Component));
@@ -12554,12 +12552,19 @@
 	*/
 	"use strict";
 	$.ajaxSetup({ headers: { "Accept": "application/json;odata=verbose" } });
+	(function (SuggestionType) {
+	    SuggestionType[SuggestionType["Submitted"] = 0] = "Submitted";
+	    SuggestionType[SuggestionType["SuccessStories"] = 1] = "SuccessStories";
+	})(exports.SuggestionType || (exports.SuggestionType = {}));
+	var SuggestionType = exports.SuggestionType;
+	;
 	var UserProfile = (function () {
 	    function UserProfile() {
 	    }
-	    UserProfile.prototype.ensureUser = function (username) {
+	    UserProfile.ensureUser = function (username) {
+	        var df = $.Deferred();
 	        var payload = { 'logonName': username };
-	        return $.ajax({
+	        $.ajax({
 	            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/ensureuser",
 	            type: "POST",
 	            contentType: "application/json;odata=verbose",
@@ -12567,22 +12572,46 @@
 	            headers: {
 	                "X-RequestDigest": $("#__REQUESTDIGEST").val(),
 	                "accept": "application/json;odata=verbose"
-	            } }).then(function (data) { return data; })
-	            .fail(function (err) { return err; });
+	            } }).then(function (data) { df.resolve(data); })
+	            .fail(function (err) {
+	            df.reject();
+	        });
+	        return df.promise();
 	    };
 	    // Returns the profile picture URL for the specified user
 	    UserProfile.GetProfileImageFor = function (username) {
 	        var df = $.Deferred();
-	        new UserProfile().ensureUser(username).done(function (user) {
-	            console.log(user);
-	            return $.get(_spPageContextInfo.webAbsoluteUrl +
-	                "/_api/sp.userprofiles.peoplemanager/GetPropertiesFor(accountname=@v)?@v='" + user.d.LoginName.replace("#", "%23") + "'").done(function (res) {
-	                console.log(res);
-	                console.log(res.d.PictureUrl);
+	        UserProfile.ensureUser(username)
+	            .done(function (user) {
+	            $.get(_spPageContextInfo.webAbsoluteUrl +
+	                "/_api/sp.userprofiles.peoplemanager/GetPropertiesFor(accountname=@v)?@v='" + user.d.LoginName.replace("#", "%23") + "'")
+	                .done(function (res) {
 	                df.resolve(res.d.PictureUrl);
 	            });
 	        });
 	        return df.promise();
+	    };
+	    UserProfile.GetIUserById = function (id) {
+	        var _this = this;
+	        var df = $.Deferred();
+	        var user;
+	        $.get(_spPageContextInfo.webAbsoluteUrl + "/_api/web/getuserbyid(" + id + ")")
+	            .done(function (result) {
+	            user = {
+	                DisplayName: result.d.Title,
+	                Id: result.d.Id,
+	                LoginName: _this.CleanLoginName(result.d.LoginName)
+	            };
+	            df.resolve(user);
+	        })
+	            .fail(function (err) {
+	            console.log("Failed to retrieve user by id");
+	            df.reject();
+	        });
+	        return df.promise();
+	    };
+	    UserProfile.CleanLoginName = function (loginname) {
+	        return encodeURIComponent(loginname);
 	    };
 	    return UserProfile;
 	}());
@@ -12722,12 +12751,12 @@
 	    Comments.AllComments = function (suggestion) {
 	        var _this = this;
 	        var df = $.Deferred();
-	        ListData.getDataFromList("Kommentarer", "?$select=Kommentar,Forslag/Id,Person/Title,Created,Person/Id,Person/UserName&$expand=Forslag,Person&$filter=Forslag/Id eq " + suggestion.Id).then((function (d) {
+	        ListData.getDataFromList("Kommentarer", "?$select=Kommentar,Forslag/Id,Person/Title,Created,Person/Id,Person/UserName&$expand=Forslag,Person&$filter=Forslag/Id eq " + suggestion.Id + "&$orderby=Created desc").then((function (d) {
 	            var comments = new Array();
 	            for (var i = 0; i < d.d.results.length; i++) {
 	                var item = d.d.results[i];
 	                comments.push({
-	                    Text: item.Kommentar.replace(/\r?\n/g, '<br />'),
+	                    Text: item.Kommentar,
 	                    Person: {
 	                        DisplayName: item.Person.Title,
 	                        LoginName: item.Person.UserName,
@@ -12744,9 +12773,91 @@
 	        });
 	        return df.promise();
 	    };
-	    Comments.NewComment = function () {
+	    // Determine role based on retriever data from roledata. 
+	    Comments.DetermineRole = function (userId, roleData) {
+	        var role = "Ansatt";
+	        if (roleData.d.results.length <= 0)
+	            return role;
+	        var roleItem = roleData.d.results[0];
+	        if (userId == roleItem.Navn.Id)
+	            role = "Forslagsstiller";
+	        if (roleItem.Saksbehandler.hasOwnProperty("Id")) {
+	            if (userId == roleItem.Saksbehandler.Id)
+	                role = "Saksbehandler";
+	        }
+	        return role;
 	    };
-	    Comments.DeleteComment = function () {
+	    Comments.NewComment = function (text, suggestionListItemId) {
+	        var _this = this;
+	        var df = $.Deferred();
+	        if (text.length <= 0 || text == undefined) {
+	            df.reject();
+	            return;
+	        }
+	        // Retrieve role
+	        ListData.getDataFromList("Forslag", "?$select=Created,Id,Navn/Id,Saksbehandler/Id&$expand=Navn,Saksbehandler&$filter=Id eq " + suggestionListItemId).done((function (roleData) {
+	            var context = SP.ClientContext.get_current();
+	            var list = context.get_web().get_lists().getByTitle("Kommentarer");
+	            var itemcreationinfo = new SP.ListItemCreationInformation();
+	            var item = list.addItem(itemcreationinfo);
+	            var userId = _spPageContextInfo.userId;
+	            item.set_item("Kommentar", text);
+	            var person = new SP.FieldUserValue();
+	            person.set_lookupId(_spPageContextInfo.userId);
+	            item.set_item("Person", person);
+	            var relSuggestionField = new SP.FieldLookupValue();
+	            relSuggestionField.set_lookupId(suggestionListItemId);
+	            item.set_item("Forslag", relSuggestionField);
+	            var rolle = _this.DetermineRole(userId, roleData);
+	            item.set_item("Rolle", rolle);
+	            item.update();
+	            context.load(item);
+	            context.executeQueryAsync(function (result) {
+	                _this.incrementNumCommentsOnSuggestionList(suggestionListItemId)
+	                    .done(function () {
+	                    // Get own properties 
+	                    UserProfile.GetIUserById(userId)
+	                        .done(function (user) {
+	                        console.log("USER");
+	                        console.log(user);
+	                        var comment = {
+	                            Person: user,
+	                            Role: rolle,
+	                            Text: text,
+	                            Timestamp: item.get_item("Created").format('dd.MM.yyyy'),
+	                            Image: ""
+	                        };
+	                        df.resolve(comment);
+	                    });
+	                });
+	            }, function (err) {
+	                console.log(err);
+	                df.reject(err);
+	            });
+	        }).bind(this));
+	        return df.promise();
+	    };
+	    Comments.incrementNumCommentsOnSuggestionList = function (listitem_id) {
+	        var _this = this;
+	        var df = $.Deferred();
+	        ListData.getDataFromList("Forslag", "?$select=AntallKommentarer&$filter=Id eq " + listitem_id)
+	            .done(function (result) {
+	            var numComments = result.d.results[0].AntallKommentarer;
+	            if (numComments == undefined || numComments == null)
+	                numComments = 0;
+	            var context = SP.ClientContext.get_current();
+	            var list = context.get_web().get_lists().getByTitle("Forslag");
+	            var item = list.getItemById(listitem_id);
+	            item.set_item("AntallKommentarer", numComments + 1);
+	            item.update();
+	            context.executeQueryAsync((function (r) {
+	                df.resolve();
+	            }).bind(_this), function (err) {
+	                console.log(err);
+	                df.reject(err);
+	            });
+	        });
+	        return df.promise();
 	    };
 	    Comments.formatDate = function (netdate) {
 	        var year = netdate.substr(0, 4);
@@ -12768,9 +12879,6 @@
 	    return Suggestion;
 	}());
 	exports.Suggestion = Suggestion;
-	/* Suggestions.cs
-	   Description: Static manager class for suggestions. Wrapper for async loading.
-	*/
 	var Suggestions = (function () {
 	    function Suggestions() {
 	    }
@@ -12846,7 +12954,7 @@
 	                f.Adresse = listItem.get_item("Adresse");
 	                f.Attachments = listItem.get_item("Attachments");
 	                f.Avdeling = listItem.get_item("Avdeling");
-	                f.Created = listItem.get_item("Created");
+	                f.Created = listItem.get_item("Created").format("dd.MM.yyyy");
 	                f.Epostadresse = listItem.get_item("E_x002d_postadresse");
 	                f.ForslagStatus = listItem.get_item("ForslagStatus");
 	                f.ForslagTilLosning = listItem.get_item("Forslag_x0020_til_x0020_l_x00f8_");
@@ -12860,6 +12968,7 @@
 	                f.Telefon = listItem.get_item("Telefon");
 	                f.Utfordring = listItem.get_item("Utfordring");
 	                f.Virksomhet = listItem.get_item("Virksomhet");
+	                f.AntallKommentarer = listItem.get_item("AntallKommentarer");
 	                fArr.push(f);
 	            }
 	            deferred.resolve(fArr);
@@ -12869,6 +12978,22 @@
 	        });
 	        var promiseResult = deferred.promise();
 	        return promiseResult;
+	    };
+	    Suggestions.partitionSuggestions = function (suggestions, partitionSize) {
+	        var df = $.Deferred();
+	        var p = Array();
+	        var partition = new Array();
+	        for (var i = 0; i < suggestions.length; i++) {
+	            partition.push(suggestions[i]);
+	            if (partition.length == partitionSize) {
+	                p.push(partition);
+	                partition = new Array();
+	            }
+	        }
+	        if (partition.length > 0)
+	            p.push(partition);
+	        df.resolve(p);
+	        return df.promise();
 	    };
 	    Suggestions.prototype.formatDate = function (netdate) {
 	        var year = netdate.substr(0, 4);
@@ -12885,6 +13010,14 @@
 /* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
+	// Structure tree
+	/*
+	    AllSuggestions
+	        - NewSuggestionButton
+	        - SuggestionList
+	            - CarouselViewItem
+	            - CarouselItem
+	*/
 	"use strict";
 	var __extends = (this && this.__extends) || function (d, b) {
 	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -12893,24 +13026,13 @@
 	};
 	var React = __webpack_require__(3);
 	var SPTools_1 = __webpack_require__(11);
-	var SuggestionType;
-	(function (SuggestionType) {
-	    SuggestionType[SuggestionType["Submitted"] = 0] = "Submitted";
-	    SuggestionType[SuggestionType["SuccessStories"] = 1] = "SuccessStories";
-	})(SuggestionType || (SuggestionType = {}));
-	;
 	var AllSuggestions = (function (_super) {
 	    __extends(AllSuggestions, _super);
 	    function AllSuggestions() {
 	        _super.apply(this, arguments);
 	    }
-	    AllSuggestions.prototype.componentHasMounted = function () {
-	        SPTools_1.ListData.getDataFromList("Forslag", "").done(function (d) {
-	            // console.log(d);
-	        });
-	    };
 	    AllSuggestions.prototype.render = function () {
-	        return React.createElement("div", null, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-2"}, React.createElement("h1", null, "KomInn")), React.createElement("div", {className: "col-xs-4"}, React.createElement(NewSuggestionButton, null)), React.createElement("div", {className: "col-xs-6"})), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("p", null, "KomInn er en kommunal forslagsportal der du kan foreslå forbedringer og skape nye ideer."))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement(SuggestionList, {Type: SuggestionType.Submitted, Title: "Mottatte forslag"}))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement(SuggestionList, {Type: SuggestionType.SuccessStories, Title: "Suksesshistorier"}))));
+	        return (React.createElement("div", null, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-2"}, React.createElement("h1", null, "KomInn")), React.createElement("div", {className: "col-xs-4"}, React.createElement(NewSuggestionButton, null)), React.createElement("div", {className: "col-xs-6"})), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("p", null, "KomInn er en kommunal forslagsportal der du kan foreslå forbedringer og skape nye ideer."))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement(SuggestionList, {Type: SPTools_1.SuggestionType.Submitted, Title: "Mottatte forslag"}))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement(SuggestionList, {Type: SPTools_1.SuggestionType.SuccessStories, Title: "Suksesshistorier"})))));
 	    };
 	    return AllSuggestions;
 	}(React.Component));
@@ -12924,7 +13046,7 @@
 	        window.location.href = "./NyttForslag.aspx";
 	    };
 	    NewSuggestionButton.prototype.render = function () {
-	        return React.createElement("div", {className: "btn-success btn-lg", onClick: this.redirectToNewSuggestion}, "Send inn ditt forslag!");
+	        return (React.createElement("div", {className: "btn-success btn-lg", onClick: this.redirectToNewSuggestion}, "Send inn ditt forslag!"));
 	    };
 	    return NewSuggestionButton;
 	}(React.Component));
@@ -12933,52 +13055,30 @@
 	    function SuggestionList() {
 	        _super.call(this);
 	        this.id = SP.Guid.newGuid().toString();
-	        this.state = { partitions: new Array(), windowWidth: window.innerWidth, suggestions: new Array() };
-	        this.numSuggestions = 0;
+	        this.state = { partitions: new Array(),
+	            windowWidth: window.innerWidth,
+	            suggestions: new Array() };
 	        window.addEventListener('resize', this.handleResize.bind(this));
 	    }
 	    SuggestionList.prototype.componentWillMount = function () {
 	        var _this = this;
-	        var odataFilter = "&$filter=ForslagStatus ne 'Realisert'";
-	        if (this.props.Type == SuggestionType.SuccessStories)
-	            odataFilter = "&$filter=ForslagStatus eq 'Realisert'";
-	        var sArr = new Array();
-	        SPTools_1.ListData.getDataFromList("Forslag", "?$select=ID,Utfordring,Likes,ForslagStatus,Forslag_x0020_til_x0020_l_x00f8_,Created,Tags,Navn/Title&$expand=Navn&$orderby=Created desc" + odataFilter)
-	            .done((function (e) {
-	            _this.numSuggestions = e.d.results.length;
-	            if (_this.numSuggestions <= 0)
-	                return;
-	            for (var _i = 0, _a = e.d.results; _i < _a.length; _i++) {
-	                var item = _a[_i];
-	                sArr.push({ ForslagTilLosning: item.Forslag_x0020_til_x0020_l_x00f8_,
-	                    Created: _this.formatDate(item.Created),
-	                    Utfordring: item.Utfordring,
-	                    Likes: item.Likes,
-	                    Navn: item.Navn.Title,
-	                    AntallKommentarer: "0",
-	                    Tags: "Fag" });
-	            }
-	            _this.setState({ suggestions: sArr });
-	            _this.partitionSuggestions(sArr, 4);
-	        }).bind(this))
-	            .fail(function (e) { console.log(e); });
-	    };
-	    SuggestionList.prototype.partitionSuggestions = function (forslag, partitionSize) {
-	        var p = Array();
-	        var partition = new Array();
-	        for (var i = 0; i < forslag.length; i++) {
-	            partition.push(forslag[i]);
-	            if (partition.length == partitionSize) {
-	                p.push(partition);
-	                partition = new Array();
-	            }
-	        }
-	        if (partition.length > 0)
-	            p.push(partition);
-	        this.setState({ partitions: p });
+	        var CAMLQuery = "<View><Query><Where><Neq><FieldRef Name='ForslagStatus'  /><Value Type='Text'>Realisert</Value></Neq></Where></Query></View>";
+	        if (this.props.Type == SPTools_1.SuggestionType.SuccessStories)
+	            CAMLQuery = "<View><Query><Where><Eq><FieldRef Name='ForslagStatus'  /><Value Type='Text'>Realisert</Value></Eq></Where></Query></View>";
+	        SPTools_1.Suggestions.GetByQuery(CAMLQuery)
+	            .done((function (result) {
+	            _this.setState({ suggestions: result });
+	            SPTools_1.Suggestions.partitionSuggestions(result, 4)
+	                .done((function (computedPartitions) {
+	                _this.setState({ partitions: computedPartitions });
+	            }).bind(_this));
+	        }).bind(this));
 	    };
 	    SuggestionList.prototype.handleResize = function () {
+	        var _this = this;
 	        this.setState({ windowWidth: window.innerWidth });
+	        if (this.state.suggestions.length <= 0)
+	            return;
 	        var width = this.state.windowWidth;
 	        var parts = 4;
 	        if (width <= 544)
@@ -12991,7 +13091,10 @@
 	            parts = 3;
 	        else if (width >= 1200)
 	            parts = 4;
-	        this.partitionSuggestions(this.state.suggestions, parts);
+	        SPTools_1.Suggestions.partitionSuggestions(this.state.suggestions, parts)
+	            .done((function (computedPartitions) {
+	            _this.setState({ partitions: computedPartitions });
+	        }).bind(this));
 	    };
 	    SuggestionList.prototype.formatDate = function (netdate) {
 	        var year = netdate.substr(0, 4);
@@ -13001,7 +13104,7 @@
 	    };
 	    SuggestionList.prototype.renderIndicators = function () {
 	        var _this = this;
-	        if (this.numSuggestions <= 3)
+	        if (this.state.suggestions.length <= 3)
 	            return React.createElement("div", null);
 	        return (React.createElement("div", {className: "carousel-indicators-wrap"}, React.createElement("a", {className: "carousel-control left glyphicon glyphicon-chevron-left ", href: '#' + this.id, "data-slide": "prev"}), React.createElement("ol", {className: "carousel-indicators"}, this.state.partitions.map(function (item, index) {
 	            var active = (index == 0) ? "active" : "";
@@ -13009,12 +13112,10 @@
 	        })), React.createElement("a", {className: "carousel-control right glyphicon glyphicon-chevron-right", href: '#' + this.id, "data-slide": "next"})));
 	    };
 	    SuggestionList.prototype.render = function () {
-	        if (this.numSuggestions <= 0)
+	        if (this.state.suggestions.length <= 0)
 	            return React.createElement("div", null);
-	        console.log("RENDERING!");
-	        console.log(this.state);
 	        return (React.createElement("div", null, React.createElement("h1", null, this.props.Title), React.createElement("div", {id: this.id, className: "carousel slide", "data-interval": "false"}, React.createElement("div", {className: "carousel-inner"}, this.state.partitions.map(function (item, index) {
-	            return React.createElement(CarouselViewItem, {forslag: item, index: index});
+	            return React.createElement(CarouselViewItem, {suggestions: item, index: index});
 	        })), this.renderIndicators())));
 	    };
 	    return SuggestionList;
@@ -13026,9 +13127,8 @@
 	    }
 	    CarouselViewItem.prototype.render = function () {
 	        var active = (this.props.index == 0) ? "active" : "";
-	        console.log(this.props.index);
-	        return (React.createElement("div", {className: "item " + active}, React.createElement("div", {className: "row"}, this.props.forslag.map(function (item, index) {
-	            return React.createElement(CarouselItem, {forslag: item});
+	        return (React.createElement("div", {className: "item " + active}, React.createElement("div", {className: "row"}, this.props.suggestions.map(function (item, index) {
+	            return React.createElement(CarouselItem, {suggestion: item});
 	        }))));
 	    };
 	    return CarouselViewItem;
@@ -13039,18 +13139,26 @@
 	        _super.apply(this, arguments);
 	    }
 	    CarouselItem.prototype.renderTags = function () {
-	        if (this.props.forslag.Tags == null)
+	        if (this.props.suggestion.ForslagType.Id.length <= 0)
 	            return;
-	        return (React.createElement("span", null, React.createElement("span", {className: "icon glyphicon glyphicon-tag iconspace"}), this.props.forslag.Tags));
+	        return (React.createElement("span", {className: "iconspace"}, React.createElement("span", {className: "icon glyphicon glyphicon-tag"}), this.props.suggestion.ForslagType.Title));
 	    };
 	    CarouselItem.prototype.renderLikes = function () {
-	        if (this.props.forslag.Likes == null)
+	        if (this.props.suggestion.Likes == null)
 	            return;
-	        return (React.createElement("span", null, React.createElement("span", {className: "icon glyphicon glyphicon-thumbs-up"}), this.props.forslag.Likes));
+	        return (React.createElement("span", {className: "iconspace"}, React.createElement("span", {className: "icon glyphicon glyphicon-thumbs-up"}), this.props.suggestion.Likes));
+	    };
+	    CarouselItem.prototype.renderComments = function () {
+	        if (this.props.suggestion.AntallKommentarer <= 0 || this.props.suggestion.AntallKommentarer == undefined)
+	            return;
+	        return (React.createElement("span", {className: "iconspace"}, React.createElement("span", {className: "icon glyphicon glyphicon-comment iconspace"}), this.props.suggestion.AntallKommentarer));
+	    };
+	    CarouselItem.prototype.redirect = function () {
+	        window.location.href = "Forslag.aspx?ref=" + this.props.suggestion.Id;
 	    };
 	    CarouselItem.prototype.render = function () {
 	        var fullWidth = (window.innerWidth < 544) ? "fullwidth" : "";
-	        return (React.createElement("div", {className: "col-sm-4 col-xs-6 col-md-4 col-lg-3 " + fullWidth}, React.createElement("section", {className: "ki-shadow-box-item " + fullWidth}, React.createElement("article", {className: "carousel-item kiGradient"}, React.createElement("header", null, this.props.forslag.Utfordring), React.createElement("main", {className: ""}, React.createElement("p", null, this.props.forslag.ForslagTilLosning)), React.createElement("footer", null, React.createElement("span", {className: "icon glyphicon glyphicon-thumbs-up"}), this.props.forslag.Likes, React.createElement("span", {className: "icon glyphicon glyphicon-comment iconspace"}), this.props.forslag.AntallKommentarer, this.renderTags(), React.createElement("div", {className: "dateperson"}, React.createElement("span", {className: "glyphicon glyphicon-calendar"}), this.props.forslag.Created, React.createElement("span", {className: "glyphicon glyphicon-user iconspace"}), this.props.forslag.Navn))))));
+	        return (React.createElement("div", {className: "col-sm-4 col-xs-6 col-md-4 col-lg-3 " + fullWidth}, React.createElement("section", {className: "ki-shadow-box-item " + fullWidth}, React.createElement("article", {className: "carousel-item kiGradient clickable", onClick: this.redirect.bind(this)}, React.createElement("header", null, this.props.suggestion.Utfordring), React.createElement("main", {className: ""}, React.createElement("p", null, this.props.suggestion.ForslagTilLosning)), React.createElement("footer", null, this.renderLikes(), this.renderComments(), this.renderTags(), React.createElement("div", {className: "dateperson"}, React.createElement("span", {className: "glyphicon glyphicon-calendar"}), this.props.suggestion.Created, React.createElement("span", {className: "glyphicon glyphicon-user iconspace"}), this.props.suggestion.Navn.DisplayName))))));
 	    };
 	    return CarouselItem;
 	}(React.Component));
@@ -13180,23 +13288,17 @@
 	    SuggestionComments.prototype.componentWillMount = function () {
 	        var _this = this;
 	        SPTools_1.Comments.AllComments(this.props.Suggestion).done((function (result) {
-	        }).bind(this)).then((function (r) {
-	            for (var i = 0; i < r.length; i++) {
-	                SPTools_1.UserProfile.GetProfileImageFor(r[i].Person.LoginName).done((function (result) {
-	                    console.log("DU");
-	                    console.log(result);
-	                    console.log(r);
-	                    console.log(r[i]);
-	                    if (result != undefined)
-	                        r[i].Image = result;
-	                }).bind(_this));
-	            }
-	            _this.setState({ Comments: r });
+	            _this.setState({ Comments: result });
 	        }).bind(this));
-	        ;
+	    };
+	    SuggestionComments.prototype.newCommentAddedHandler = function (newcomment) {
+	        console.log(newcomment);
+	        var comments = this.state.Comments;
+	        comments.unshift(newcomment);
+	        this.setState({ Comments: comments });
 	    };
 	    SuggestionComments.prototype.render = function () {
-	        return (React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12 col-md-6"}, React.createElement("hr", null), React.createElement(NewCommentBox, null), React.createElement(CommentsList, {Comments: this.state.Comments}))));
+	        return (React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12 col-md-6"}, React.createElement("hr", null), React.createElement(NewCommentBox, {Suggestion: this.props.Suggestion, NewCommentAddedHandler: this.newCommentAddedHandler.bind(this)}), React.createElement(CommentsList, {Comments: this.state.Comments}))));
 	    };
 	    return SuggestionComments;
 	}(React.Component));
@@ -13213,10 +13315,20 @@
 	    NewCommentBox.prototype.handleShowNewComment = function (e) {
 	        this.setState({ ShowNewComment: !this.state.ShowNewComment });
 	    };
+	    NewCommentBox.prototype.saveNewComment = function () {
+	        var _this = this;
+	        SPTools_1.Comments.NewComment(this.state.Comment.Text, this.props.Suggestion.Id).done((function (comment) {
+	            _this.props.NewCommentAddedHandler(comment);
+	            var c = _this.state.Comment;
+	            c.Text = "";
+	            _this.setState({ Comment: c });
+	            _this.setState({ ShowNewComment: false });
+	        }).bind(this));
+	    };
 	    NewCommentBox.prototype.render = function () {
 	        if (!this.state.ShowNewComment)
-	            return (React.createElement("div", {className: "row newcomment"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("div", {className: "btn-xs btn-like btn-success", onClick: this.handleShowNewComment.bind(this)}, "Ny kommentar"))));
-	        return (React.createElement("div", null, React.createElement("div", {className: "row newcomment"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("textarea", {value: this.state.Comment.Text, onChange: this.handleTextChanged.bind(this)}))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("div", {className: "btn-xs btn-like btn-success"}, "Send")))));
+	            return (React.createElement("div", {className: "row newcomment"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("div", {className: "btn-xs btn-like btn-success btn-newcomment", onClick: this.handleShowNewComment.bind(this)}, "Ny kommentar"))));
+	        return (React.createElement("div", {className: "newcomment"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("label", null, "Skriv kommentar"), React.createElement("textarea", {value: this.state.Comment.Text, onChange: this.handleTextChanged.bind(this)}))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("div", {className: "btn-xs btn-success btn-send", onClick: this.saveNewComment.bind(this)}, "Send")))));
 	    };
 	    return NewCommentBox;
 	}(React.Component));
@@ -13228,10 +13340,37 @@
 	    CommentsList.prototype.render = function () {
 	        console.log(this.props);
 	        return (React.createElement("div", {className: "row comments"}, React.createElement("div", {className: "col-xs-12"}, this.props.Comments.map((function (item, index) {
-	            return (React.createElement("div", {className: "comment"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-2"}, item.Image), React.createElement("div", {className: "col-xs-10"}, React.createElement("h4", null, item.Person.DisplayName), React.createElement("div", {dangerouslySetInnerHTML: { __html: item.Text }}), React.createElement("div", {className: "datefooter"}, item.Timestamp)))));
+	            return React.createElement(CommentItem, {comment: item});
 	        }).bind(this)))));
 	    };
 	    return CommentsList;
+	}(React.Component));
+	var CommentItem = (function (_super) {
+	    __extends(CommentItem, _super);
+	    function CommentItem() {
+	        _super.call(this);
+	        this.state = { ImageUrl: "" };
+	    }
+	    CommentItem.prototype.componentWillMount = function () {
+	        var _this = this;
+	        SPTools_1.UserProfile.GetProfileImageFor(this.props.comment.Person.LoginName)
+	            .done((function (result) {
+	            if (result == undefined)
+	                return;
+	            _this.setState({ ImageUrl: result });
+	        }).bind(this));
+	    };
+	    CommentItem.prototype.RenderProfileImage = function () {
+	        if (this.state.ImageUrl != null && this.state.ImageUrl.length > 0)
+	            return React.createElement("img", {src: this.state.ImageUrl, className: "profilepicture"});
+	        return React.createElement("span", {className: "glyphicon glyphicon-user profilepicture"});
+	    };
+	    CommentItem.prototype.render = function () {
+	        return (React.createElement("div", {className: "comment"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-2"}, this.RenderProfileImage()), React.createElement("div", {className: "col-xs-10"}, React.createElement("h4", null, this.props.comment.Person.DisplayName), React.createElement("div", null, this.props.comment.Text.split("\n").map(function (item) {
+	            return (React.createElement("span", null, item, React.createElement("br", null)));
+	        })), React.createElement("div", {className: "datefooter"}, this.props.comment.Timestamp)))));
+	    };
+	    return CommentItem;
 	}(React.Component));
 
 

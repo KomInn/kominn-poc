@@ -262,7 +262,7 @@ body {
   }
 
   .iconspace {
-    margin-left:10px;
+    margin-right :10px;
   }
 
 hr{
@@ -308,11 +308,47 @@ hr{
   }
 
 .newcomment {
+  margin-bottom:10px;
   textarea {
     width:100%;
+    
   }
-  .btn-success {
-    width:200px;
+  .btn-success {    
+    padding:5px;
+    margin-top:5px;
+    cursor:pointer;
+    text-align:center; 
   }
 
+  .btn-newcomment {
+    width:110px;
+  }
+  .btn-send {
+    width:40px; 
+  }
+}
+
+
+.comments {
+.comment{
+  h4 {
+    margin-top:0;
+  }
+  margin-top:10px;
+}
+
+  .profilepicture {
+    border-radius:100%;  
+    font-size:70px;   
+  }
+  .datefooter {
+    font-size:9px;
+  }
+}
+
+
+
+
+.clickable{
+  cursor:pointer; 
 }

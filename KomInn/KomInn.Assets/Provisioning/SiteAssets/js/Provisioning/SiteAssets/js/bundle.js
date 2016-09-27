@@ -12574,15 +12574,34 @@
 	    UserProfile.GetProfileImageFor = function (username) {
 	        var df = $.Deferred();
 	        new UserProfile().ensureUser(username).done(function (user) {
-	            console.log(user);
 	            return $.get(_spPageContextInfo.webAbsoluteUrl +
 	                "/_api/sp.userprofiles.peoplemanager/GetPropertiesFor(accountname=@v)?@v='" + user.d.LoginName.replace("#", "%23") + "'").done(function (res) {
-	                console.log(res);
-	                console.log(res.d.PictureUrl);
 	                df.resolve(res.d.PictureUrl);
 	            });
 	        });
 	        return df.promise();
+	    };
+	    UserProfile.GetIUserById = function (id) {
+	        var _this = this;
+	        var df = $.Deferred();
+	        var user;
+	        $.get(_spPageContextInfo.webAbsoluteUrl + "/_api/web/getuserbyid(" + id + ")")
+	            .done(function (result) {
+	            user = {
+	                DisplayName: result.d.Title,
+	                Id: result.d.Id,
+	                LoginName: _this.CleanLoginName(result.d.LoginName)
+	            };
+	            df.resolve(user);
+	        })
+	            .fail(function (err) {
+	            console.log("Failed to retrieve user by id");
+	            df.reject();
+	        });
+	        return df.promise();
+	    };
+	    UserProfile.CleanLoginName = function (loginname) {
+	        return encodeURIComponent(loginname);
 	    };
 	    return UserProfile;
 	}());
@@ -12727,7 +12746,7 @@
 	            for (var i = 0; i < d.d.results.length; i++) {
 	                var item = d.d.results[i];
 	                comments.push({
-	                    Text: item.Kommentar.replace(/\r?\n/g, '<br />'),
+	                    Text: item.Kommentar,
 	                    Person: {
 	                        DisplayName: item.Person.Title,
 	                        LoginName: item.Person.UserName,
@@ -12744,9 +12763,66 @@
 	        });
 	        return df.promise();
 	    };
-	    Comments.NewComment = function () {
+	    // Determine role based on retriever data from roledata. 
+	    Comments.DetermineRole = function (userId, roleData) {
+	        var role = "Ansatt";
+	        if (roleData.d.results.length <= 0)
+	            return role;
+	        var roleItem = roleData.d.results[0];
+	        if (userId == roleItem.Navn.Id)
+	            role = "Forslagsstiller";
+	        if (roleItem.Saksbehandler.hasOwnProperty("Id")) {
+	            if (userId == roleItem.Saksbehandler.Id)
+	                role = "Saksbehandler";
+	        }
+	        return role;
 	    };
-	    Comments.DeleteComment = function () {
+	    Comments.NewComment = function (text, suggestionListItemId) {
+	        var _this = this;
+	        console.log("New comment");
+	        console.log(text);
+	        var df = $.Deferred();
+	        if (text.length <= 0 || text == undefined) {
+	            df.reject();
+	            return;
+	        }
+	        // Retrieve role
+	        ListData.getDataFromList("Forslag", "?$select=Created,Id,Navn/Id,Saksbehandler/Id&$expand=Navn,Saksbehandler&$filter=Id eq " + suggestionListItemId).done((function (roleData) {
+	            var context = SP.ClientContext.get_current();
+	            var list = context.get_web().get_lists().getByTitle("Kommentarer");
+	            var itemcreationinfo = new SP.ListItemCreationInformation();
+	            var item = list.addItem(itemcreationinfo);
+	            var userId = _spPageContextInfo.userId;
+	            item.set_item("Kommentar", text);
+	            var person = new SP.FieldUserValue();
+	            person.set_lookupId(_spPageContextInfo.userId);
+	            item.set_item("Person", person);
+	            var relSuggestionField = new SP.FieldLookupValue();
+	            relSuggestionField.set_lookupId(suggestionListItemId);
+	            item.set_item("Forslag", relSuggestionField);
+	            var rolle = _this.DetermineRole(userId, roleData);
+	            item.set_item("Rolle", rolle);
+	            item.update();
+	            context.load(item);
+	            context.executeQueryAsync(function (result) {
+	                // Get own properties 
+	                UserProfile.GetIUserById(userId)
+	                    .done(function (user) {
+	                    var comment = {
+	                        Person: user,
+	                        Role: rolle,
+	                        Text: text,
+	                        Timestamp: item.get_item("Created").format('dd.MM.yyyy'),
+	                        Image: ""
+	                    };
+	                    df.resolve(comment);
+	                });
+	            }, function (err) {
+	                console.log(err);
+	                df.reject(err);
+	            });
+	        }).bind(this));
+	        return df.promise();
 	    };
 	    Comments.formatDate = function (netdate) {
 	        var year = netdate.substr(0, 4);
@@ -12956,6 +13032,7 @@
 	                    Likes: item.Likes,
 	                    Navn: item.Navn.Title,
 	                    AntallKommentarer: "0",
+	                    Id: item.ID,
 	                    Tags: "Fag" });
 	            }
 	            _this.setState({ suggestions: sArr });
@@ -13011,8 +13088,6 @@
 	    SuggestionList.prototype.render = function () {
 	        if (this.numSuggestions <= 0)
 	            return React.createElement("div", null);
-	        console.log("RENDERING!");
-	        console.log(this.state);
 	        return (React.createElement("div", null, React.createElement("h1", null, this.props.Title), React.createElement("div", {id: this.id, className: "carousel slide", "data-interval": "false"}, React.createElement("div", {className: "carousel-inner"}, this.state.partitions.map(function (item, index) {
 	            return React.createElement(CarouselViewItem, {forslag: item, index: index});
 	        })), this.renderIndicators())));
@@ -13026,7 +13101,6 @@
 	    }
 	    CarouselViewItem.prototype.render = function () {
 	        var active = (this.props.index == 0) ? "active" : "";
-	        console.log(this.props.index);
 	        return (React.createElement("div", {className: "item " + active}, React.createElement("div", {className: "row"}, this.props.forslag.map(function (item, index) {
 	            return React.createElement(CarouselItem, {forslag: item});
 	        }))));
@@ -13048,9 +13122,12 @@
 	            return;
 	        return (React.createElement("span", null, React.createElement("span", {className: "icon glyphicon glyphicon-thumbs-up"}), this.props.forslag.Likes));
 	    };
+	    CarouselItem.prototype.redirect = function () {
+	        window.location.href = "Forslag.aspx?ref=" + this.props.forslag.Id;
+	    };
 	    CarouselItem.prototype.render = function () {
 	        var fullWidth = (window.innerWidth < 544) ? "fullwidth" : "";
-	        return (React.createElement("div", {className: "col-sm-4 col-xs-6 col-md-4 col-lg-3 " + fullWidth}, React.createElement("section", {className: "ki-shadow-box-item " + fullWidth}, React.createElement("article", {className: "carousel-item kiGradient"}, React.createElement("header", null, this.props.forslag.Utfordring), React.createElement("main", {className: ""}, React.createElement("p", null, this.props.forslag.ForslagTilLosning)), React.createElement("footer", null, React.createElement("span", {className: "icon glyphicon glyphicon-thumbs-up"}), this.props.forslag.Likes, React.createElement("span", {className: "icon glyphicon glyphicon-comment iconspace"}), this.props.forslag.AntallKommentarer, this.renderTags(), React.createElement("div", {className: "dateperson"}, React.createElement("span", {className: "glyphicon glyphicon-calendar"}), this.props.forslag.Created, React.createElement("span", {className: "glyphicon glyphicon-user iconspace"}), this.props.forslag.Navn))))));
+	        return (React.createElement("div", {className: "col-sm-4 col-xs-6 col-md-4 col-lg-3 " + fullWidth}, React.createElement("section", {className: "ki-shadow-box-item " + fullWidth}, React.createElement("article", {className: "carousel-item kiGradient clickable", onClick: this.redirect.bind(this)}, React.createElement("header", null, this.props.forslag.Utfordring), React.createElement("main", {className: ""}, React.createElement("p", null, this.props.forslag.ForslagTilLosning)), React.createElement("footer", null, React.createElement("span", {className: "icon glyphicon glyphicon-thumbs-up"}), this.props.forslag.Likes, React.createElement("span", {className: "icon glyphicon glyphicon-comment iconspace"}), this.props.forslag.AntallKommentarer, this.renderTags(), React.createElement("div", {className: "dateperson"}, React.createElement("span", {className: "glyphicon glyphicon-calendar"}), this.props.forslag.Created, React.createElement("span", {className: "glyphicon glyphicon-user iconspace"}), this.props.forslag.Navn))))));
 	    };
 	    return CarouselItem;
 	}(React.Component));
@@ -13180,23 +13257,16 @@
 	    SuggestionComments.prototype.componentWillMount = function () {
 	        var _this = this;
 	        SPTools_1.Comments.AllComments(this.props.Suggestion).done((function (result) {
-	        }).bind(this)).then((function (r) {
-	            for (var i = 0; i < r.length; i++) {
-	                SPTools_1.UserProfile.GetProfileImageFor(r[i].Person.LoginName).done((function (result) {
-	                    console.log("DU");
-	                    console.log(result);
-	                    console.log(r);
-	                    console.log(r[i]);
-	                    if (result != undefined)
-	                        r[i].Image = result;
-	                }).bind(_this));
-	            }
-	            _this.setState({ Comments: r });
+	            _this.setState({ Comments: result });
 	        }).bind(this));
-	        ;
+	    };
+	    SuggestionComments.prototype.newCommentAddedHandler = function (newcomment) {
+	        var comments = this.state.Comments;
+	        comments.push(newcomment);
+	        this.setState({ Comments: comments });
 	    };
 	    SuggestionComments.prototype.render = function () {
-	        return (React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12 col-md-6"}, React.createElement("hr", null), React.createElement(NewCommentBox, null), React.createElement(CommentsList, {Comments: this.state.Comments}))));
+	        return (React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12 col-md-6"}, React.createElement("hr", null), React.createElement(NewCommentBox, {Suggestion: this.props.Suggestion, NewCommentAddedHandler: this.newCommentAddedHandler.bind(this)}), React.createElement(CommentsList, {Comments: this.state.Comments}))));
 	    };
 	    return SuggestionComments;
 	}(React.Component));
@@ -13213,10 +13283,20 @@
 	    NewCommentBox.prototype.handleShowNewComment = function (e) {
 	        this.setState({ ShowNewComment: !this.state.ShowNewComment });
 	    };
+	    NewCommentBox.prototype.saveNewComment = function () {
+	        var _this = this;
+	        SPTools_1.Comments.NewComment(this.state.Comment.Text, this.props.Suggestion.Id).done((function (comment) {
+	            _this.props.NewCommentAddedHandler(comment);
+	            var c = _this.state.Comment;
+	            c.Text = "";
+	            _this.setState({ Comment: c });
+	            _this.setState({ ShowNewComment: false });
+	        }).bind(this));
+	    };
 	    NewCommentBox.prototype.render = function () {
 	        if (!this.state.ShowNewComment)
-	            return (React.createElement("div", {className: "row newcomment"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("div", {className: "btn-xs btn-like btn-success", onClick: this.handleShowNewComment.bind(this)}, "Ny kommentar"))));
-	        return (React.createElement("div", null, React.createElement("div", {className: "row newcomment"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("textarea", {value: this.state.Comment.Text, onChange: this.handleTextChanged.bind(this)}))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("div", {className: "btn-xs btn-like btn-success"}, "Send")))));
+	            return (React.createElement("div", {className: "row newcomment"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("div", {className: "btn-xs btn-like btn-success btn-newcomment", onClick: this.handleShowNewComment.bind(this)}, "Ny kommentar"))));
+	        return (React.createElement("div", {className: "newcomment"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("label", null, "Skriv kommentar"), React.createElement("textarea", {value: this.state.Comment.Text, onChange: this.handleTextChanged.bind(this)}))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("div", {className: "btn-xs btn-success btn-send", onClick: this.saveNewComment.bind(this)}, "Send")))));
 	    };
 	    return NewCommentBox;
 	}(React.Component));
@@ -13228,10 +13308,35 @@
 	    CommentsList.prototype.render = function () {
 	        console.log(this.props);
 	        return (React.createElement("div", {className: "row comments"}, React.createElement("div", {className: "col-xs-12"}, this.props.Comments.map((function (item, index) {
-	            return (React.createElement("div", {className: "comment"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-2"}, item.Image), React.createElement("div", {className: "col-xs-10"}, React.createElement("h4", null, item.Person.DisplayName), React.createElement("div", {dangerouslySetInnerHTML: { __html: item.Text }}), React.createElement("div", {className: "datefooter"}, item.Timestamp)))));
+	            return React.createElement(CommentItem, {comment: item});
 	        }).bind(this)))));
 	    };
 	    return CommentsList;
+	}(React.Component));
+	var CommentItem = (function (_super) {
+	    __extends(CommentItem, _super);
+	    function CommentItem() {
+	        _super.call(this);
+	        this.state = { ImageUrl: "" };
+	    }
+	    CommentItem.prototype.componentWillMount = function () {
+	        var _this = this;
+	        SPTools_1.UserProfile.GetProfileImageFor(this.props.comment.Person.LoginName).then((function (result) {
+	            if (result != undefined)
+	                _this.setState({ ImageUrl: result });
+	        }).bind(this));
+	    };
+	    CommentItem.prototype.RenderProfileImage = function () {
+	        if (this.state.ImageUrl != null && this.state.ImageUrl.length > 0)
+	            return React.createElement("img", {src: this.state.ImageUrl, className: "profilepicture"});
+	        return React.createElement("span", {className: "glyphicon glyphicon-user profilepicture"});
+	    };
+	    CommentItem.prototype.render = function () {
+	        return (React.createElement("div", {className: "comment"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-2"}, this.RenderProfileImage()), React.createElement("div", {className: "col-xs-10"}, React.createElement("h4", null, this.props.comment.Person.DisplayName), React.createElement("div", null, this.props.comment.Text.split("\n").map(function (item) {
+	            return (React.createElement("span", null, item, React.createElement("br", null)));
+	        })), React.createElement("div", {className: "datefooter"}, this.props.comment.Timestamp)))));
+	    };
+	    return CommentItem;
 	}(React.Component));
 
 

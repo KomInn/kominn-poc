@@ -1,48 +1,23 @@
+// Structure tree
+/*
+    AllSuggestions
+        - NewSuggestionButton
+        - SuggestionList
+            - CarouselViewItem
+            - CarouselItem
+*/
+
 import * as React from "react";
 import * as $ from "jquery";
-import { ListData } from "./SPTools"
+import { ListData, Suggestion, Suggestions, SuggestionType  } from "./SPTools"
 
-export interface Forslag {
-    Adresse?:string; 
-    Avdeling?:string;
-    Created:string;
-    Epostadresse?:string;
-    ForslagTilLosning?:string; 
-    ForslagStatus?:string;
-    Kommune?:string;
-    Kommunenummer?:string; 
-    Konkurransereferanse?:string; 
-    Likes?:string; 
-    Modified?:string; 
-    NarmesteLeder?:string; 
-    Navn?:string; 
-    NyttigForAndre?:string; 
-    Postnummer?:string; 
-    Saksbehandler?:string; 
-    Tags?:string; 
-    Telefon?:string; 
-    Utfordring?:string; 
-    Virksomhet?:string;
-    CreatedBy?:string; 
-    ModifiedBy?:string; 
-    AntallKommentarer?:string;
-    Id?:string;
-}
-enum SuggestionType { "Submitted", "SuccessStories" };
+
 export class AllSuggestions extends React.Component<void, SuggestionListState>
 {
-    componentHasMounted()
-    {
-        
-        ListData.getDataFromList("Forslag", "").done( (d:any) => {
-           // console.log(d);
-        });        
-    }
-
     render()
     {
         
-        return <div>  
+        return (<div>  
                     <div className="row">      
                         <div className="col-xs-2">
                             <h1>KomInn</h1>                            
@@ -64,100 +39,74 @@ export class AllSuggestions extends React.Component<void, SuggestionListState>
                         </div>
                     </div>
                     <div className="row">
-                        <div className="col-xs-12">
-                           
+                        <div className="col-xs-12">                           
                             <SuggestionList Type={SuggestionType.SuccessStories} Title="Suksesshistorier" />
                         </div>
                     </div>       
-                </div>
+                </div>);
     }
 }
 
 class NewSuggestionButton extends React.Component<void, {}>
 {
-
     redirectToNewSuggestion()
     {
         window.location.href = "./NyttForslag.aspx";
     }
     render()
     {
-        return <div className="btn-success btn-lg" onClick={this.redirectToNewSuggestion}>
+        return (<div className="btn-success btn-lg" onClick={this.redirectToNewSuggestion}>
                     Send inn ditt forslag!
-                </div>
+                </div>)
     }
 
 }
 
-interface Suggestion { Type:SuggestionType, Title:string }
-interface SuggestionListState { partitions?:Array<Array<Forslag>>, windowWidth?:number, suggestions?:Array<Forslag> }
-class SuggestionList extends React.Component<Suggestion, SuggestionListState>
+interface SuggestionListProps { Type:SuggestionType, Title:string }
+interface SuggestionListState { partitions?:Array<Array<Suggestion>>, windowWidth?:number, suggestions?:Array<Suggestion> }
+class SuggestionList extends React.Component<SuggestionListProps, SuggestionListState>
 {         
-    id:string;
-    numSuggestions:number;
+    id:string;  
     constructor()
     {
         super();
         this.id = SP.Guid.newGuid().toString();        
-        this.state = { partitions:new Array<Array<Forslag>>(), windowWidth:window.innerWidth, suggestions:new Array<Forslag>() };
-        this.numSuggestions = 0;
+        this.state = { partitions:new Array<Array<Suggestion>>(),
+                       windowWidth:window.innerWidth, 
+                       suggestions:new Array<Suggestion>() };        
         window.addEventListener('resize', this.handleResize.bind(this));
     }
 
     componentWillMount() 
     {
-        var odataFilter = "&$filter=ForslagStatus ne 'Realisert'"; 
+        var CAMLQuery = "<View><Query><Where><Neq><FieldRef Name='ForslagStatus'  /><Value Type='Text'>Realisert</Value></Neq></Where></Query></View>";
+         
         if(this.props.Type == SuggestionType.SuccessStories)
-            odataFilter = "&$filter=ForslagStatus eq 'Realisert'";
-        var sArr = new Array<Forslag>();
-        
-        ListData.getDataFromList("Forslag", "?$select=ID,Utfordring,Likes,ForslagStatus,Forslag_x0020_til_x0020_l_x00f8_,Created,Tags,Navn/Title&$expand=Navn&$orderby=Created desc" + odataFilter )        
-        .done( ((e:any) => { 
-                this.numSuggestions  = e.d.results.length; 
-                if(this.numSuggestions <= 0)
-                    return;
+            CAMLQuery = "<View><Query><Where><Eq><FieldRef Name='ForslagStatus'  /><Value Type='Text'>Realisert</Value></Eq></Where></Query></View>";
 
-             
-                for(let item of e.d.results)
-                {
-                sArr.push(
-                    {ForslagTilLosning:item.Forslag_x0020_til_x0020_l_x00f8_,
-                     Created:this.formatDate(item.Created),
-                     Utfordring:item.Utfordring, 
-                    Likes:item.Likes, 
-                    Navn:item.Navn.Title,
-                    AntallKommentarer:"0",
-                Tags:"Fag"});
-                }
-                this.setState({suggestions:sArr});
-                this.partitionSuggestions(sArr, 4);               
-        }).bind(this))
-        .fail( (e:any) => { console.log(e); });
+        Suggestions.GetByQuery(CAMLQuery)
+            .done( ((result:Array<Suggestion>) => 
+            {               
+                this.setState({suggestions:result});
+                
+    
+                Suggestions.partitionSuggestions(result, 4)
+                .done( ((computedPartitions:Array<Array<Suggestion>>) =>    
+                {                   
+                    this.setState({partitions:computedPartitions});
+                }).bind(this));
+
+        }).bind(this));
     }
 
-  partitionSuggestions(forslag:Array<Forslag>, partitionSize:number)
-  {
-         var p = Array<Array<Forslag>>();
-         var partition = new Array<Forslag>();         
-         for(var i=0;i<forslag.length;i++)
-         {            
-            partition.push(forslag[i]);             
-            if(partition.length == partitionSize)
-            {                
-                p.push(partition);
-                partition = new Array<Forslag>();
-            }
-         }    
-         if(partition.length > 0)    
-            p.push(partition);
-
-         this.setState({partitions:p});
-         
-  }
-
+ 
   handleResize()
   {
-      this.setState({windowWidth:window.innerWidth});     
+      this.setState({windowWidth:window.innerWidth});    
+
+      if(this.state.suggestions.length <= 0)
+        return; 
+
       var width = this.state.windowWidth; 
       var parts = 4;
       if(width <= 544) // xs
@@ -171,7 +120,15 @@ class SuggestionList extends React.Component<Suggestion, SuggestionListState>
         else if(width >= 1200) // lg
             parts = 4;
 
-    this.partitionSuggestions(this.state.suggestions, parts);
+        
+     Suggestions.partitionSuggestions(this.state.suggestions, parts)
+    .done( ((computedPartitions:Array<Array<Suggestion>>) =>    
+    {
+        this.setState({partitions:computedPartitions});
+    }).bind(this));
+    
+
+    
   }
 
     formatDate(netdate:string):string
@@ -184,7 +141,7 @@ class SuggestionList extends React.Component<Suggestion, SuggestionListState>
 
     renderIndicators()
     {        
-        if(this.numSuggestions <= 3)
+        if(this.state.suggestions.length <= 3)
             return <div></div>;
 
         return ( <div className="carousel-indicators-wrap" >
@@ -200,21 +157,18 @@ class SuggestionList extends React.Component<Suggestion, SuggestionListState>
                 </div>);
     } 
     
-    render() {   
-        
-        if(this.numSuggestions <= 0)
+    render() {       
+        if(this.state.suggestions.length <= 0)
             return <div></div>;
 
-console.log("RENDERING!");
-        console.log(this.state);
+    return (   
 
-    return (        
         <div>
             <h1>{this.props.Title}</h1>              
             <div id={this.id} className="carousel slide" data-interval="false">   
                 <div className="carousel-inner">
                     {this.state.partitions.map((item, index) => {                   
-                        return <CarouselViewItem forslag={item} index={index} />
+                        return <CarouselViewItem suggestions={item} index={index} />
                     })}
                 </div>
                 {this.renderIndicators()}
@@ -223,18 +177,18 @@ console.log("RENDERING!");
     }
 }
 
-interface CarouselViewProps { forslag:Array<Forslag>, index:number }
+interface CarouselViewProps { suggestions:Array<Suggestion>, index:number }
 class CarouselViewItem extends React.Component<CarouselViewProps, {}>{
     render()
     {      
-        var active = (this.props.index == 0) ? "active" : "";
-        console.log(this.props.index);
+      
+        var active = (this.props.index == 0) ? "active" : "";       
         return(
             <div className={`item ${active}`}>
                         <div className="row">
-                            {this.props.forslag.map((item, index) => 
+                            {this.props.suggestions.map((item, index) => 
                             {                               
-                                return <CarouselItem forslag={item} />
+                                return <CarouselItem suggestion={item} />
                             })
                         }
                         </div>          
@@ -244,56 +198,64 @@ class CarouselViewItem extends React.Component<CarouselViewProps, {}>{
 }
 
 
-interface CarouselItemProps { forslag:Forslag }
+interface CarouselItemProps { suggestion:Suggestion }
 class CarouselItem extends React.Component<CarouselItemProps, {}> 
 {
     renderTags()
-    {
-        if(this.props.forslag.Tags == null)
-         return;
-
-         
+    {        
+        if(this.props.suggestion.ForslagType.Id.length <= 0)
+            return;
 
          return (
-             <span>
-                    <span className="icon glyphicon glyphicon-tag iconspace"></span>{this.props.forslag.Tags}
+             <span className="iconspace">
+                    <span className="icon glyphicon glyphicon-tag"></span>{this.props.suggestion.ForslagType.Title}
             </span>
          );
 
     }
 
     renderLikes()
-    {
-        if(this.props.forslag.Likes == null)
+    {        
+        if(this.props.suggestion.Likes == null)
             return; 
 
         return (
-            <span> 
-                <span className="icon glyphicon glyphicon-thumbs-up"></span>{this.props.forslag.Likes}
+            <span className="iconspace"> 
+                <span className="icon glyphicon glyphicon-thumbs-up"></span>{this.props.suggestion.Likes}
             </span>
-        );
-         
+        );          
+    }
+
+    renderComments() {           
+        if(this.props.suggestion.AntallKommentarer <= 0 || this.props.suggestion.AntallKommentarer == undefined)
+            return; 
+
+        return (<span className="iconspace"><span className="icon glyphicon glyphicon-comment iconspace"></span>{this.props.suggestion.AntallKommentarer}</span>)
     }
     
+    redirect()
+    {
+        window.location.href = "Forslag.aspx?ref="+this.props.suggestion.Id; 
+    }
 
     render()
-    {       
+    {              
        var fullWidth = (window.innerWidth < 544) ? "fullwidth" : ""
-        return (
-         <div className={`col-sm-4 col-xs-6 col-md-4 col-lg-3 ${fullWidth}`}>
+        return (        
+         <div className={`col-sm-4 col-xs-6 col-md-4 col-lg-3 ${fullWidth}`} >
             <section className={`ki-shadow-box-item ${fullWidth}`}>
-                <article className="carousel-item kiGradient">
-                    <header>{this.props.forslag.Utfordring}</header>
+                <article className="carousel-item kiGradient clickable" onClick={this.redirect.bind(this)}>
+                    <header>{this.props.suggestion.Utfordring}</header>
                         <main className="">                                                        
-                            <p>{this.props.forslag.ForslagTilLosning}</p>
+                            <p>{this.props.suggestion.ForslagTilLosning}</p>
                         </main>
                     <footer>
-                        <span className="icon glyphicon glyphicon-thumbs-up"></span>{this.props.forslag.Likes} 
-                        <span className="icon glyphicon glyphicon-comment iconspace"></span>{this.props.forslag.AntallKommentarer}                
+                        {this.renderLikes()}
+                        {this.renderComments()}                
                         {this.renderTags()}
                             <div className="dateperson">
-                                <span className="glyphicon glyphicon-calendar"></span>{this.props.forslag.Created} 
-                                <span className="glyphicon glyphicon-user iconspace"></span>{this.props.forslag.Navn}
+                                <span className="glyphicon glyphicon-calendar"></span>{this.props.suggestion.Created} 
+                                <span className="glyphicon glyphicon-user iconspace"></span>{this.props.suggestion.Navn.DisplayName}
                             </div>
                     </footer>
                 </article>

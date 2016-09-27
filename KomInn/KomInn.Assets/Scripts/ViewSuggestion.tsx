@@ -3,7 +3,7 @@ import * as React from "react";
 import * as $ from "jquery";
 import  {Suggestion, Suggestions, Like, UserProfile, IUser, ITaxonomyTerm, Comment, Comments } from "./SPTools"
 
-interface ViewSuggestionData { Suggestion?:Suggestion, LikeEventHandler?():void, Like?:Like  }
+interface ViewSuggestionData { Suggestion?:Suggestion, LikeEventHandler?():void, Like?:Like, NewCommentAddedHandler?(newcomment:Comment):void  }
 export class ViewSuggestion extends React.Component<void, ViewSuggestionData>
 {
     private self:IUser;     
@@ -52,7 +52,7 @@ export class ViewSuggestion extends React.Component<void, ViewSuggestionData>
            this.setState({Suggestion:this.state.Suggestion});
        }).fail( (err:any) => {
            console.log(err); 
-       });
+       }); 
     }
 }
 
@@ -107,8 +107,7 @@ class SuggestionDataViewFooter extends React.Component<ViewSuggestionData, {}>{
              return (
             <div className="col-xs-4 tags">                            
                 <ul>
-                {this.props.Suggestion.Tags.map( (value:ITaxonomyTerm, index:number) => {
-                   
+                {this.props.Suggestion.Tags.map( (value:ITaxonomyTerm, index:number) => {                   
                     return <li><span className="glyphicon glyphicon-tag"></span>{value.Title}</li>
                 })}
                 </ul>
@@ -183,22 +182,16 @@ class SuggestionComments extends React.Component<ViewSuggestionData, CommentsSta
     componentWillMount()
     {
           Comments.AllComments(this.props.Suggestion).done( ((result:Array<Comment>) =>
-          {                   
-          }).bind(this)).then( ((r:any) => 
-          {                    
-              for(var i=0;i<r.length;i++)
-              {
-                  UserProfile.GetProfileImageFor(r[i].Person.LoginName).done( ((result:any) => {
-                      console.log("DU");
-                      console.log(result);
-                      console.log(r);
-                      console.log(r[i]);
-                      if(result != undefined)
-                        r[i].Image = result;                         
-                  }).bind(this));
-              }
-              this.setState({Comments:r});
-          }).bind(this));;
+          {    
+              this.setState({Comments:result});
+          }).bind(this));
+    }
+    newCommentAddedHandler(newcomment:Comment)
+    {
+        console.log(newcomment);
+        var comments = this.state.Comments;        
+        comments.unshift(newcomment);        
+        this.setState({Comments:comments}); 
     }
   
 
@@ -206,13 +199,13 @@ render() {
         return (<div className="row">
             <div className="col-xs-12 col-md-6">
             <hr/>
-            <NewCommentBox />
-            <CommentsList Comments={this.state.Comments} />
+            <NewCommentBox Suggestion={this.props.Suggestion} NewCommentAddedHandler={this.newCommentAddedHandler.bind(this)} />
+            <CommentsList Comments={this.state.Comments}  />
         </div></div>)       
     }
 } 
 interface NewCommentState { Comment?:Comment, ShowNewComment?:boolean }
-class NewCommentBox extends React.Component<void, NewCommentState>
+class NewCommentBox extends React.Component<ViewSuggestionData, NewCommentState>
 {
     constructor()
     {
@@ -227,6 +220,18 @@ class NewCommentBox extends React.Component<void, NewCommentState>
     handleShowNewComment(e:any)
     {
         this.setState({ShowNewComment: !this.state.ShowNewComment });
+    } 
+
+    saveNewComment()
+    {
+        Comments.NewComment(this.state.Comment.Text, this.props.Suggestion.Id).done( ((comment:Comment)=> 
+        {
+            this.props.NewCommentAddedHandler(comment);
+            var c = this.state.Comment;
+            c.Text = ""; 
+            this.setState({Comment:c});
+            this.setState({ShowNewComment:false});
+        }).bind(this));
     }
 
     render()
@@ -235,30 +240,34 @@ class NewCommentBox extends React.Component<void, NewCommentState>
         return (
             <div className="row newcomment">
                 <div className="col-xs-12">
-            <div className="btn-xs btn-like btn-success" onClick={this.handleShowNewComment.bind(this)}>Ny kommentar</div>
-            </div>
+                <div className="btn-xs btn-like btn-success btn-newcomment" onClick={this.handleShowNewComment.bind(this)}>Ny kommentar</div>
+                </div>
             </div>
         )
 
         return (
-            <div>
-            <div className="row newcomment">
-                <div className="col-xs-12">
-                <textarea value={this.state.Comment.Text} onChange={this.handleTextChanged.bind(this)}></textarea>
+            <div className="newcomment">
+                <div className="row"> 
+                    <div className="col-xs-12">
+                    <label>Skriv kommentar</label>
+                    <textarea value={this.state.Comment.Text} onChange={this.handleTextChanged.bind(this)}></textarea>
+                    </div>
                 </div>
-            </div>
-            <div className="row">
-                <div className="col-xs-12">
-                    <div className="btn-xs btn-like btn-success">Send</div>
+                <div className="row">
+                    <div className="col-xs-12">
+                        <div className="btn-xs btn-success btn-send" onClick={this.saveNewComment.bind(this)}>Send</div>
+                    </div>
                 </div>
-            </div>
             </div>
         );
     }
 }
 
+
+
+
 class CommentsList extends React.Component<CommentsProps, {}>
-{
+{     
     render()
     {
         console.log(this.props);
@@ -266,26 +275,62 @@ class CommentsList extends React.Component<CommentsProps, {}>
             <div className="row comments">
                 <div className="col-xs-12">
                 { this.props.Comments.map( ((item:Comment, index:number) => {
-                    
-                    return (<div className="comment">
-                        <div className="row">
-                            <div className="col-xs-2">                        
-                            {item.Image} 
-                            </div>
-                            <div className="col-xs-10">
-                                <h4>{item.Person.DisplayName}</h4>
-                                <div dangerouslySetInnerHTML={ { __html:item.Text} }></div>
-                                <div className="datefooter">
-                                    {item.Timestamp}
-                                </div>
-                            </div>
-                        </div>
-                    </div>);
+                    return <CommentItem comment={item} />                    
                 }).bind(this)) }
                     
                 </div>            
             </div>
         );
+    }
+}
+
+interface CommentState { ImageUrl:string }
+interface CommentProps { comment:Comment  }
+
+class CommentItem extends React.Component<CommentProps, CommentState>
+{        
+    constructor()
+    {
+        super();
+        this.state = { ImageUrl:"" };         
+    }
+    componentWillMount(){
+        UserProfile.GetProfileImageFor(this.props.comment.Person.LoginName)
+            .done( ((result:any) => 
+            {                          
+                if(result == undefined)
+                    return;                                                       
+                this.setState({ImageUrl:result});   
+        }).bind(this)); 
+    }
+
+    RenderProfileImage() 
+    {
+        if(this.state.ImageUrl != null && this.state.ImageUrl.length > 0)
+            return <img src={this.state.ImageUrl} className="profilepicture"/>
+
+        return <span className="glyphicon glyphicon-user profilepicture"></span>
+    } 
+
+    render() 
+    {         
+    return (<div className="comment">
+                        <div className="row">
+                            <div className="col-xs-2">                        
+                            {this.RenderProfileImage()} 
+                            </div>
+                            <div className="col-xs-10">
+                                <h4>{this.props.comment.Person.DisplayName}</h4>
+                                <div>{this.props.comment.Text.split("\n").map( (item) => {
+                                    return (<span>{item}<br/></span>);
+                                    })}
+                                </div>
+                                <div className="datefooter">
+                                    {this.props.comment.Timestamp}
+                                </div>
+                            </div>
+                        </div>
+                    </div>);
     }
 }
 

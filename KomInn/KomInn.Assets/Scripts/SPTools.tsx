@@ -4,6 +4,7 @@
 
 $.ajaxSetup({headers: {"Accept": "application/json;odata=verbose"}})
 
+export enum SuggestionType { "Submitted", "SuccessStories" };
 export interface IUser {
     DisplayName?:string,
     LoginName?:string,
@@ -16,39 +17,67 @@ export interface ITaxonomyTerm
     Id?:string
 }
 
+interface UserImage { ImageUrl:string, Username:string }
 export class UserProfile 
-{
-    ensureUser(username:string):JQueryPromise<any>      
-    {            
+{    
+    public static ensureUser(username:string):JQueryPromise<any>      
+    {    
+        var df = $.Deferred();        
         var payload = { 'logonName': username }; 
-        return $.ajax({
-                        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/ensureuser",
-                        type: "POST",
-                        contentType: "application/json;odata=verbose",
-                        data: JSON.stringify(payload),
-                        headers: {
-                            "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-                            "accept": "application/json;odata=verbose"
-                        }}).then((data:any) => { return data; })
-                        .fail((err:any) => { return err });
+        $.ajax({
+            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/ensureuser",
+            type: "POST",
+            contentType: "application/json;odata=verbose",
+            data: JSON.stringify(payload),
+            headers: {
+                "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+                "accept": "application/json;odata=verbose"
+            }}).then((data:any) => { df.resolve(data); })
+            .fail((err:any) => { df.reject(); 
+        });
+        return df.promise();
     }
-
     // Returns the profile picture URL for the specified user
     public static GetProfileImageFor(username:string):JQueryPromise<string>
     {
         var df = $.Deferred();
-        new UserProfile().ensureUser(username).done( (user:any) => {
-            console.log(user);
-            return $.get(_spPageContextInfo.webAbsoluteUrl + 
-            "/_api/sp.userprofiles.peoplemanager/GetPropertiesFor(accountname=@v)?@v='"+user.d.LoginName.replace("#","%23")+"'").done( (res:any) => {
-                console.log(res);
-                console.log(res.d.PictureUrl);
-                df.resolve(res.d.PictureUrl);
+        UserProfile.ensureUser(username)
+            .done( (user:any) => {           
+                $.get(_spPageContextInfo.webAbsoluteUrl + 
+                "/_api/sp.userprofiles.peoplemanager/GetPropertiesFor(accountname=@v)?@v='"+user.d.LoginName.replace("#","%23")+"'")
+                    .done( (res:any) => {
+                        df.resolve(res.d.PictureUrl);
             })
         });
         return df.promise();
     }
 
+    
+    public static GetIUserById(id:number):JQueryPromise<IUser>
+    {
+        var df = $.Deferred();
+        let user:IUser; 
+
+        $.get(_spPageContextInfo.webAbsoluteUrl + "/_api/web/getuserbyid("+id+")")
+        .done( (result:any) => {
+            user = {
+                DisplayName : result.d.Title, 
+                Id: result.d.Id, 
+                LoginName: this.CleanLoginName(result.d.LoginName)
+            }
+            df.resolve(user);
+        })
+        .fail((err:any) => {
+            console.log("Failed to retrieve user by id");
+            df.reject(); 
+        });
+        return df.promise();
+    }
+
+    private static CleanLoginName(loginname:string):string
+    {
+        return encodeURIComponent(loginname);
+    }
 }
 
 export class Taxonomy
@@ -147,14 +176,15 @@ export class Like
         context.executeQueryAsync( ((result:any) => 
         {        
             this.SuggestionItem.Likes += 1;       
-             this.UpdateLikeCountInList().then( () => {
-                 this.LikeListItemId = item.get_id(); 
-                 this.UserLikesThis = true;                 
-                 this.Processing = false; 
-                 df.resolve(this.SuggestionItem.Likes);
-               })                    
+            this.UpdateLikeCountInList().then( () => {
+            this.LikeListItemId = item.get_id(); 
+            this.UserLikesThis = true;                 
+            this.Processing = false; 
+            df.resolve(this.SuggestionItem.Likes);
+        })                    
         }).bind(this),
-        (err:any) => { console.log(err); 
+        (err:any) => { 
+            console.log(err); 
             df.reject(err);
         });
 
@@ -177,11 +207,11 @@ export class Like
          var item = list.getItemById(this.LikeListItemId);
          item.deleteObject();
          context.executeQueryAsync( ((r:any) => {
-             this.SuggestionItem.Likes -= 1;                          
-               this.UpdateLikeCountInList().then( () => {
-                   this.UserLikesThis = false;                   
-                   this.Processing = false; 
-                   df.resolve(this.SuggestionItem.Likes);
+                this.SuggestionItem.Likes -= 1;                          
+                this.UpdateLikeCountInList().then( () => {
+                this.UserLikesThis = false;                   
+                this.Processing = false; 
+                df.resolve(this.SuggestionItem.Likes);
                })            
          }).bind(this),
          (err:any) => {
@@ -212,20 +242,20 @@ export class Like
     }
 }  
 
-export interface Comment { Text?:string, Person?:IUser, Timestamp?:string, Image?:string };
+export interface Comment { Text?:string, Person?:IUser, Timestamp?:string, Image?:string, Role?:string };
 export class Comments 
 {  
     public static AllComments(suggestion:Suggestion):JQueryPromise<Array<Comment>>
     {            
             var df = $.Deferred();
             ListData.getDataFromList("Kommentarer", 
-            "?$select=Kommentar,Forslag/Id,Person/Title,Created,Person/Id,Person/UserName&$expand=Forslag,Person&$filter=Forslag/Id eq " + suggestion.Id).then( ((d:any) => {                 
+            "?$select=Kommentar,Forslag/Id,Person/Title,Created,Person/Id,Person/UserName&$expand=Forslag,Person&$filter=Forslag/Id eq " + suggestion.Id+"&$orderby=Created desc").then( ((d:any) => {                 
                 var comments = new Array<Comment>();               
                 for(var i=0;i<d.d.results.length;i++)
                 {
                     let item = d.d.results[i];
                     comments.push({
-                       Text:item.Kommentar.replace(/\r?\n/g, '<br />'),
+                       Text:item.Kommentar,
                        Person:{
                           DisplayName:item.Person.Title, 
                           LoginName:item.Person.UserName, 
@@ -245,14 +275,121 @@ export class Comments
             return df.promise(); 
     }
 
-    public static NewComment()
+    // Determine role based on retriever data from roledata. 
+    private static DetermineRole(userId:number, roleData:any):string
     {
+        var role = "Ansatt";          
+        if(roleData.d.results.length <= 0)
+            return role; 
+        
+        var roleItem = roleData.d.results[0]; 
 
+        if(userId == roleItem.Navn.Id)
+            role = "Forslagsstiller"; 
+
+        if(roleItem.Saksbehandler.hasOwnProperty("Id"))
+        {
+            if(userId == roleItem.Saksbehandler.Id)
+                role = "Saksbehandler";
+            
+         }
+         return role; 
+        
+    }
+    
+    public static NewComment(text:string, suggestionListItemId:number):JQueryPromise<Comment>
+    {
+        var df = $.Deferred();
+        if(text.length <= 0 || text == undefined)
+        {
+            df.reject(); 
+            return; 
+        }
+
+        // Retrieve role
+        ListData.getDataFromList("Forslag", "?$select=Created,Id,Navn/Id,Saksbehandler/Id&$expand=Navn,Saksbehandler&$filter=Id eq "+suggestionListItemId).done(
+            ((roleData:any) => {                
+            var context = SP.ClientContext.get_current();
+            var list = context.get_web().get_lists().getByTitle("Kommentarer"); 
+            var itemcreationinfo = new SP.ListItemCreationInformation();
+            var item = list.addItem(itemcreationinfo);
+            var userId = _spPageContextInfo.userId;         
+            
+            item.set_item("Kommentar", text);           
+            var person = new SP.FieldUserValue();
+            person.set_lookupId(_spPageContextInfo.userId);
+            item.set_item("Person", person);
+
+            var relSuggestionField = new SP.FieldLookupValue();
+            relSuggestionField.set_lookupId(suggestionListItemId);            
+            item.set_item("Forslag", relSuggestionField);
+
+            var rolle = this.DetermineRole(userId, roleData)
+            item.set_item("Rolle", rolle)            
+            item.update();
+            context.load(item);
+            context.executeQueryAsync( 
+                (result:any) => 
+                { 
+                    this.incrementNumCommentsOnSuggestionList(suggestionListItemId)
+                        .done( () => { 
+                           
+                    // Get own properties 
+                    UserProfile.GetIUserById(userId)
+                        .done( (user:IUser) => 
+                        {                
+                            console.log("USER");
+                            console.log(user);            
+                            let comment:Comment = 
+                            { 
+                                Person:user, 
+                                Role:rolle, 
+                                Text: text, 
+                                Timestamp:item.get_item("Created").format('dd.MM.yyyy'),
+                                Image:""                        
+                            }            
+                            df.resolve(comment);
+                        });
+                    });
+                },
+                (err:any) => 
+                { 
+                    console.log(err); 
+                    df.reject(err);
+                });
+            }).bind(this));
+
+        return df.promise();
     }
 
-    public static DeleteComment()
+    public static incrementNumCommentsOnSuggestionList(listitem_id:number):JQueryPromise<{}>
     {
+        var df = $.Deferred();
 
+       ListData.getDataFromList("Forslag", "?$select=AntallKommentarer&$filter=Id eq "+listitem_id)
+        .done( (result:any) => {
+            var numComments = result.d.results[0].AntallKommentarer;
+            if(numComments == undefined || numComments == null)
+                numComments = 0;
+             
+            
+            var context = SP.ClientContext.get_current();
+            var list = context.get_web().get_lists().getByTitle("Forslag"); 
+            var item = list.getItemById(listitem_id);         
+         
+            item.set_item("AntallKommentarer", numComments + 1);
+            item.update();
+            context.executeQueryAsync( 
+                ((r:any) => {                                   
+                    df.resolve();         
+                }).bind(this),
+                (err:any) => {             
+                    console.log(err);
+                    df.reject(err);
+                });
+            });
+
+        return df.promise();
     }
 
     public static formatDate(netdate:string):string
@@ -263,6 +400,8 @@ export class Comments
         return day + "." + month + "." + year;
     }
 }
+
+
 
 export class Suggestion
 {  
@@ -289,7 +428,7 @@ export class Suggestion
     public Utfordring:string; 
     public Virksomhet:string;     
     public ModifiedBy:string; 
-    public AntallKommentarer:string;    
+    public AntallKommentarer:number;    
     public Attachments:boolean
 
     constructor(item_id?:number)
@@ -304,9 +443,6 @@ export class Suggestion
     }
 }
 
-/* Suggestions.cs 
-   Description: Static manager class for suggestions. Wrapper for async loading.  
-*/
 export class Suggestions {
 
     public static GetById(id:number):JQueryPromise<Suggestion>
@@ -403,7 +539,7 @@ export class Suggestions {
             f.Adresse = listItem.get_item("Adresse");
             f.Attachments = listItem.get_item("Attachments");
             f.Avdeling = listItem.get_item("Avdeling");
-            f.Created = listItem.get_item("Created"); 
+            f.Created = listItem.get_item("Created").format("dd.MM.yyyy"); 
             f.Epostadresse = listItem.get_item("E_x002d_postadresse");
             f.ForslagStatus = listItem.get_item("ForslagStatus");
             f.ForslagTilLosning = listItem.get_item("Forslag_x0020_til_x0020_l_x00f8_");
@@ -417,6 +553,7 @@ export class Suggestions {
             f.Telefon = listItem.get_item("Telefon"); 
             f.Utfordring = listItem.get_item("Utfordring"); 
             f.Virksomhet = listItem.get_item("Virksomhet");
+            f.AntallKommentarer = listItem.get_item("AntallKommentarer");
             fArr.push(f); 
         }
         deferred.resolve(fArr);
@@ -431,6 +568,28 @@ export class Suggestions {
     var promiseResult = deferred.promise();
     return promiseResult; 
 }
+
+   public static partitionSuggestions(suggestions:Array<Suggestion>, partitionSize:number):JQueryPromise<Array<Array<Suggestion>>>
+  {     
+      var df = $.Deferred();
+         var p = Array<Array<Suggestion>>();
+         var partition = new Array<Suggestion>();         
+         for(var i=0;i<suggestions.length;i++)
+         {            
+            partition.push(suggestions[i]);             
+            if(partition.length == partitionSize)
+            {                
+                p.push(partition);
+                partition = new Array<Suggestion>();
+            }
+         }    
+         if(partition.length > 0)    
+            p.push(partition);
+        
+         df.resolve(p);
+         return df.promise();         
+  }
+
 
      formatDate(netdate:string):string
     {
