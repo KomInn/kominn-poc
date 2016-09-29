@@ -210,7 +210,7 @@ import {ListData, UserProfile, ITaxonomyTerm, IUser, Taxonomy, IUserProfilePrope
             if(this.state.submitting)
                 return; 
             
-            this.setState({submitting:true})   
+          
             
             if(!this.doesFormValidate())
             {    
@@ -218,6 +218,7 @@ import {ListData, UserProfile, ITaxonomyTerm, IUser, Taxonomy, IUserProfilePrope
                 this.setState({submitValidationFailed:true});          
                 return; 
             }
+            this.setState({submitting:true})   
             this.state.suggestion.Save()
                 .done( (() => 
                 {

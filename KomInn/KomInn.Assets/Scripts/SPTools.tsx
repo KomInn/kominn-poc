@@ -5,6 +5,8 @@
 $.ajaxSetup({headers: {"Accept": "application/json;odata=verbose"}})
 
 /* Global interfaces */
+export enum SortTypes { Newest, Oldest, Comments, Likes };
+export enum SuggestionViewDisplayMode { "Brief", "Detailed"};
 export enum SuggestionType { "Submitted", "SuccessStories" };
 export interface IUser {
     DisplayName?:string,
@@ -149,6 +151,7 @@ export class Taxonomy
        var taxSession = SP.Taxonomy.TaxonomySession.getTaxonomySession(context);
        var termStore = taxSession.getDefaultSiteCollectionTermStore();
        termStore.updateCache();
+       
 
        context.load(termStore);
        context.executeQueryAsync(s.bind(this), f.bind(this))
@@ -164,7 +167,7 @@ export class Taxonomy
 
        function success(sender:any, args:any)
        {
-           termStore.updateCache();
+          
             var retrievedTerms = new Array<ITaxonomyTerm>();
             var termEnumerator = terms.getEnumerator();                
             while(termEnumerator.moveNext()){
@@ -590,8 +593,8 @@ export class Suggestion
         self.set_lookupId(_spPageContextInfo.userId);
         item.set_item("Navn", self);             
         console.log(this.ForslagType);
-        if(this.ForslagType.Id.length > 0)
-        {            
+        if(this.ForslagType.Id != null && this.ForslagType.Id.length > 0)
+        {                    
             var taxSingle = new SP.Taxonomy.TaxonomyFieldValue();            
             taxSingle.set_termGuid(new SP.Guid(this.ForslagType.Id)); 
             taxSingle.set_label(this.ForslagType.Title);
@@ -617,7 +620,7 @@ export class Suggestion
         
     public PopulateFromUserProfile():JQueryPromise<Suggestion>
     {
-        console.log("HI");
+       
         var df = $.Deferred();
         UserProfile.GetMyProperties()
             .done( (results:ISPUserProfile) => {                
@@ -629,26 +632,31 @@ export class Suggestion
                  this.Virksomhet = props.findByKey("Department").Value; 
                  this.Dato = this.getTodaysDate();
                  this.Konkurransereferanse = GetUrlKeyValue("ref"); 
-
-                 UserProfile.ensureUser(props.findByKey("Manager").Value)
-                    .done( (result:any) => {
-                        this.NarmesteLeder = {
-                            DisplayName:result.d.Title, 
-                            LoginName:result.d.LoginName, 
-                            Id:result.d.Id
-                        }
-                        
-                        UserProfile.GetMyProperties()
+                                        
+                UserProfile.GetMyProperties()
                             .done( (self:any) => {
                                 this.Navn = {
                                     DisplayName:self.DisplayName, 
                                     LoginName:self.AcountName, 
                                     Id:_spPageContextInfo.userId
-                                }
-                                df.resolve(this);
+                                } 
+
+                                if(props.findByKey("Manager") != null)
+                                {
+                                     UserProfile.ensureUser(props.findByKey("Manager").Value)
+                                    .done( (result:any) => {
+                                        this.NarmesteLeder = {
+                                        DisplayName:result.d.Title, 
+                                        LoginName:result.d.LoginName, 
+                                        Id:result.d.Id
+                                    }
+                                    df.resolve(this);
+                                    });
+                                }else
+                                    df.resolve(this);                             
                             });
                         });
-            });
+    
         return df.promise();
     }
 
@@ -681,7 +689,6 @@ export class Suggestions {
 
     public static GetByQuery(CAMLQuery:string):JQueryPromise<Array<Suggestion>>
     { 
-        console.log("Get by query entered"); 
         var deferred = $.Deferred(); 
         var fArr = new Array<Suggestion>();
         var query = new SP.CamlQuery();        
@@ -693,17 +700,15 @@ export class Suggestions {
         clientContext.load(items);
         clientContext.executeQueryAsync(
         () => 
-        {
-            console.log("Execute query async in get by query"); 
-        if (items.get_count() <= 0) {
-            deferred.resolve(fArr);
-            return;  
+        {           
+            if (items.get_count() <= 0) {
+                deferred.resolve(fArr);
+                return;  
         }
-        console.log("Getting enumerator"); 
+       
         var enumerator = items.getEnumerator();        
         while (enumerator.moveNext()) 
-        {
-            console.log("Enumerating");
+        {         
             var listItem = enumerator.get_current();
             var f = new Suggestion(listItem.get_item("ID"));            
             // Init default values
@@ -773,8 +778,7 @@ export class Suggestions {
             f.Telefon = listItem.get_item("Telefon"); 
             f.Utfordring = listItem.get_item("Utfordring"); 
             f.Virksomhet = listItem.get_item("Virksomhet");
-            f.AntallKommentarer = listItem.get_item("AntallKommentarer");
-            
+            f.AntallKommentarer = listItem.get_item("AntallKommentarer");            
             fArr.push(f); 
         }
         console.log("Resolving Farr");

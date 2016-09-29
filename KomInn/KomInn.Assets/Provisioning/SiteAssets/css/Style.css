@@ -244,3 +244,7 @@ hr {
 
 .clickable {
   cursor: pointer; }
+
+.filters input[type=select] {
+  margin-left: 10px;
+  padding: 5px; }

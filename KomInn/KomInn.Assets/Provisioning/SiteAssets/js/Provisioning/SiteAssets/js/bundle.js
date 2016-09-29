@@ -252,12 +252,12 @@
 	        var _this = this;
 	        if (this.state.submitting)
 	            return;
-	        this.setState({ submitting: true });
 	        if (!this.doesFormValidate()) {
 	            this.setState({ validate: true });
 	            this.setState({ submitValidationFailed: true });
 	            return;
 	        }
+	        this.setState({ submitting: true });
 	        this.state.suggestion.Save()
 	            .done((function () {
 	            _this.setState({ submitted: true });
@@ -12595,7 +12595,6 @@
 	            context.load(terms);
 	            context.executeQueryAsync(success.bind(this), fail.bind(this));
 	            function success(sender, args) {
-	                termStore.updateCache();
 	                var retrievedTerms = new Array();
 	                var termEnumerator = terms.getEnumerator();
 	                while (termEnumerator.moveNext()) {
@@ -12911,7 +12910,7 @@
 	        self.set_lookupId(_spPageContextInfo.userId);
 	        item.set_item("Navn", self);
 	        console.log(this.ForslagType);
-	        if (this.ForslagType.Id.length > 0) {
+	        if (this.ForslagType.Id != null && this.ForslagType.Id.length > 0) {
 	            var taxSingle = new SP.Taxonomy.TaxonomyFieldValue();
 	            taxSingle.set_termGuid(new SP.Guid(this.ForslagType.Id));
 	            taxSingle.set_label(this.ForslagType.Title);
@@ -12944,22 +12943,26 @@
 	            _this.Virksomhet = props.findByKey("Department").Value;
 	            _this.Dato = _this.getTodaysDate();
 	            _this.Konkurransereferanse = GetUrlKeyValue("ref");
-	            UserProfile.ensureUser(props.findByKey("Manager").Value)
-	                .done(function (result) {
-	                _this.NarmesteLeder = {
-	                    DisplayName: result.d.Title,
-	                    LoginName: result.d.LoginName,
-	                    Id: result.d.Id
+	            UserProfile.GetMyProperties()
+	                .done(function (self) {
+	                _this.Navn = {
+	                    DisplayName: self.DisplayName,
+	                    LoginName: self.AcountName,
+	                    Id: _spPageContextInfo.userId
 	                };
-	                UserProfile.GetMyProperties()
-	                    .done(function (self) {
-	                    _this.Navn = {
-	                        DisplayName: self.DisplayName,
-	                        LoginName: self.AcountName,
-	                        Id: _spPageContextInfo.userId
-	                    };
+	                if (props.findByKey("Manager") != null) {
+	                    UserProfile.ensureUser(props.findByKey("Manager").Value)
+	                        .done(function (result) {
+	                        _this.NarmesteLeder = {
+	                            DisplayName: result.d.Title,
+	                            LoginName: result.d.LoginName,
+	                            Id: result.d.Id
+	                        };
+	                        df.resolve(_this);
+	                    });
+	                }
+	                else
 	                    df.resolve(_this);
-	                });
 	            });
 	        });
 	        return df.promise();

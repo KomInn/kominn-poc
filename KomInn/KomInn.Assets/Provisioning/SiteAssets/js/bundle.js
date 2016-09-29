@@ -65,6 +65,7 @@
 	var NewSuggestionForm_1 = __webpack_require__(5);
 	var AllSuggestions_1 = __webpack_require__(12);
 	var ViewSuggestion_1 = __webpack_require__(13);
+	var ViewSuggestionsDetailed_1 = __webpack_require__(14);
 	function renderSuggestionForm(id) {
 	    ReactDOM.render(React.createElement(NewSuggestionForm_1.NewSuggestionForm, null), document.getElementById(id));
 	}
@@ -74,12 +75,17 @@
 	function renderViewSuggestions(id) {
 	    ReactDOM.render(React.createElement(ViewSuggestion_1.ViewSuggestion, null), document.getElementById(id));
 	}
+	function renderShowAllSuggestionsDetailed(id) {
+	    ReactDOM.render(React.createElement(ViewSuggestionsDetailed_1.ViewSuggestionsDetailed, null), document.getElementById(id));
+	}
 	if (document.getElementById("form") != null)
 	    renderSuggestionForm("form");
 	if (document.getElementById("allsuggestions") != null)
 	    renderShowAllSuggestions("allsuggestions");
 	if (document.getElementById("forslag") != null)
 	    renderViewSuggestions("forslag");
+	if (document.getElementById("allsuggestions-filterable") != null)
+	    renderShowAllSuggestionsDetailed("allsuggestions-filterable");
 
 
 /***/ },
@@ -252,12 +258,12 @@
 	        var _this = this;
 	        if (this.state.submitting)
 	            return;
-	        this.setState({ submitting: true });
 	        if (!this.doesFormValidate()) {
 	            this.setState({ validate: true });
 	            this.setState({ submitValidationFailed: true });
 	            return;
 	        }
+	        this.setState({ submitting: true });
 	        this.state.suggestion.Save()
 	            .done((function () {
 	            _this.setState({ submitted: true });
@@ -12475,6 +12481,20 @@
 	};
 	$.ajaxSetup({ headers: { "Accept": "application/json;odata=verbose" } });
 	/* Global interfaces */
+	(function (SortTypes) {
+	    SortTypes[SortTypes["Newest"] = 0] = "Newest";
+	    SortTypes[SortTypes["Oldest"] = 1] = "Oldest";
+	    SortTypes[SortTypes["Comments"] = 2] = "Comments";
+	    SortTypes[SortTypes["Likes"] = 3] = "Likes";
+	})(exports.SortTypes || (exports.SortTypes = {}));
+	var SortTypes = exports.SortTypes;
+	;
+	(function (SuggestionViewDisplayMode) {
+	    SuggestionViewDisplayMode[SuggestionViewDisplayMode["Brief"] = 0] = "Brief";
+	    SuggestionViewDisplayMode[SuggestionViewDisplayMode["Detailed"] = 1] = "Detailed";
+	})(exports.SuggestionViewDisplayMode || (exports.SuggestionViewDisplayMode = {}));
+	var SuggestionViewDisplayMode = exports.SuggestionViewDisplayMode;
+	;
 	(function (SuggestionType) {
 	    SuggestionType[SuggestionType["Submitted"] = 0] = "Submitted";
 	    SuggestionType[SuggestionType["SuccessStories"] = 1] = "SuccessStories";
@@ -12595,7 +12615,6 @@
 	            context.load(terms);
 	            context.executeQueryAsync(success.bind(this), fail.bind(this));
 	            function success(sender, args) {
-	                termStore.updateCache();
 	                var retrievedTerms = new Array();
 	                var termEnumerator = terms.getEnumerator();
 	                while (termEnumerator.moveNext()) {
@@ -12911,7 +12930,7 @@
 	        self.set_lookupId(_spPageContextInfo.userId);
 	        item.set_item("Navn", self);
 	        console.log(this.ForslagType);
-	        if (this.ForslagType.Id.length > 0) {
+	        if (this.ForslagType.Id != null && this.ForslagType.Id.length > 0) {
 	            var taxSingle = new SP.Taxonomy.TaxonomyFieldValue();
 	            taxSingle.set_termGuid(new SP.Guid(this.ForslagType.Id));
 	            taxSingle.set_label(this.ForslagType.Title);
@@ -12932,7 +12951,6 @@
 	    };
 	    Suggestion.prototype.PopulateFromUserProfile = function () {
 	        var _this = this;
-	        console.log("HI");
 	        var df = $.Deferred();
 	        UserProfile.GetMyProperties()
 	            .done(function (results) {
@@ -12944,22 +12962,26 @@
 	            _this.Virksomhet = props.findByKey("Department").Value;
 	            _this.Dato = _this.getTodaysDate();
 	            _this.Konkurransereferanse = GetUrlKeyValue("ref");
-	            UserProfile.ensureUser(props.findByKey("Manager").Value)
-	                .done(function (result) {
-	                _this.NarmesteLeder = {
-	                    DisplayName: result.d.Title,
-	                    LoginName: result.d.LoginName,
-	                    Id: result.d.Id
+	            UserProfile.GetMyProperties()
+	                .done(function (self) {
+	                _this.Navn = {
+	                    DisplayName: self.DisplayName,
+	                    LoginName: self.AcountName,
+	                    Id: _spPageContextInfo.userId
 	                };
-	                UserProfile.GetMyProperties()
-	                    .done(function (self) {
-	                    _this.Navn = {
-	                        DisplayName: self.DisplayName,
-	                        LoginName: self.AcountName,
-	                        Id: _spPageContextInfo.userId
-	                    };
+	                if (props.findByKey("Manager") != null) {
+	                    UserProfile.ensureUser(props.findByKey("Manager").Value)
+	                        .done(function (result) {
+	                        _this.NarmesteLeder = {
+	                            DisplayName: result.d.Title,
+	                            LoginName: result.d.LoginName,
+	                            Id: result.d.Id
+	                        };
+	                        df.resolve(_this);
+	                    });
+	                }
+	                else
 	                    df.resolve(_this);
-	                });
 	            });
 	        });
 	        return df.promise();
@@ -12986,7 +13008,6 @@
 	        return Suggestions.GetByQuery("");
 	    };
 	    Suggestions.GetByQuery = function (CAMLQuery) {
-	        console.log("Get by query entered");
 	        var deferred = $.Deferred();
 	        var fArr = new Array();
 	        var query = new SP.CamlQuery();
@@ -12996,15 +13017,12 @@
 	        var items = oList.getItems(query);
 	        clientContext.load(items);
 	        clientContext.executeQueryAsync(function () {
-	            console.log("Execute query async in get by query");
 	            if (items.get_count() <= 0) {
 	                deferred.resolve(fArr);
 	                return;
 	            }
-	            console.log("Getting enumerator");
 	            var enumerator = items.getEnumerator();
 	            while (enumerator.moveNext()) {
-	                console.log("Enumerating");
 	                var listItem = enumerator.get_current();
 	                var f = new Suggestion(listItem.get_item("ID"));
 	                // Init default values
@@ -13130,7 +13148,7 @@
 	        _super.apply(this, arguments);
 	    }
 	    AllSuggestions.prototype.render = function () {
-	        return (React.createElement("div", null, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-2"}, React.createElement("h1", null, "KomInn")), React.createElement("div", {className: "col-xs-4"}, React.createElement(NewSuggestionButton, null)), React.createElement("div", {className: "col-xs-6"})), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("p", null, "KomInn er en kommunal forslagsportal der du kan foreslå forbedringer og skape nye ideer."))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement(SuggestionList, {Type: SPTools_1.SuggestionType.Submitted, Title: "Mottatte forslag"}))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement(SuggestionList, {Type: SPTools_1.SuggestionType.SuccessStories, Title: "Suksesshistorier"})))));
+	        return (React.createElement("div", null, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-2"}, React.createElement("h1", null, "KomInn")), React.createElement("div", {className: "col-xs-4"}, React.createElement(NewSuggestionButton, null)), React.createElement("div", {className: "col-xs-6"})), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("p", null, "KomInn er en kommunal forslagsportal der du kan foreslå forbedringer og skape nye ideer."))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement(SuggestionList, {Type: SPTools_1.SuggestionType.Submitted, Title: "Mottatte forslag", DisplayMode: SPTools_1.SuggestionViewDisplayMode.Brief}))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement(SuggestionList, {Type: SPTools_1.SuggestionType.SuccessStories, Title: "Suksesshistorier", DisplayMode: SPTools_1.SuggestionViewDisplayMode.Brief})))));
 	    };
 	    return AllSuggestions;
 	}(React.Component));
@@ -13155,18 +13173,21 @@
 	        this.id = SP.Guid.newGuid().toString();
 	        this.state = { partitions: new Array(),
 	            windowWidth: window.innerWidth,
-	            suggestions: new Array() };
-	        window.addEventListener('resize', this.handleResize.bind(this));
+	            suggestions: new Array(),
+	            ShowFullWidthItem: false,
+	            filters: new Array() };
 	    }
 	    SuggestionList.prototype.componentWillMount = function () {
 	        var _this = this;
-	        var CAMLQuery = "<View><Query><OrderBy><FieldRef Name='Created' Ascending='FALSE' /></OrderBy><Where><Neq><FieldRef Name='ForslagStatus'  /><Value Type='Text'>Realisert</Value></Neq></Where></Query></View>";
+	        window.addEventListener('resize', this.handleResize.bind(this));
+	        var CAMLQuery = "<View><Query><OrderBy><FieldRef Name='Likes' Ascending='FALSE' /></OrderBy><Where><Neq><FieldRef Name='ForslagStatus'  /><Value Type='Text'>Realisert</Value></Neq></Where></Query></View>";
 	        if (this.props.Type == SPTools_1.SuggestionType.SuccessStories)
 	            CAMLQuery = "<View><Query><OrderBy><FieldRef Name='Created' Ascending='FALSE' /></OrderBy><Where><Eq><FieldRef Name='ForslagStatus'  /><Value Type='Text'>Realisert</Value></Eq></Where></Query></View>";
 	        SPTools_1.Suggestions.GetByQuery(CAMLQuery)
 	            .done((function (result) {
 	            _this.setState({ suggestions: result });
-	            SPTools_1.Suggestions.partitionSuggestions(result, 4)
+	            var numPartitions = (_this.detailedMode()) ? 100 : 4;
+	            SPTools_1.Suggestions.partitionSuggestions(result, numPartitions)
 	                .done((function (computedPartitions) {
 	                _this.setState({ partitions: computedPartitions });
 	            }).bind(_this));
@@ -13179,29 +13200,37 @@
 	            return;
 	        var width = this.state.windowWidth;
 	        var parts = 4;
-	        if (width <= 544)
+	        if (width <= 544) {
+	            this.setState({ ShowFullWidthItem: true });
 	            parts = 1;
-	        else if (width >= 544 && width < 768)
+	        }
+	        else if (width >= 544 && width < 768) {
+	            if (this.detailedMode())
+	                this.setState({ ShowFullWidthItem: true });
 	            parts = 2;
+	        }
 	        else if (width >= 768 && width < 992)
 	            parts = 3;
 	        else if (width >= 992 && width < 1200)
 	            parts = 3;
 	        else if (width >= 1200)
 	            parts = 4;
+	        if (width >= 768)
+	            this.setState({ ShowFullWidthItem: false });
+	        if (this.detailedMode())
+	            parts = 100;
 	        SPTools_1.Suggestions.partitionSuggestions(this.state.suggestions, parts)
 	            .done((function (computedPartitions) {
 	            _this.setState({ partitions: computedPartitions });
 	        }).bind(this));
 	    };
-	    SuggestionList.prototype.formatDate = function (netdate) {
-	        var year = netdate.substr(0, 4);
-	        var month = netdate.substr(5, 2);
-	        var day = netdate.substr(8, 2);
-	        return day + "." + month + "." + year;
+	    SuggestionList.prototype.detailedMode = function () {
+	        return this.props.DisplayMode == SPTools_1.SuggestionViewDisplayMode.Detailed;
 	    };
 	    SuggestionList.prototype.renderIndicators = function () {
 	        var _this = this;
+	        if (this.state.partitions.length <= 1)
+	            return React.createElement("div", null);
 	        if (this.state.suggestions.length <= 3)
 	            return React.createElement("div", null);
 	        return (React.createElement("div", {className: "carousel-indicators-wrap"}, React.createElement("a", {className: "carousel-control left glyphicon glyphicon-chevron-left ", href: '#' + this.id, "data-slide": "prev"}), React.createElement("ol", {className: "carousel-indicators"}, this.state.partitions.map(function (item, index) {
@@ -13210,23 +13239,55 @@
 	        })), React.createElement("a", {className: "carousel-control right glyphicon glyphicon-chevron-right", href: '#' + this.id, "data-slide": "next"})));
 	    };
 	    SuggestionList.prototype.render = function () {
+	        var _this = this;
 	        if (this.state.suggestions.length <= 0)
 	            return React.createElement("div", null);
-	        return (React.createElement("div", null, React.createElement("h1", null, this.props.Title), React.createElement("div", {id: this.id, className: "carousel slide", "data-interval": "false"}, React.createElement("div", {className: "carousel-inner"}, this.state.partitions.map(function (item, index) {
-	            return React.createElement(CarouselViewItem, {suggestions: item, index: index});
+	        return (React.createElement("div", null, React.createElement("h1", null, this.props.Title), this.renderFilters(), React.createElement("div", {id: this.id, className: "carousel slide", "data-interval": "false"}, React.createElement("div", {className: "carousel-inner"}, this.state.partitions.map(function (item, index) {
+	            if (_this.detailedMode()) {
+	                if (!_this.filterMatch(item[index]))
+	                    return React.createElement("span", null);
+	            }
+	            return React.createElement(CarouselViewItem, {suggestions: item, index: index, DisplayMode: _this.props.DisplayMode, Fullwidth: _this.state.ShowFullWidthItem});
 	        })), this.renderIndicators())));
+	    };
+	    SuggestionList.prototype.renderFilters = function () {
+	        if (!this.detailedMode())
+	            return (React.createElement("span", null));
+	        return (React.createElement("div", {className: "row"}, React.createElement("div", {className: "filters form-group"}, React.createElement("div", {className: "col-xs-4"}, React.createElement("span", {className: "glyphicon glyphicon-filter"}), React.createElement("strong", null, "Filtrer "), React.createElement("select", {className: "form-control", onChange: this.filterChange}, React.createElement("option", {value: "test", selected: true}), React.createElement("option", {value: "Fag"}, "Fag"), React.createElement("option", {value: "Forslag"}, "Forslag"), React.createElement("option", {value: "Fag2"}, "Fag2"))), React.createElement("div", {className: "col-xs-4"}, React.createElement("span", {className: "glyphicon glyphicon-sort"}), React.createElement("strong", null, "Sorter "), React.createElement("select", {className: "form-control", onChange: this.sortChange}, React.createElement("option", {value: SPTools_1.SortTypes.Newest, selected: true}, "Nyeste"), React.createElement("option", {value: SPTools_1.SortTypes.Oldest}, "Eldste"), React.createElement("option", {value: SPTools_1.SortTypes.Comments}, "Kommentarer"), React.createElement("option", {value: SPTools_1.SortTypes.Likes}, "Likerklikk"))))));
+	    };
+	    SuggestionList.prototype.sortChange = function (event) {
+	        var selected = event.target.value;
+	        if (selected == SPTools_1.SortTypes.Newest) {
+	            console.log("TEST");
+	        }
+	    };
+	    SuggestionList.prototype.filterChange = function (event) {
+	        console.log(event.target);
+	    };
+	    SuggestionList.prototype.filterMatch = function (item) {
+	        if (this.state.filters.length <= 0)
+	            return true;
+	        if (item.ForslagType == null || item.ForslagType.Id == null)
+	            return false;
+	        for (var i = 0; i < this.state.filters.length; i++) {
+	            if (item.ForslagType.Id == this.state.filters[i].Id)
+	                return true;
+	        }
+	        return false;
 	    };
 	    return SuggestionList;
 	}(React.Component));
+	exports.SuggestionList = SuggestionList;
 	var CarouselViewItem = (function (_super) {
 	    __extends(CarouselViewItem, _super);
 	    function CarouselViewItem() {
 	        _super.apply(this, arguments);
 	    }
 	    CarouselViewItem.prototype.render = function () {
+	        var _this = this;
 	        var active = (this.props.index == 0) ? "active" : "";
 	        return (React.createElement("div", {className: "item " + active}, React.createElement("div", {className: "row"}, this.props.suggestions.map(function (item, index) {
-	            return React.createElement(CarouselItem, {suggestion: item});
+	            return React.createElement(CarouselItem, {suggestion: item, DisplayMode: _this.props.DisplayMode, Fullwidth: _this.props.Fullwidth});
 	        }))));
 	    };
 	    return CarouselViewItem;
@@ -13255,8 +13316,10 @@
 	        window.location.href = "Forslag.aspx?ref=" + this.props.suggestion.Id;
 	    };
 	    CarouselItem.prototype.render = function () {
-	        var fullWidth = (window.innerWidth < 544) ? "fullwidth" : "";
-	        return (React.createElement("div", {className: "col-sm-4 col-xs-6 col-md-4 col-lg-3 " + fullWidth}, React.createElement("section", {className: "ki-shadow-box-item " + fullWidth}, React.createElement("article", {className: "carousel-item kiGradient clickable", onClick: this.redirect.bind(this)}, React.createElement("header", null, this.props.suggestion.Utfordring), React.createElement("main", {className: ""}, React.createElement("p", null, this.props.suggestion.ForslagTilLosning)), React.createElement("footer", null, this.renderLikes(), this.renderComments(), this.renderTags(), React.createElement("div", {className: "dateperson"}, React.createElement("span", {className: "glyphicon glyphicon-calendar"}), this.props.suggestion.Created, React.createElement("span", {className: "glyphicon glyphicon-user iconspace"}), this.props.suggestion.Navn.DisplayName))))));
+	        var fullWidth = (this.props.Fullwidth) ? "fullwidth" : "";
+	        console.log(this.props.Fullwidth);
+	        var xsSize = (this.props.DisplayMode == SPTools_1.SuggestionViewDisplayMode.Detailed) ? "col-xs-12" : "col-xs-6";
+	        return (React.createElement("div", {className: "col-sm-4 col-md-4 col-lg-3 " + xsSize}, React.createElement("section", {className: "ki-shadow-box-item " + fullWidth}, React.createElement("article", {className: "carousel-item kiGradient clickable", onClick: this.redirect.bind(this)}, React.createElement("header", null, this.props.suggestion.Utfordring), React.createElement("main", {className: ""}, React.createElement("p", null, this.props.suggestion.ForslagTilLosning)), React.createElement("footer", null, this.renderLikes(), this.renderComments(), this.renderTags(), React.createElement("div", {className: "dateperson"}, React.createElement("span", {className: "glyphicon glyphicon-calendar"}), this.props.suggestion.Created, React.createElement("span", {className: "glyphicon glyphicon-user iconspace"}), this.props.suggestion.Navn.DisplayName))))));
 	    };
 	    return CarouselItem;
 	}(React.Component));
@@ -13470,6 +13533,32 @@
 	    };
 	    return CommentItem;
 	}(React.Component));
+
+
+/***/ },
+/* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var React = __webpack_require__(3);
+	var SPTools_1 = __webpack_require__(11);
+	var AllSuggestions_1 = __webpack_require__(12);
+	var ViewSuggestionsDetailed = (function (_super) {
+	    __extends(ViewSuggestionsDetailed, _super);
+	    function ViewSuggestionsDetailed() {
+	        _super.apply(this, arguments);
+	    }
+	    ViewSuggestionsDetailed.prototype.render = function () {
+	        return (React.createElement(AllSuggestions_1.SuggestionList, {Type: this.props.ShowType, Title: this.props.Title, DisplayMode: SPTools_1.SuggestionViewDisplayMode.Detailed}));
+	    };
+	    return ViewSuggestionsDetailed;
+	}(React.Component));
+	exports.ViewSuggestionsDetailed = ViewSuggestionsDetailed;
 
 
 /***/ }
