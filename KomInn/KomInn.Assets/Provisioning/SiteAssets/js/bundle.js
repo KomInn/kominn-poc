@@ -109,23 +109,24 @@
 	__webpack_require__(7);
 	__webpack_require__(10);
 	var SPTools_1 = __webpack_require__(11);
-	var Option = (function () {
-	    function Option(v, t) {
-	        this.Value = v;
-	        this.Text = t;
-	    }
-	    return Option;
-	}());
 	var TextArea = (function (_super) {
 	    __extends(TextArea, _super);
 	    function TextArea() {
 	        _super.apply(this, arguments);
 	    }
+	    TextArea.prototype.validate = function () {
+	        if (!this.props.Validate)
+	            return true;
+	        if (this.props.Value.length <= 0)
+	            return false;
+	        return true;
+	    };
 	    TextArea.prototype.render = function () {
+	        this.validate();
 	        var markErrorClass = "";
-	        if (this.props.Validate)
-	            markErrorClass = (this.props.Value.length > 0) ? "" : "label-error";
-	        return React.createElement("div", {className: "form-group"}, React.createElement("label", {className: markErrorClass}, this.props.Label), React.createElement("textarea", {type: "text", className: "form-control", onChange: this.handleChange.bind(this), value: this.props.Value, placeholder: this.props.Placeholder}));
+	        if (!this.validate())
+	            markErrorClass = "label-error";
+	        return (React.createElement("div", {className: "form-group"}, React.createElement("label", {className: markErrorClass}, this.props.Label), React.createElement("textarea", {type: "text", className: "form-control", onChange: this.handleChange.bind(this), value: this.props.Value, placeholder: this.props.Placeholder})));
 	    };
 	    TextArea.prototype.handleChange = function (event) {
 	        this.props.OnChangeHandler({ Value: event.target.value, Name: this.props.Name });
@@ -138,106 +139,89 @@
 	        _super.apply(this, arguments);
 	    }
 	    TextField.prototype.render = function () {
-	        return React.createElement("div", {className: "form-group"}, React.createElement("label", null, this.props.Label), React.createElement("input", {type: "text", className: "form-control", onChange: this.handleChange.bind(this), value: this.props.Value, placeholder: this.props.Placeholder}));
+	        return React.createElement("div", {className: "form-group"}, React.createElement("label", null, this.props.Label), React.createElement("input", {type: "text", className: "form-control", onChange: this.handleChange.bind(this), value: this.props.Value, placeholder: this.props.Placeholder, onBlur: this.forceLengthCheck.bind(this)}));
 	    };
 	    TextField.prototype.handleChange = function (event) {
+	        if (this.props.Locked)
+	            return;
 	        this.props.OnChangeHandler({ Value: event.target.value, Name: this.props.Name });
 	    };
+	    TextField.prototype.forceLengthCheck = function (event) {
+	        if (this.props.ForceLength != undefined) {
+	            if (event.target.value.length < this.props.ForceLength || event.target.value.length > this.props.ForceLength)
+	                this.setState({ isValid: false });
+	            else
+	                this.setState({ isValid: true });
+	        }
+	    };
+	    TextField.prototype.renderError = function () {
+	        if (!this.state.isValid && this.props.Value.length > 0) {
+	            return React.createElement("label", {className: "label-error"}, "Feltet må ha ", this.props.ForceLength, " tegn.");
+	        }
+	    };
 	    return TextField;
-	}(React.Component));
-	var SPUserField = (function (_super) {
-	    __extends(SPUserField, _super);
-	    function SPUserField() {
-	        _super.call(this);
-	        this.user = { DisplayName: "", Username: "", UserId: -1 };
-	        this.state = { Text: "" };
-	    }
-	    SPUserField.prototype.render = function () {
-	        this.props.Ref = this;
-	        return React.createElement("div", {className: "form-group"}, React.createElement("label", null, this.props.Label), React.createElement("input", {type: "text", className: "form-control pt-userfield", onChange: this.handleChange.bind(this), onKeyDown: this.handleUserResolve.bind(this), value: this.state.Text, placeholder: "Skriv brukernavn og trykk Enter"}));
-	    };
-	    SPUserField.prototype.handleChange = function (event) {
-	        this.setState({ Text: event.target.value });
-	    };
-	    SPUserField.prototype.resolveUser = function () {
-	        var _this = this;
-	        SPTools_1.UserProfile.ensureUser(this.state.Text).done(function (result) {
-	            var user = { DisplayName: result.d.Title, Username: result.d.LoginName, UserId: result.d.Id };
-	            _this.setState({ Text: user.DisplayName });
-	            _this.props.UsernameResolvedHandler(user);
-	        });
-	    };
-	    SPUserField.prototype.handleUserResolve = function (event) {
-	        if (event.keyCode != 13)
-	            return;
-	        this.resolveUser();
-	    };
-	    SPUserField.prototype.setText = function (text) {
-	        this.setState({ Text: text });
-	        this.resolveUser();
-	    };
-	    return SPUserField;
 	}(React.Component));
 	var SPTaxonomyField = (function (_super) {
 	    __extends(SPTaxonomyField, _super);
 	    function SPTaxonomyField() {
 	        _super.call(this);
-	        this.terms = new Array();
+	        this.state = { terms: new Array(), valueInvalid: false, text: "" };
 	    }
 	    SPTaxonomyField.prototype.componentDidMount = function () {
 	        var _this = this;
-	        ExecuteOrDelayUntilScriptLoaded((function () { _this.getTaxonomyArray(_this.props.Termset, _this.props.LCID); }).bind(this), "sp.js");
+	        ExecuteOrDelayUntilScriptLoaded((function () { _this.getTaxonomyArray(); }).bind(this), "sp.js");
+	    };
+	    SPTaxonomyField.prototype.renderErrorMessage = function () {
+	        if (this.state.valueInvalid) {
+	            return React.createElement("label", {className: "label-error"}, "Du må velge fra listen.");
+	        }
+	        return (React.createElement("span", null));
 	    };
 	    SPTaxonomyField.prototype.render = function () {
-	        return React.createElement("div", {className: "form-group"}, React.createElement("label", null, this.props.Label), React.createElement("div", {id: "bloodhound"}, React.createElement("input", {className: "typeahead form-control", value: "", type: "text"})));
+	        return React.createElement("div", {className: "form-group"}, React.createElement("label", null, this.props.Label), React.createElement("div", {id: "bloodhound"}, React.createElement("input", {className: "typeahead form-control", type: "text"})), this.renderErrorMessage());
 	    };
-	    SPTaxonomyField.prototype.handleChange = function (event) {
-	        this.props.OnChangeHandler({ Value: event.target.value, Name: this.props.Name });
-	    };
-	    SPTaxonomyField.prototype.getTaxonomyArray = function (termset, language) {
-	        //var termset = "ForslagType";      
-	        var context = SP.ClientContext.get_current();
-	        var taxSession = SP.Taxonomy.TaxonomySession.getTaxonomySession(context);
-	        var termStore = taxSession.getDefaultSiteCollectionTermStore();
-	        var termSets = termStore.getTermSetsByName(termset, language);
-	        var termSet = termSets.getByName(termset);
-	        var terms = termSet.getAllTerms();
-	        context.load(terms);
-	        context.executeQueryAsync(sh.bind(this), err);
-	        function sh(sender, args) {
-	            var te = terms.getEnumerator();
-	            if (this.terms == null)
-	                this.terms = new Array();
-	            while (te.moveNext()) {
-	                var t = te.get_current();
-	                var term = t.get_name();
-	                var id = t.get_id().toString();
-	                this.terms.push({ Name: term, Id: id });
+	    SPTaxonomyField.prototype.onLeave = function (event) {
+	        var value = event.target.value;
+	        if (value.length <= 0) {
+	            this.setState({ valueInvalid: false });
+	            return;
+	        }
+	        for (var i = 0; i < this.state.terms.length; i++) {
+	            if (this.state.terms[i].Title == value) {
+	                if (this.props.TaxonomySelectedHandler)
+	                    this.props.TaxonomySelectedHandler(this.state.terms[i]);
+	                this.setState({ valueInvalid: false });
+	                return;
 	            }
-	            this.initTypeahead();
 	        }
-	        function err() {
-	            console.log(arguments[1].get_message());
-	        }
+	        this.setState({ valueInvalid: true });
+	        $(".typeahead").typeahead('val', null);
+	    };
+	    SPTaxonomyField.prototype.getTaxonomyArray = function () {
+	        var _this = this;
+	        SPTools_1.Taxonomy.GetTaxonomyArray(this.props.Termset, this.props.LCID)
+	            .done(function (result) {
+	            _this.setState({ terms: result });
+	            _this.initTypeahead();
+	        });
 	    };
 	    SPTaxonomyField.prototype.initTypeahead = function () {
 	        var bo = {
 	            datumTokenizer: function (d) {
-	                return Bloodhound.tokenizers.whitespace(d.Name);
+	                return Bloodhound.tokenizers.whitespace(d.Title);
 	            },
 	            queryTokenizer: Bloodhound.tokenizers.whitespace,
-	            local: this.terms
+	            local: this.state.terms
 	        };
 	        var engine = new Bloodhound(bo);
-	        var dataset = { source: d, display: "Name" };
+	        var dataset = { source: d, display: "Title" };
 	        var options = { highlight: true, hint: true, minLength: 0 };
-	        $(".typeahead").typeahead(options, dataset);
+	        $(".typeahead").typeahead(options, dataset).blur(this.onLeave.bind(this));
 	        $(".typeahead").on("typeahead:selected", handler.bind(this));
 	        function handler(obj, datum, name) {
-	            if (this.props.OnChangeHandler)
-	                this.props.OnChangeHandler({ Value: datum.Name, Name: this.props.Name });
 	            if (this.props.TaxonomySelectedHandler)
 	                this.props.TaxonomySelectedHandler(datum);
+	            this.setState({ valueInvalid: false });
 	        }
 	        ;
 	        function d(q, CBSync) {
@@ -251,172 +235,105 @@
 	    __extends(NewSuggestionForm, _super);
 	    function NewSuggestionForm() {
 	        _super.call(this);
-	        this.state = {
-	            kommunenr: "", postnummer: "", adresse: "", avdeling: "", leder: { DisplayName: "", UserId: -1, Username: "" },
-	            mailadresse: "", telefon: "", dato: "", typeutfordring: { Name: "", Id: "" }, utfordring: "", forslag: "", nyttigforandre: "", virksomhet: "",
-	            navn: { DisplayName: "", UserId: -1, Username: "" }, konkurransereferanse: "", submitted: false
-	        };
-	        this.loadAndAssignUserProfilePropsAsync();
+	        var suggestion = new SPTools_1.Suggestion();
+	        this.state = { suggestion: suggestion, submitted: false, validate: false, postalCodeInvalid: false, postalCodeText: "", submitValidationFailed: false, submitFailed: false };
 	    }
+	    NewSuggestionForm.prototype.componentWillMount = function () {
+	        var _this = this;
+	        this.state.suggestion.PopulateFromUserProfile()
+	            .done((function (result) {
+	            _this.setState({ suggestion: result });
+	        }).bind(this));
+	    };
 	    NewSuggestionForm.prototype.componentDidMount = function () {
 	        $("textarea[class='form-control']").autogrow({ horizontal: false, vertical: true, characterSlop: 0 });
 	    };
-	    NewSuggestionForm.prototype.loadAndAssignUserProfilePropsAsync = function () {
-	        $.ajax({
-	            url: _spPageContextInfo.webAbsoluteUrl + "/_api/sp.userprofiles.peoplemanager/getmyproperties",
-	            type: "GET",
-	            headers: { "Accept": "application/json;odata=verbose" },
-	            success: successHandler.bind(this),
-	            error: function (err) {
-	            }
-	        });
-	        function successHandler(e) {
-	            var _this = this;
-	            var props = e.d.UserProfileProperties.results;
-	            this.setState({ adresse: this.findKey(props, "Office").Value });
-	            this.setState({ avdeling: this.findKey(props, "Department").Value });
-	            this.setState({ mailadresse: this.findKey(props, "WorkEmail").Value });
-	            this.setState({ telefon: this.findKey(props, "CellPhone").Value });
-	            this.setState({ virksomhet: this.findKey(props, "SPS-JobTitle").Value });
-	            this.setState({ dato: this.getTodaysDate() });
-	            this.setState({ konkurransereferanse: GetUrlKeyValue("ref") });
-	            var manager = this.findKey(props, "Manager").Value;
-	            SPTools_1.UserProfile.ensureUser(manager).done((function (d) {
-	                console.log(d);
-	                _this.setState({
-	                    leder: {
-	                        DisplayName: d.d.Title,
-	                        Username: d.d.LoginName,
-	                        UserId: d.d.Id
-	                    }
-	                });
-	                console.log(_this.state.leder);
-	            }).bind(this));
-	            // Navn                
-	            this.setState({ navn: {
-	                    DisplayName: e.d.DisplayName,
-	                    Username: e.d.AccountName,
-	                    UserId: _spPageContextInfo.userId
-	                }
-	            });
-	            this.refs.UserTxtHook.setText(this.state.navn.Username);
-	        }
-	    };
-	    NewSuggestionForm.prototype.findKey = function (coll, key) {
-	        for (var i = 0; i < coll.length; i++) {
-	            if (coll[i].Key == key)
-	                return coll[i];
-	        }
-	    };
-	    NewSuggestionForm.prototype.getTodaysDate = function () {
-	        var d = new Date();
-	        return d.getDate() + "." + (d.getMonth() + 1) + "." + d.getFullYear();
-	    };
 	    NewSuggestionForm.prototype.submitForm = function (data) {
+	        var _this = this;
+	        if (this.state.submitting)
+	            return;
+	        this.setState({ submitting: true });
 	        if (!this.doesFormValidate()) {
+	            this.setState({ validate: true });
+	            this.setState({ submitValidationFailed: true });
 	            return;
 	        }
-	        var context = SP.ClientContext.get_current();
-	        var list = context.get_web().get_lists().getByTitle("Forslag");
-	        var itemcreationinfo = new SP.ListItemCreationInformation();
-	        var item = list.addItem(itemcreationinfo);
-	        item.set_item("Adresse", this.state.adresse);
-	        item.set_item("Avdeling", this.state.avdeling);
-	        item.set_item("E_x002d_postadresse", this.state.mailadresse);
-	        item.set_item("Forslag_x0020_til_x0020_l_x00f8_", this.state.forslag);
-	        item.set_item("ForslagStatus", "Sendt inn");
-	        item.set_item("Kommune", this.state.kommune);
-	        item.set_item("Kommunenummer", this.state.kommunenr);
-	        item.set_item("Konkurransereferanse", this.state.konkurransereferanse);
-	        item.set_item("Nyttig_x0020_for_x0020_andre_x00", this.state.nyttigforandre);
-	        item.set_item("Postnummer", this.state.postnummer);
-	        item.set_item("Telefon", this.state.avdeling);
-	        item.set_item("Utfordring", this.state.utfordring);
-	        item.set_item("Virksomhet", this.state.virksomhet);
-	        var manager = new SP.FieldUserValue();
-	        manager.set_lookupId(this.state.leder.UserId);
-	        item.set_item("N_x00e6_rmeste_x0020_leder", manager);
-	        var self = new SP.FieldUserValue();
-	        self.set_lookupId(_spPageContextInfo.userId);
-	        item.set_item("Navn", self);
-	        if (this.state.typeutfordring.Name.length > 0) {
-	            // ForslagType
-	            var taxSingle = new SP.Taxonomy.TaxonomyFieldValue();
-	            taxSingle.set_termGuid(new SP.Guid(this.state.typeutfordring.Id));
-	            taxSingle.set_label(this.state.typeutfordring.Name);
-	            taxSingle.set_wssId(-1);
-	            item.set_item("ForslagType", taxSingle);
-	        }
-	        item.update();
-	        context.load(item);
-	        context.executeQueryAsync(s.bind(this), f);
-	        function s(d) {
-	            console.log("Success!");
-	            console.log(d);
-	            this.setState({ submitted: true });
-	        }
-	        function f(d, args) {
-	            console.log("Error :( ");
-	            console.log(d);
-	            console.log(args.get_message());
-	        }
+	        this.state.suggestion.Save()
+	            .done((function () {
+	            _this.setState({ submitted: true });
+	        }).bind(this))
+	            .fail((function () {
+	            _this.setState({ submitFailed: true });
+	            _this.setState({ submitting: false });
+	        }).bind(this));
 	    };
 	    NewSuggestionForm.prototype.changeEvent = function (d) {
-	        var obj = {};
+	        var obj = this.state.suggestion;
 	        obj[d.Name] = d.Value;
-	        this.setState(obj);
+	        this.setState({ suggestion: obj });
 	    };
 	    NewSuggestionForm.prototype.typeUtfordringSelectedHandler = function (d) {
-	        this.setState({ typeutfordring: d });
+	        this.state.suggestion.ForslagType = d;
+	        this.setState({ suggestion: this.state.suggestion });
 	    };
 	    NewSuggestionForm.prototype.userResolvedHandler = function (u) {
-	        this.setState({ navn: u });
+	        this.state.suggestion.Navn = u;
+	        this.setState({ suggestion: this.state.suggestion });
 	    };
 	    NewSuggestionForm.prototype.debugMsg = function (a) {
 	        console.log(this.state);
 	    };
 	    NewSuggestionForm.prototype.doesFormValidate = function () {
 	        var canSubmit = true;
-	        console.log(this.state);
-	        if (this.state.utfordring.length <= 0) {
-	            this.setState({ validateUtfordring: true });
+	        if (this.state.suggestion.ForslagTilLosning.length <= 0)
 	            canSubmit = false;
-	            console.log("1");
-	        }
-	        if (this.state.forslag.length <= 0) {
-	            this.setState({ validateForslag: true });
+	        if (this.state.suggestion.Utfordring.length <= 0)
 	            canSubmit = false;
-	        }
-	        if (this.state.nyttigforandre.length <= 0) {
-	            this.setState({ validateNyttigforandre: true });
+	        if (this.state.suggestion.NyttigForAndre.length <= 0)
 	            canSubmit = false;
-	        }
 	        if (!canSubmit)
-	            this.setState({ showValidationFailMessage: true });
+	            this.setState({ submitValidationFailed: true });
 	        return canSubmit;
 	    };
 	    NewSuggestionForm.prototype.postnrLookup = function (d) {
 	        var _this = this;
-	        this.setState({ postnummer: d.Value });
-	        if (d.Value.length != 4 || d.Value == this.state.postnummer)
+	        this.setState({ postalCodeText: d.Value });
+	        if (d.Value.length != 4 || d.Value == this.state.suggestion.Postnummer)
 	            return;
-	        SPTools_1.ListData.getDataFromList("Kommunenumre", "?$select=Kommune,Kommunenummer&$filter=Postnummer eq " + d.Value)
-	            .done(function (result) {
-	            console.log(result);
-	            if (result.d.results.length <= 0)
+	        SPTools_1.ListData.getDataFromList("Kommunenumre", "?$select=Kommune,Kommunenummer&$filter=Postnummer eq '" + d.Value + "'")
+	            .done((function (result) {
+	            if (result.d.results.length <= 0) {
+	                _this.setState({ postalCodeInvalid: true });
 	                return;
-	            _this.state.kommune = result.d.results[0].Kommune;
-	            _this.state.kommunenr = result.d.results[0].Kommunenummer;
-	        });
+	            }
+	            _this.state.suggestion.Postnummer = d.Value;
+	            _this.state.suggestion.Kommune = result.d.results[0].Kommune;
+	            _this.state.suggestion.Kommunenummer = result.d.results[0].Kommunenummer;
+	            _this.setState({ suggestion: _this.state.suggestion });
+	            _this.setState({ postalCodeInvalid: false });
+	            _this.setState({ postalCodeText: d.Value + " (" + result.d.results[0].Kommune + ")" });
+	        }).bind(this)).fail((function () {
+	            _this.setState({ postalCodeInvalid: true });
+	        }).bind(this));
+	    };
+	    NewSuggestionForm.prototype.renderPostalCodeError = function () {
+	        if (this.state.postalCodeInvalid)
+	            return React.createElement("label", {style: { color: 'red' }}, "Postnummeret ble ikke funnet.");
+	    };
+	    NewSuggestionForm.prototype.renderSubmitValidationFailed = function () {
+	        if (this.state.submitValidationFailed)
+	            return React.createElement("label", {style: { color: 'red' }}, React.createElement("br", null), "Vennligst fyll ut feltene i rødt.");
+	    };
+	    NewSuggestionForm.prototype.rendersubmitFailed = function () {
+	        if (this.state.submitFailed)
+	            return React.createElement("label", {style: { color: 'red' }}, React.createElement("br", null), " En feil oppstod ved innsending av skjemaet. Prøv på nytt senere.");
 	    };
 	    NewSuggestionForm.prototype.render = function () {
-	        var textAreaValidator = { Required: true, validate: true };
 	        if (this.state.submitted)
 	            return React.createElement(ThankYouPage, null);
-	        var hideErrorLabel = { display: "none", color: "black" };
-	        if (this.state.showValidationFailMessage)
-	            hideErrorLabel = { display: "block", color: "red" };
-	        return React.createElement("div", null, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("h1", null, "Nytt forslag"), React.createElement("p", null, "Tekst her?"))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12 col-sm-4 col-md-4 "}, React.createElement(TextField, {Label: "Postnummer", OnChangeHandler: this.postnrLookup.bind(this), Value: this.state.postnummer, Name: "postnummer"}), React.createElement(TextArea, {Label: "Utfordring *", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.utfordring, Name: "utfordring", Placeholder: "Fortell om utfordringen", Validate: this.state.validateUtfordring}), React.createElement(TextArea, {Label: "Forslag til løsning *", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.forslag, Name: "forslag", Validate: this.state.validateForslag}), React.createElement(TextArea, {Label: "Nyttig for andre? *", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.nyttigforandre, Name: "nyttigforandre", Validate: this.state.validateNyttigforandre}), React.createElement(SPTaxonomyField, {Label: "Type nytte / nytteverdi", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.typeutfordring.Name, Name: "typeutfordring", Termset: "ForslagType", LCID: 1033, TaxonomySelectedHandler: this.typeUtfordringSelectedHandler.bind(this)}), React.createElement("p", {class: "error-label", style: hideErrorLabel}, "Vennligst fyll ut feltene i rødt."), React.createElement("input", {type: "button", onClick: this.submitForm.bind(this), value: "Send inn"})), React.createElement("div", {className: "col-xs-12 col-sm-4  col-md-4 "}, React.createElement(SPUserField, {Label: "Navn", Value: this.state.navn.DisplayName, Name: "navn", UsernameResolvedHandler: this.userResolvedHandler.bind(this), ref: "UserTxtHook"}), React.createElement(TextField, {Label: "Adresse", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.adresse, Name: "adresse"}), React.createElement(TextField, {Label: "Mailadresse", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.mailadresse, Name: "mailadresse"}), React.createElement(TextField, {Label: "Telefon", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.telefon, Name: "telefon"}))));
+	        if (this.state.submitting)
+	            return React.createElement("h4", null, "Sender...");
+	        return (React.createElement("div", null, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("h1", null, "Nytt forslag"), React.createElement("p", null, "Tekst her?"))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12 col-sm-4 col-md-4 "}, React.createElement(TextField, {Label: "Postnummer", OnChangeHandler: this.postnrLookup.bind(this), Value: this.state.postalCodeText, Name: "Postnummer", ForceLength: 4}), this.renderPostalCodeError(), React.createElement(TextArea, {Label: "Utfordring *", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.suggestion.Utfordring, Name: "Utfordring", Placeholder: "Fortell om utfordringen", Validate: this.state.validate}), React.createElement(TextArea, {Label: "Forslag til løsning *", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.suggestion.ForslagTilLosning, Name: "ForslagTilLosning", Validate: this.state.validate}), React.createElement(TextArea, {Label: "Nyttig for andre? *", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.suggestion.NyttigForAndre, Name: "NyttigForAndre", Validate: this.state.validate}), React.createElement(SPTaxonomyField, {Label: "Type nytte / nytteverdi", Value: "", Name: "ForslagType", Termset: "ForslagType", LCID: 1033, TaxonomySelectedHandler: this.typeUtfordringSelectedHandler.bind(this)}), React.createElement("input", {type: "button", onClick: this.submitForm.bind(this), value: "Send inn"}), this.renderSubmitValidationFailed(), this.rendersubmitFailed()), React.createElement("div", {className: "col-xs-12 col-sm-4  col-md-4 "}, React.createElement(TextField, {Label: "Navn", Value: this.state.suggestion.Navn.DisplayName, Name: "Navn", Locked: true}), React.createElement(TextField, {Label: "Adresse", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.suggestion.Adresse, Name: "Adresse"}), React.createElement(TextField, {Label: "Mailadresse", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.suggestion.Epostadresse, Name: "Epostadresse"}), React.createElement(TextField, {Label: "Telefon", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.suggestion.Telefon, Name: "Telefon"})))));
 	    };
 	    return NewSuggestionForm;
 	}(React.Component));
@@ -427,7 +344,7 @@
 	        _super.apply(this, arguments);
 	    }
 	    ThankYouPage.prototype.render = function () {
-	        return React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("h1", null, "Takk for ditt bidrag!"), React.createElement("p", null, "Du hører fra oss snarlig."), React.createElement("a", {href: "../SitePages/Home.aspx"}, "Tilbake til oversikten")));
+	        return React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("h1", null, "Takk for ditt bidrag!"), React.createElement("p", null, "Du hører fra oss snarlig."), React.createElement("a", {href: _spPageContextInfo.webAbsoluteUrl + "/SitePages/Home.aspx"}, "Tilbake til oversikten")));
 	    };
 	    return ThankYouPage;
 	}(React.Component));
@@ -12551,13 +12468,32 @@
 	   Description: Data handler adapters for solution data management.
 	*/
 	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
 	$.ajaxSetup({ headers: { "Accept": "application/json;odata=verbose" } });
+	/* Global interfaces */
 	(function (SuggestionType) {
 	    SuggestionType[SuggestionType["Submitted"] = 0] = "Submitted";
 	    SuggestionType[SuggestionType["SuccessStories"] = 1] = "SuccessStories";
 	})(exports.SuggestionType || (exports.SuggestionType = {}));
 	var SuggestionType = exports.SuggestionType;
 	;
+	var UserProfilePropertyArray = (function (_super) {
+	    __extends(UserProfilePropertyArray, _super);
+	    function UserProfilePropertyArray() {
+	        _super.apply(this, arguments);
+	    }
+	    UserProfilePropertyArray.prototype.findByKey = function (key) {
+	        for (var i = 0; i < this.length; i++) {
+	            if (this[i].Key == key)
+	                return this[i];
+	        }
+	    };
+	    return UserProfilePropertyArray;
+	}(Array));
 	var UserProfile = (function () {
 	    function UserProfile() {
 	    }
@@ -12613,12 +12549,71 @@
 	    UserProfile.CleanLoginName = function (loginname) {
 	        return encodeURIComponent(loginname);
 	    };
+	    UserProfile.GetMyProperties = function () {
+	        var df = $.Deferred();
+	        $.ajax({
+	            url: _spPageContextInfo.webAbsoluteUrl + "/_api/sp.userprofiles.peoplemanager/getmyproperties",
+	            type: "GET",
+	            headers: { "Accept": "application/json;odata=verbose" },
+	            success: function (result) {
+	                var upsArr = new UserProfilePropertyArray();
+	                var props = result.d.UserProfileProperties.results;
+	                for (var i = 0; i < props.length; i++) {
+	                    var newItem = {
+	                        Key: props[i].Key,
+	                        Value: props[i].Value,
+	                        ValueType: props[i].ValueType
+	                    };
+	                    upsArr.push(newItem);
+	                }
+	                result.d.UserProfileProperties = upsArr;
+	                df.resolve(result.d);
+	            },
+	            error: function (err) { df.reject(); }
+	        });
+	        return df.promise();
+	    };
 	    return UserProfile;
 	}());
 	exports.UserProfile = UserProfile;
 	var Taxonomy = (function () {
 	    function Taxonomy() {
 	    }
+	    Taxonomy.GetTaxonomyArray = function (termset, language) {
+	        var df = $.Deferred();
+	        var context = SP.ClientContext.get_current();
+	        var taxSession = SP.Taxonomy.TaxonomySession.getTaxonomySession(context);
+	        var termStore = taxSession.getDefaultSiteCollectionTermStore();
+	        termStore.updateCache();
+	        context.load(termStore);
+	        context.executeQueryAsync(s.bind(this), f.bind(this));
+	        function f() { console.log(":("); }
+	        function s() {
+	            var termSets = termStore.getTermSetsByName(termset, language);
+	            var termSet = termSets.getByName(termset);
+	            var terms = termSet.getAllTerms();
+	            context.load(terms);
+	            context.executeQueryAsync(success.bind(this), fail.bind(this));
+	            function success(sender, args) {
+	                termStore.updateCache();
+	                var retrievedTerms = new Array();
+	                var termEnumerator = terms.getEnumerator();
+	                while (termEnumerator.moveNext()) {
+	                    var term = termEnumerator.get_current();
+	                    retrievedTerms.push({
+	                        Title: term.get_name(),
+	                        Id: term.get_id().toString() });
+	                }
+	                console.log(retrievedTerms);
+	                df.resolve(retrievedTerms);
+	            }
+	            function fail() {
+	                console.log(arguments[1].get_message());
+	                df.reject();
+	            }
+	        }
+	        return df.promise();
+	    };
 	    return Taxonomy;
 	}());
 	exports.Taxonomy = Taxonomy;
@@ -12749,7 +12744,6 @@
 	    function Comments() {
 	    }
 	    Comments.AllComments = function (suggestion) {
-	        var _this = this;
 	        var df = $.Deferred();
 	        ListData.getDataFromList("Kommentarer", "?$select=Kommentar,Forslag/Id,Person/Title,Created,Person/Id,Person/UserName&$expand=Forslag,Person&$filter=Forslag/Id eq " + suggestion.Id + "&$orderby=Created desc").then((function (d) {
 	            var comments = new Array();
@@ -12762,7 +12756,7 @@
 	                        LoginName: item.Person.UserName,
 	                        Id: item.Person.Id
 	                    },
-	                    Timestamp: _this.formatDate(item.Created),
+	                    Timestamp: formatDate(item.Created),
 	                    Image: ""
 	                });
 	            }
@@ -12859,23 +12853,121 @@
 	        });
 	        return df.promise();
 	    };
-	    Comments.formatDate = function (netdate) {
-	        var year = netdate.substr(0, 4);
-	        var month = netdate.substr(5, 2);
-	        var day = netdate.substr(8, 2);
-	        return day + "." + month + "." + year;
-	    };
 	    return Comments;
 	}());
 	exports.Comments = Comments;
 	var Suggestion = (function () {
 	    function Suggestion(item_id) {
-	        if (item_id == undefined) {
-	            this.Id = -1;
-	            return;
-	        }
-	        this.Id = item_id;
+	        this.ForslagType = { Id: null, Title: null };
+	        this.NarmesteLeder = { DisplayName: null, Id: null, LoginName: null };
+	        this.Navn = { DisplayName: null, Id: null, LoginName: null };
+	        this.Id = -1;
+	        this.Adresse = "";
+	        this.Avdeling = "";
+	        this.Created = "";
+	        this.Epostadresse = "";
+	        this.ForslagTilLosning = "";
+	        this.ForslagStatus = "";
+	        this.Kommune = "";
+	        this.Kommunenummer = "";
+	        this.Likes = 0;
+	        this.Modified = "";
+	        this.NyttigForAndre = "";
+	        this.Postnummer = "";
+	        this.Saksbehandler = { DisplayName: null, Id: null, LoginName: null };
+	        this.Telefon = "";
+	        this.Utfordring = "";
+	        this.Virksomhet = "";
+	        this.ModifiedBy = "";
+	        this.AntallKommentarer = 0;
+	        this.Attachments = false;
+	        this.Dato = "";
+	        if (item_id != undefined)
+	            this.Id = item_id;
 	    }
+	    Suggestion.prototype.Save = function () {
+	        var df = $.Deferred();
+	        var context = SP.ClientContext.get_current();
+	        var list = context.get_web().get_lists().getByTitle("Forslag");
+	        var itemcreationinfo = new SP.ListItemCreationInformation();
+	        var item = list.addItem(itemcreationinfo);
+	        item.set_item("Adresse", this.Adresse);
+	        item.set_item("Avdeling", this.Avdeling);
+	        item.set_item("E_x002d_postadresse", this.Epostadresse);
+	        item.set_item("Forslag_x0020_til_x0020_l_x00f8_", this.ForslagTilLosning);
+	        item.set_item("ForslagStatus", "Sendt inn");
+	        item.set_item("Kommune", this.Kommune);
+	        item.set_item("Kommunenummer", this.Kommunenummer);
+	        item.set_item("Konkurransereferanse", this.Konkurransereferanse);
+	        item.set_item("Nyttig_x0020_for_x0020_andre_x00", this.NyttigForAndre);
+	        item.set_item("Postnummer", this.Postnummer);
+	        item.set_item("Telefon", this.Avdeling);
+	        item.set_item("Utfordring", this.Utfordring);
+	        item.set_item("Virksomhet", this.Virksomhet);
+	        var manager = new SP.FieldUserValue();
+	        manager.set_lookupId(this.NarmesteLeder.Id);
+	        item.set_item("N_x00e6_rmeste_x0020_leder", manager);
+	        var self = new SP.FieldUserValue();
+	        self.set_lookupId(_spPageContextInfo.userId);
+	        item.set_item("Navn", self);
+	        console.log(this.ForslagType);
+	        if (this.ForslagType.Id.length > 0) {
+	            var taxSingle = new SP.Taxonomy.TaxonomyFieldValue();
+	            taxSingle.set_termGuid(new SP.Guid(this.ForslagType.Id));
+	            taxSingle.set_label(this.ForslagType.Title);
+	            taxSingle.set_wssId(-1);
+	            item.set_item("ForslagType", taxSingle);
+	        }
+	        item.update();
+	        context.load(item);
+	        context.executeQueryAsync(success.bind(this), fail);
+	        function success(d) {
+	            df.resolve();
+	        }
+	        function fail(d, args) {
+	            console.log(args.get_message());
+	            df.reject(args.get_message());
+	        }
+	        return df.promise();
+	    };
+	    Suggestion.prototype.PopulateFromUserProfile = function () {
+	        var _this = this;
+	        console.log("HI");
+	        var df = $.Deferred();
+	        UserProfile.GetMyProperties()
+	            .done(function (results) {
+	            var props = results.UserProfileProperties;
+	            _this.Adresse = props.findByKey("Office").Value;
+	            _this.Avdeling = props.findByKey("SPS-JobTitle").Value;
+	            _this.Epostadresse = props.findByKey("WorkEmail").Value;
+	            _this.Telefon = props.findByKey("CellPhone").Value;
+	            _this.Virksomhet = props.findByKey("Department").Value;
+	            _this.Dato = _this.getTodaysDate();
+	            _this.Konkurransereferanse = GetUrlKeyValue("ref");
+	            UserProfile.ensureUser(props.findByKey("Manager").Value)
+	                .done(function (result) {
+	                _this.NarmesteLeder = {
+	                    DisplayName: result.d.Title,
+	                    LoginName: result.d.LoginName,
+	                    Id: result.d.Id
+	                };
+	                UserProfile.GetMyProperties()
+	                    .done(function (self) {
+	                    _this.Navn = {
+	                        DisplayName: self.DisplayName,
+	                        LoginName: self.AcountName,
+	                        Id: _spPageContextInfo.userId
+	                    };
+	                    df.resolve(_this);
+	                });
+	            });
+	        });
+	        return df.promise();
+	    };
+	    Suggestion.prototype.getTodaysDate = function () {
+	        var d = new Date();
+	        return d.getDate() + "." + (d.getMonth() + 1) + "." + d.getFullYear();
+	    };
 	    return Suggestion;
 	}());
 	exports.Suggestion = Suggestion;
@@ -12894,6 +12986,7 @@
 	        return Suggestions.GetByQuery("");
 	    };
 	    Suggestions.GetByQuery = function (CAMLQuery) {
+	        console.log("Get by query entered");
 	        var deferred = $.Deferred();
 	        var fArr = new Array();
 	        var query = new SP.CamlQuery();
@@ -12903,12 +12996,15 @@
 	        var items = oList.getItems(query);
 	        clientContext.load(items);
 	        clientContext.executeQueryAsync(function () {
+	            console.log("Execute query async in get by query");
 	            if (items.get_count() <= 0) {
 	                deferred.resolve(fArr);
 	                return;
 	            }
+	            console.log("Getting enumerator");
 	            var enumerator = items.getEnumerator();
 	            while (enumerator.moveNext()) {
+	                console.log("Enumerating");
 	                var listItem = enumerator.get_current();
 	                var f = new Suggestion(listItem.get_item("ID"));
 	                // Init default values
@@ -12971,6 +13067,7 @@
 	                f.AntallKommentarer = listItem.get_item("AntallKommentarer");
 	                fArr.push(f);
 	            }
+	            console.log("Resolving Farr");
 	            deferred.resolve(fArr);
 	        }, function (sender, args) {
 	            console.log(args.get_message());
@@ -12995,15 +13092,16 @@
 	        df.resolve(p);
 	        return df.promise();
 	    };
-	    Suggestions.prototype.formatDate = function (netdate) {
-	        var year = netdate.substr(0, 4);
-	        var month = netdate.substr(5, 2);
-	        var day = netdate.substr(8, 2);
-	        return day + "." + month + "." + year;
-	    };
 	    return Suggestions;
 	}());
 	exports.Suggestions = Suggestions;
+	/* Global functions */
+	function formatDate(netdate) {
+	    var year = netdate.substr(0, 4);
+	    var month = netdate.substr(5, 2);
+	    var day = netdate.substr(8, 2);
+	    return day + "." + month + "." + year;
+	}
 
 
 /***/ },
@@ -13062,9 +13160,9 @@
 	    }
 	    SuggestionList.prototype.componentWillMount = function () {
 	        var _this = this;
-	        var CAMLQuery = "<View><Query><Where><Neq><FieldRef Name='ForslagStatus'  /><Value Type='Text'>Realisert</Value></Neq></Where></Query></View>";
+	        var CAMLQuery = "<View><Query><OrderBy><FieldRef Name='Created' Ascending='FALSE' /></OrderBy><Where><Neq><FieldRef Name='ForslagStatus'  /><Value Type='Text'>Realisert</Value></Neq></Where></Query></View>";
 	        if (this.props.Type == SPTools_1.SuggestionType.SuccessStories)
-	            CAMLQuery = "<View><Query><Where><Eq><FieldRef Name='ForslagStatus'  /><Value Type='Text'>Realisert</Value></Eq></Where></Query></View>";
+	            CAMLQuery = "<View><Query><OrderBy><FieldRef Name='Created' Ascending='FALSE' /></OrderBy><Where><Eq><FieldRef Name='ForslagStatus'  /><Value Type='Text'>Realisert</Value></Eq></Where></Query></View>";
 	        SPTools_1.Suggestions.GetByQuery(CAMLQuery)
 	            .done((function (result) {
 	            _this.setState({ suggestions: result });

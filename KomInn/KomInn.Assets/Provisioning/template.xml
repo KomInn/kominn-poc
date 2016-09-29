@@ -9,7 +9,30 @@
         <pnp:PropertyBagEntries>
         <pnp:PropertyBagEntry Key="SiteCollectionGroupId0b08ad0b-df97-4cae-b1b1-5d56842604a7" Value="335ef689-9254-4f73-a02b-a7143ecd819a" Overwrite="false" />
       </pnp:PropertyBagEntries>
-          
+
+      <pnp:Security>       
+        <pnp:SiteGroups>          
+          <pnp:SiteGroup Title="Saksbehandlere" Description="" Owner="" AllowMembersEditMembership="false" AllowRequestToJoinLeave="false" AutoAcceptRequestToJoinLeave="false" OnlyAllowMembersViewMembership="true">
+            <pnp:Members>
+              <pnp:User Name="c:0(.s|true" />
+            </pnp:Members>
+          </pnp:SiteGroup>
+          <pnp:SiteGroup Title="Saksmottak" Description="" Owner="" AllowMembersEditMembership="false" AllowRequestToJoinLeave="false" AutoAcceptRequestToJoinLeave="false" OnlyAllowMembersViewMembership="true">
+            <pnp:Members>
+              <pnp:User Name="c:0(.s|true" />
+            </pnp:Members>
+          </pnp:SiteGroup>
+        </pnp:SiteGroups>
+        <pnp:Permissions>
+          <pnp:RoleAssignments>            
+            <pnp:RoleAssignment Principal="c:0(.s|true" RoleDefinition="{roledefinition:Contributor}" />
+            <pnp:RoleAssignment Principal="Saksmottak" RoleDefinition="{roledefinition:Contributor}" />
+            <pnp:RoleAssignment Principal="Saksbehandlere" RoleDefinition="{roledefinition:Contributor}" />
+          </pnp:RoleAssignments>
+        </pnp:Permissions>
+      </pnp:Security>
+
+
       <pnp:SiteFields>
         <Field Type="Note" DisplayName="Tags_0" StaticName="l7db7e98492e43b2889c5bb222806187" Name="l7db7e98492e43b2889c5bb222806187" ID="{8d7f7f09-3c3f-4caa-b586-5a87fc7113cc}" ShowInViewForms="FALSE" Required="FALSE" Hidden="TRUE" CanToggleHidden="TRUE" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" />
         <Field Type="Note" DisplayName="ForslagType_0" StaticName="kad0c13056f543d098a626217b10ec09" Name="kad0c13056f543d098a626217b10ec09" ID="{17ba671c-6f49-47f4-8a80-9c8956d168ee}" ShowInViewForms="FALSE" Required="FALSE" Hidden="TRUE" CanToggleHidden="TRUE" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" />

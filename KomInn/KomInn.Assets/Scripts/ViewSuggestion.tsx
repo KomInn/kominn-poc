@@ -25,6 +25,8 @@ export class ViewSuggestion extends React.Component<void, ViewSuggestionData>
 
         Suggestions.GetById(suggestionId).done( ((res:Suggestion) => 
         {
+
+        
             this.setState({Suggestion:res});
             Like.LoadForSuggestion(res).done( ((like:Like) => {
                 this.setState({Like:like});

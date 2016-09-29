@@ -4,6 +4,7 @@
 
 $.ajaxSetup({headers: {"Accept": "application/json;odata=verbose"}})
 
+/* Global interfaces */
 export enum SuggestionType { "Submitted", "SuccessStories" };
 export interface IUser {
     DisplayName?:string,
@@ -17,7 +18,35 @@ export interface ITaxonomyTerm
     Id?:string
 }
 
+export interface IUserProfileProperty {
+     Key?:string, 
+     Value?:string, 
+     ValueType?:string 
+}
+
+export interface ISPUserProfile {
+    AccountName?:string;
+    DisplayName?:string;
+    Email?:string;
+    PictureUrl?:string; 
+    UserProfileProperties:UserProfilePropertyArray<IUserProfileProperty>
+}
+
 interface UserImage { ImageUrl:string, Username:string }
+
+class UserProfilePropertyArray<IUserProfileProperty> extends Array<any> 
+{
+    public findByKey(key:string):IUserProfileProperty
+    {
+        for(var i=0;i<this.length;i++)
+        {
+            if(this[i].Key == key)
+                return this[i];
+        }
+
+    }
+}
+
 export class UserProfile 
 {    
     public static ensureUser(username:string):JQueryPromise<any>      
@@ -78,11 +107,85 @@ export class UserProfile
     {
         return encodeURIComponent(loginname);
     }
+
+    public static GetMyProperties():JQueryPromise<ISPUserProfile>
+    {        
+        var df = $.Deferred();
+         $.ajax({
+                url:_spPageContextInfo.webAbsoluteUrl + "/_api/sp.userprofiles.peoplemanager/getmyproperties", 
+                type:"GET", 
+                headers:{ "Accept":"application/json;odata=verbose" },
+                success:(result:any) => {                     
+                    var upsArr = new UserProfilePropertyArray<IUserProfileProperty>();
+                    var props = result.d.UserProfileProperties.results; 
+                    for(var i=0;i<props.length;i++)
+                    {                        
+                        var newItem:IUserProfileProperty = {
+                            Key:props[i].Key,
+                            Value:props[i].Value, 
+                            ValueType:props[i].ValueType
+                        }
+                        upsArr.push(newItem);
+                    }                   
+                    result.d.UserProfileProperties = upsArr; 
+                    df.resolve(result.d);
+                
+             },
+                error: (err:any) => { df.reject(); }
+         });
+         return df.promise();
+    }
 }
+ 
+
+
 
 export class Taxonomy
 {
-    
+   public static GetTaxonomyArray(termset:string, language:number):JQueryPromise<Array<ITaxonomyTerm>>
+   {
+       var  df = $.Deferred(); 
+       var context = SP.ClientContext.get_current();      
+       var taxSession = SP.Taxonomy.TaxonomySession.getTaxonomySession(context);
+       var termStore = taxSession.getDefaultSiteCollectionTermStore();
+       termStore.updateCache();
+
+       context.load(termStore);
+       context.executeQueryAsync(s.bind(this), f.bind(this))
+       function f() { console.log(":("); }
+       
+       function s() {
+       var termSets = termStore.getTermSetsByName(termset, language);
+       var termSet = termSets.getByName(termset);
+       var terms = termSet.getAllTerms();     
+       context.load(terms);
+       context.executeQueryAsync(success.bind(this), fail.bind(this));   
+                
+
+       function success(sender:any, args:any)
+       {
+           termStore.updateCache();
+            var retrievedTerms = new Array<ITaxonomyTerm>();
+            var termEnumerator = terms.getEnumerator();                
+            while(termEnumerator.moveNext()){
+                var term = termEnumerator.get_current();
+
+                retrievedTerms.push({
+                    Title:term.get_name(), 
+                    Id:term.get_id().toString()});                    
+            } 
+            console.log(retrievedTerms);
+            df.resolve(retrievedTerms);                
+        }
+        function fail()
+        {
+            console.log(arguments[1].get_message());
+            df.reject();
+        }
+       }
+       
+       return df.promise(); 
+   } 
 }
 
 export class ListData
@@ -261,7 +364,7 @@ export class Comments
                           LoginName:item.Person.UserName, 
                           Id:item.Person.Id
                        }, 
-                       Timestamp: this.formatDate(item.Created), 
+                       Timestamp: formatDate(item.Created), 
                        Image:""
                    });
                 }
@@ -390,17 +493,8 @@ export class Comments
             });
 
         return df.promise();
-    }
-
-    public static formatDate(netdate:string):string
-    {
-        var year = netdate.substr(0,4);
-        var month = netdate.substr(5,2);
-        var day = netdate.substr(8,2);
-        return day + "." + month + "." + year;
-    }
+    }   
 }
-
 
 
 export class Suggestion
@@ -412,7 +506,7 @@ export class Suggestion
     public Epostadresse:string;
     public ForslagTilLosning:string; 
     public ForslagStatus:string;
-    public ForslagType:ITaxonomyTerm
+    public ForslagType:ITaxonomyTerm;
     public Kommune:string;
     public Kommunenummer:string; 
     public Konkurransereferanse:string; 
@@ -430,18 +524,142 @@ export class Suggestion
     public ModifiedBy:string; 
     public AntallKommentarer:number;    
     public Attachments:boolean
+    public Dato:string;
 
     constructor(item_id?:number)
     {
-        if(item_id == undefined)
-        {
-            this.Id = -1; 
-            return;
-        }
+        this.ForslagType = { Id:null, Title:null };
+        this.NarmesteLeder = { DisplayName:null, Id:null, LoginName:null };
+        this.Navn = { DisplayName:null, Id:null, LoginName:null };
+        this.Id = -1; 
+        this.Adresse = ""; 
+        this.Avdeling = ""; 
+        this.Created = ""; 
+        this.Epostadresse = ""; 
+        this.ForslagTilLosning = ""; 
+        this.ForslagStatus = ""; 
+        this.Kommune = ""; 
+        this.Kommunenummer = ""; 
+        this.Likes = 0; 
+        this.Modified = ""; 
+        this.NyttigForAndre = ""; 
+        this.Postnummer = ""; 
+        this.Saksbehandler = { DisplayName:null, Id:null, LoginName:null};
+        this.Telefon = ""; 
+        this.Utfordring = ""; 
+        this.Virksomhet = "";
+        this.ModifiedBy = "";
+        this.AntallKommentarer = 0; 
+        this.Attachments = false; 
+        this.Dato = "";  
+
+
+
+
+        if(item_id != undefined)             
+            this.Id = item_id;  
+             
+    }
+
+    public Save():JQueryPromise<{}>
+    {        
+        var df = $.Deferred();
+        var context = SP.ClientContext.get_current();
+        var list = context.get_web().get_lists().getByTitle("Forslag"); 
+        var itemcreationinfo = new SP.ListItemCreationInformation();
+        var item = list.addItem(itemcreationinfo);
+        item.set_item("Adresse", this.Adresse);
+        item.set_item("Avdeling", this.Avdeling);
+        item.set_item("E_x002d_postadresse", this.Epostadresse);
+        item.set_item("Forslag_x0020_til_x0020_l_x00f8_", this.ForslagTilLosning);
+        item.set_item("ForslagStatus", "Sendt inn");
+        item.set_item("Kommune", this.Kommune); 
+        item.set_item("Kommunenummer", this.Kommunenummer);
+        item.set_item("Konkurransereferanse", this.Konkurransereferanse); 
+        item.set_item("Nyttig_x0020_for_x0020_andre_x00", this.NyttigForAndre);
+        item.set_item("Postnummer", this.Postnummer);
+        item.set_item("Telefon", this.Avdeling);
+        item.set_item("Utfordring", this.Utfordring);
+        item.set_item("Virksomhet", this.Virksomhet);
+    
+        var manager = new SP.FieldUserValue();
+        manager.set_lookupId(this.NarmesteLeder.Id);         
+        item.set_item("N_x00e6_rmeste_x0020_leder", manager);
+
+        var self = new SP.FieldUserValue();
+        self.set_lookupId(_spPageContextInfo.userId);
+        item.set_item("Navn", self);             
+        console.log(this.ForslagType);
+        if(this.ForslagType.Id.length > 0)
+        {            
+            var taxSingle = new SP.Taxonomy.TaxonomyFieldValue();            
+            taxSingle.set_termGuid(new SP.Guid(this.ForslagType.Id)); 
+            taxSingle.set_label(this.ForslagType.Title);
+            taxSingle.set_wssId(-1);
+            item.set_item("ForslagType", taxSingle);   
+        } 
+        item.update(); 
+        context.load(item);
+        context.executeQueryAsync(success.bind(this), fail);
         
-        this.Id = item_id;      
+        function success(d:any){
+                                   
+            df.resolve();
+        }
+
+        function fail(d:any, args:any)
+        {                       
+            console.log(args.get_message());
+            df.reject(args.get_message());
+        }
+        return df.promise();
+    }
+        
+    public PopulateFromUserProfile():JQueryPromise<Suggestion>
+    {
+        console.log("HI");
+        var df = $.Deferred();
+        UserProfile.GetMyProperties()
+            .done( (results:ISPUserProfile) => {                
+                 var props:UserProfilePropertyArray<IUserProfileProperty> = results.UserProfileProperties                               
+                 this.Adresse = props.findByKey("Office").Value;
+                 this.Avdeling = props.findByKey("SPS-JobTitle").Value;
+                 this.Epostadresse = props.findByKey("WorkEmail").Value; 
+                 this.Telefon = props.findByKey("CellPhone").Value; 
+                 this.Virksomhet = props.findByKey("Department").Value; 
+                 this.Dato = this.getTodaysDate();
+                 this.Konkurransereferanse = GetUrlKeyValue("ref"); 
+
+                 UserProfile.ensureUser(props.findByKey("Manager").Value)
+                    .done( (result:any) => {
+                        this.NarmesteLeder = {
+                            DisplayName:result.d.Title, 
+                            LoginName:result.d.LoginName, 
+                            Id:result.d.Id
+                        }
+                        
+                        UserProfile.GetMyProperties()
+                            .done( (self:any) => {
+                                this.Navn = {
+                                    DisplayName:self.DisplayName, 
+                                    LoginName:self.AcountName, 
+                                    Id:_spPageContextInfo.userId
+                                }
+                                df.resolve(this);
+                            });
+                        });
+            });
+        return df.promise();
+    }
+
+    private getTodaysDate()
+    {
+        var d = new Date();
+        return d.getDate() + "." + (d.getMonth() +1) + "." + d.getFullYear();
     }
 }
+
+
 
 export class Suggestions {
 
@@ -463,6 +681,7 @@ export class Suggestions {
 
     public static GetByQuery(CAMLQuery:string):JQueryPromise<Array<Suggestion>>
     { 
+        console.log("Get by query entered"); 
         var deferred = $.Deferred(); 
         var fArr = new Array<Suggestion>();
         var query = new SP.CamlQuery();        
@@ -475,22 +694,23 @@ export class Suggestions {
         clientContext.executeQueryAsync(
         () => 
         {
+            console.log("Execute query async in get by query"); 
         if (items.get_count() <= 0) {
             deferred.resolve(fArr);
             return;  
         }
+        console.log("Getting enumerator"); 
         var enumerator = items.getEnumerator();        
         while (enumerator.moveNext()) 
         {
+            console.log("Enumerating");
             var listItem = enumerator.get_current();
-            var f = new Suggestion(listItem.get_item("ID"));
-            
+            var f = new Suggestion(listItem.get_item("ID"));            
             // Init default values
             f.Navn = { DisplayName:"", LoginName:"", Id:-1 };
             f.NarmesteLeder = { DisplayName:"", LoginName:"", Id:-1 };
             f.ForslagType = { Id:"", Title:"" };
-            f.Tags = new Array<ITaxonomyTerm>();
-            
+            f.Tags = new Array<ITaxonomyTerm>();            
             // Navn SPUser
             let navnField:SP.FieldUserValue = listItem.get_item('Navn');
             if(navnField != null)
@@ -499,7 +719,7 @@ export class Suggestions {
                         LoginName:"", 
                         Id:navnField.get_lookupId() };
             }
-                    
+                 
             // Manager
             let managerField:SP.FieldUserValue = listItem.get_item("N_x00e6_rmeste_x0020_leder");
             if(managerField != null)
@@ -510,7 +730,7 @@ export class Suggestions {
                         Id:managerField.get_lookupId()
                     };
             }
-
+            
             // ForslagType 
             let taxField:SP.Taxonomy.TaxonomyFieldValue = listItem.get_item("ForslagType");
             if(taxField != null)
@@ -544,18 +764,20 @@ export class Suggestions {
             f.ForslagStatus = listItem.get_item("ForslagStatus");
             f.ForslagTilLosning = listItem.get_item("Forslag_x0020_til_x0020_l_x00f8_");
             f.Id = listItem.get_item("ID");
-            f.Kommune = listItem.get_item("Kommune"); 
+            f.Kommune = listItem.get_item("Kommune");
             f.Kommunenummer = listItem.get_item("Kommunenummer");
             f.Konkurransereferanse = listItem.get_item("Konkurransereferanse");
             f.Likes = listItem.get_item("Likes"); 
             f.NyttigForAndre = listItem.get_item("Nyttig_x0020_for_x0020_andre_x00");
-            f.Postnummer = listItem.get_item("Postnummer"); 
+            f.Postnummer = listItem.get_item("Postnummer");
             f.Telefon = listItem.get_item("Telefon"); 
             f.Utfordring = listItem.get_item("Utfordring"); 
             f.Virksomhet = listItem.get_item("Virksomhet");
             f.AntallKommentarer = listItem.get_item("AntallKommentarer");
+            
             fArr.push(f); 
         }
+        console.log("Resolving Farr");
         deferred.resolve(fArr);
             
         
@@ -567,7 +789,9 @@ export class Suggestions {
 
     var promiseResult = deferred.promise();
     return promiseResult; 
-}
+    }
+
+
 
    public static partitionSuggestions(suggestions:Array<Suggestion>, partitionSize:number):JQueryPromise<Array<Array<Suggestion>>>
   {     
@@ -589,14 +813,15 @@ export class Suggestions {
          df.resolve(p);
          return df.promise();         
   }
-
-
-     formatDate(netdate:string):string
-    {
-        var year = netdate.substr(0,4);
-        var month = netdate.substr(5,2);
-        var day = netdate.substr(8,2);
-        return day + "." + month + "." + year;
-    }
-
 }
+
+/* Global functions */
+function formatDate(netdate:string):string
+{
+    var year = netdate.substr(0,4);
+    var month = netdate.substr(5,2);
+    var day = netdate.substr(8,2);
+    return day + "." + month + "." + year;
+}
+
+

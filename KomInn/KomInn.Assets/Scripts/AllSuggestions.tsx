@@ -79,17 +79,19 @@ class SuggestionList extends React.Component<SuggestionListProps, SuggestionList
 
     componentWillMount() 
     {
-        var CAMLQuery = "<View><Query><Where><Neq><FieldRef Name='ForslagStatus'  /><Value Type='Text'>Realisert</Value></Neq></Where></Query></View>";
+        var CAMLQuery = "<View><Query><OrderBy><FieldRef Name='Created' Ascending='FALSE' /></OrderBy><Where><Neq><FieldRef Name='ForslagStatus'  /><Value Type='Text'>Realisert</Value></Neq></Where></Query></View>";
          
         if(this.props.Type == SuggestionType.SuccessStories)
-            CAMLQuery = "<View><Query><Where><Eq><FieldRef Name='ForslagStatus'  /><Value Type='Text'>Realisert</Value></Eq></Where></Query></View>";
+            CAMLQuery = "<View><Query><OrderBy><FieldRef Name='Created' Ascending='FALSE' /></OrderBy><Where><Eq><FieldRef Name='ForslagStatus'  /><Value Type='Text'>Realisert</Value></Eq></Where></Query></View>";
 
+
+ 
         Suggestions.GetByQuery(CAMLQuery)
             .done( ((result:Array<Suggestion>) => 
             {               
-                this.setState({suggestions:result});
+              
                 
-    
+                this.setState({suggestions:result});    
                 Suggestions.partitionSuggestions(result, 4)
                 .done( ((computedPartitions:Array<Array<Suggestion>>) =>    
                 {                   
