@@ -25,8 +25,6 @@ export class ViewSuggestion extends React.Component<void, ViewSuggestionData>
 
         Suggestions.GetById(suggestionId).done( ((res:Suggestion) => 
         {
-
-        
             this.setState({Suggestion:res});
             Like.LoadForSuggestion(res).done( ((like:Like) => {
                 this.setState({Like:like});
@@ -194,25 +192,25 @@ class SuggestionComments extends React.Component<ViewSuggestionData, CommentsSta
         var comments = this.state.Comments;        
         comments.unshift(newcomment);        
         this.setState({Comments:comments}); 
-    }
+    } 
   
 
 render() {    
         return (<div className="row">
-            <div className="col-xs-12 col-md-6">
+            <div className="col-xs-12 col-md-6"> 
             <hr/>
             <NewCommentBox Suggestion={this.props.Suggestion} NewCommentAddedHandler={this.newCommentAddedHandler.bind(this)} />
             <CommentsList Comments={this.state.Comments}  />
         </div></div>)       
     }
 } 
-interface NewCommentState { Comment?:Comment, ShowNewComment?:boolean }
+interface NewCommentState { Comment?:Comment, ShowNewComment?:boolean, Sending?:boolean }
 class NewCommentBox extends React.Component<ViewSuggestionData, NewCommentState>
 {
     constructor()
     {
         super();
-        this.state = { Comment:{Text:""}, ShowNewComment:false }
+        this.state = { Comment:{Text:""}, ShowNewComment:false, Sending:false }
     }
     handleTextChanged(e:any) {
         this.state.Comment.Text = e.target.value;
@@ -223,21 +221,30 @@ class NewCommentBox extends React.Component<ViewSuggestionData, NewCommentState>
     {
         this.setState({ShowNewComment: !this.state.ShowNewComment });
     } 
-
+ 
     saveNewComment()
     {
-        Comments.NewComment(this.state.Comment.Text, this.props.Suggestion.Id).done( ((comment:Comment)=> 
+        this.setState({Sending:true}, (() => 
         {
-            this.props.NewCommentAddedHandler(comment);
-            var c = this.state.Comment;
-            c.Text = ""; 
-            this.setState({Comment:c});
-            this.setState({ShowNewComment:false});
+                Comments.NewComment(this.state.Comment.Text, this.props.Suggestion.Id).done( ((comment:Comment)=> 
+                {
+                    this.props.NewCommentAddedHandler(comment);
+                    var c = this.state.Comment;
+                    c.Text = ""; 
+                    this.setState({Comment:c});
+                    this.setState({ShowNewComment:false});
+                    this.setState({Sending:false})
+                }).bind(this));        
         }).bind(this));
+       
     }
 
     render()
     {
+
+        if(this.state.Sending)
+            return <div className="row"><div className="col-xs-12"><label>Vennligst vent...</label></div></div>;
+
         if(!this.state.ShowNewComment)
         return (
             <div className="row newcomment">

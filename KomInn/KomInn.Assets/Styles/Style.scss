@@ -3,11 +3,12 @@ $kiGray:#E8E8E8;
 $kiDarkGray:#A5A5A5;
 $kiGreen: #5cb85c;
 $kiBorderGreen: #4cae4c;
-$kiGrayTransparent:rgba(232,232,232,0.5);
+$kiGrayTransparent:rgba(232,232,232,0.7);
 
 
 .kiGradient
 {  
+  
 background: -moz-linear-gradient(top, rgba(232,232,232,0.65) 0%, rgba(5,5,5,0.19) 98%, rgba(0,0,0,0.19) 100%); /* FF3.6-15 */
 background: -webkit-linear-gradient(top, rgba(232,232,232,0.65) 0%,rgba(5,5,5,0.19) 98%,rgba(0,0,0,0.19) 100%); /* Chrome10-25,Safari5.1-6 */
 background: linear-gradient(to bottom, rgba(232,232,232,0.65) 0%,rgba(5,5,5,0.19) 98%,rgba(0,0,0,0.19) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
@@ -217,7 +218,7 @@ body {
 {
  margin:10px;
   height:250px;
-  width:230px;
+  width:245px;
   background-color:$kiGrayTransparent;
   position:relative; 
   box-shadow: -2px 2px 5px $kiDarkGray;
@@ -227,7 +228,7 @@ body {
   header {
     padding:5px;
     font-weight:bold;
-    background-color:$kiGreen;
+    background-color:rgba(92,184,92,0.8);
     border-bottom:1px solid $kiBorderGreen;
   }
   
@@ -242,6 +243,11 @@ body {
       bottom:0;
       padding:5px;
       font-weight:bold;
+      width:100%; 
+      background-color:$kiGrayTransparent;
+      color:black;
+      
+
       .icon {
         margin-right:5px;
       }    
@@ -348,6 +354,8 @@ hr{
 
 .clickable{
   cursor:pointer; 
+  background-color:rgba(255,255,255,0.6);
+
 }
 
 .filters
@@ -357,3 +365,4 @@ hr{
     padding:5px;
   }
 }
+

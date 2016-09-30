@@ -9,7 +9,7 @@ import {ListData, UserProfile, ITaxonomyTerm, IUser, Taxonomy, IUserProfilePrope
     interface Validator {
         Required:boolean,      
         validate?:boolean
-    }
+    } 
     interface ChangedFieldValues { Value:string, Name:string }
     interface InputFieldProps { Label:string, OnChangeHandler?(evt:ChangedFieldValues):void, Value:string, Name:string, Placeholder?:string, Validate?:boolean, Locked?:boolean, ForceLength?:number}   
     interface InputFieldState { isValid:boolean }

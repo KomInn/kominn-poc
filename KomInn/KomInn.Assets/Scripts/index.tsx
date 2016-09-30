@@ -4,7 +4,7 @@ import * as ReactDOM from "react-dom";
 import { NewSuggestionForm } from "./NewSuggestionForm";
 import { AllSuggestions } from "./AllSuggestions";
 import { ViewSuggestion }  from "./ViewSuggestion";
-import { ViewSuggestionsDetailed } from "./ViewSuggestionsDetailed";
+
 
 
 function renderSuggestionForm(id:string) 
@@ -31,13 +31,6 @@ function renderViewSuggestions(id:string)
     );
 }
 
-function renderShowAllSuggestionsDetailed(id:string)
-{
-    ReactDOM.render(
-    <ViewSuggestionsDetailed />,
-        document.getElementById(id)
-    );
-}
 
 if(document.getElementById("form") != null)
     renderSuggestionForm("form");
@@ -47,8 +40,5 @@ if(document.getElementById("allsuggestions") != null)
 
 if(document.getElementById("forslag") != null)
     renderViewSuggestions("forslag");
-
-if(document.getElementById("allsuggestions-filterable") != null)
-    renderShowAllSuggestionsDetailed("allsuggestions-filterable");
 
 

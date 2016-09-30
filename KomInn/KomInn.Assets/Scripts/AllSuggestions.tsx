@@ -1,3 +1,4 @@
+
 // Structure tree
 /*
     AllSuggestions
@@ -9,11 +10,49 @@
 
 import * as React from "react";
 import * as $ from "jquery";
-import { ListData, Suggestion, Suggestions, SuggestionType, SuggestionViewDisplayMode, ITaxonomyTerm, SortTypes  } from "./SPTools"
+import { ListData, Suggestion, Suggestions, SuggestionType, SuggestionViewDisplayMode, ITaxonomyTerm, SortTypes, Taxonomy  } from "./SPTools"
 
 
-export class AllSuggestions extends React.Component<void, SuggestionListState>
+interface ShowAllButtonState { DisplayMode:SuggestionViewDisplayMode }
+interface ShowAllButtonProps { OnClickHandler():void, DisplayMode:SuggestionViewDisplayMode }
+class ShowAllButton extends React.Component<ShowAllButtonProps, ShowAllButtonState> {
+    
+    constructor() {
+        super();
+        this.state  = { DisplayMode:SuggestionViewDisplayMode.Brief }
+    }
+    componentWillMount()
+    {
+        
+        this.setState({DisplayMode:this.props.DisplayMode});
+    }
+
+    buttonClicked(evt:any)
+    {
+        this.props.OnClickHandler();
+        this.setState({DisplayMode:this.state.DisplayMode == SuggestionViewDisplayMode.Brief ? SuggestionViewDisplayMode.Detailed : SuggestionViewDisplayMode.Brief }); 
+    }
+
+    render()
+    {
+        var buttonText = this.state.DisplayMode == SuggestionViewDisplayMode.Brief ? "Vis alle" : "Vis færre";
+        return  (<div className="text-right button"><div className="btn-lg btn btn-success" onClick={this.buttonClicked.bind(this)}>{buttonText}</div></div>)
+    }
+}
+
+interface AllSuggestionsState { DisplayModeAll?:SuggestionViewDisplayMode, DisplayModeSuccess?:SuggestionViewDisplayMode }
+export class AllSuggestions extends React.Component<void, AllSuggestionsState>
 {
+    constructor()
+    {
+        super();
+        this.state = { DisplayModeAll:SuggestionViewDisplayMode.Brief }
+    }
+    changeDisplayModeAll()
+    {
+        this.setState({DisplayModeAll:(this.state.DisplayModeAll == SuggestionViewDisplayMode.Brief) ?  SuggestionViewDisplayMode.Detailed : SuggestionViewDisplayMode.Brief });
+    }
+   
     render()
     {
         
@@ -28,21 +67,8 @@ export class AllSuggestions extends React.Component<void, SuggestionListState>
                         <div className="col-xs-6">
                         </div>
                     </div>
-                    <div className="row">
-                        <div className="col-xs-12">
-                            <p>KomInn er en kommunal forslagsportal der du kan foreslå forbedringer og skape nye ideer.</p>
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col-xs-12">
-                            <SuggestionList Type={SuggestionType.Submitted}  Title="Mottatte forslag" DisplayMode={SuggestionViewDisplayMode.Brief} />             
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col-xs-12">                           
-                            <SuggestionList Type={SuggestionType.SuccessStories} Title="Suksesshistorier" DisplayMode={SuggestionViewDisplayMode.Brief} />
-                        </div>
-                    </div>       
+                    <SuggestionList Title="Mottatte forslag" InitialDisplayMode={SuggestionViewDisplayMode.Brief} Type={SuggestionType.Submitted} />
+                    <SuggestionList Title="Suksesshistorier" InitialDisplayMode={SuggestionViewDisplayMode.Brief} Type={SuggestionType.SuccessStories} />
                 </div>);
     }
 }
@@ -62,8 +88,17 @@ class NewSuggestionButton extends React.Component<void, {}>
 
 }
 
-export interface SuggestionListProps { Type:SuggestionType, Title:string, DisplayMode:SuggestionViewDisplayMode }
-export interface SuggestionListState { partitions?:Array<Array<Suggestion>>, windowWidth?:number, suggestions?:Array<Suggestion>, ShowFullWidthItem?:boolean, filters?:Array<ITaxonomyTerm> }
+export interface SuggestionListProps { Type:SuggestionType, InitialDisplayMode:SuggestionViewDisplayMode, Title:string }
+export interface SuggestionListState { 
+    partitions?:Array<Array<Suggestion>>, 
+    windowWidth?:number, 
+    suggestions?:Array<Suggestion>, 
+    ShowFullWidthItem?:boolean, 
+    filters?:Array<ITaxonomyTerm>, 
+    selectedSort?:SortTypes,
+    selectedFilter?:string,
+    DisplayMode?:SuggestionViewDisplayMode
+}
 export class SuggestionList extends React.Component<SuggestionListProps, SuggestionListState>
 {         
     id:string;  
@@ -75,21 +110,57 @@ export class SuggestionList extends React.Component<SuggestionListProps, Suggest
                        windowWidth:window.innerWidth, 
                        suggestions:new Array<Suggestion>(),
                     ShowFullWidthItem:false,
-                filters:new Array<ITaxonomyTerm>() };        
+                filters:new Array<ITaxonomyTerm>(),
+               selectedSort:SortTypes.Newest, 
+            selectedFilter:null,
+        DisplayMode:SuggestionViewDisplayMode.Brief };
+                
     }
 
     componentWillMount() 
     {
-         window.addEventListener('resize', this.handleResize.bind(this));        
+        this.setState({DisplayMode:this.props.InitialDisplayMode});        
+         window.addEventListener('resize', this.handleResize.bind(this));
+         this.loadSuggestions();         
+         Taxonomy.GetTaxonomyArray("ForslagType", 1033).done( ((result:Array<ITaxonomyTerm>) => {
+            this.setState({filters:result});
+         }).bind(this))
+    }
 
-        var CAMLQuery = "<View><Query><OrderBy><FieldRef Name='Likes' Ascending='FALSE' /></OrderBy><Where><Neq><FieldRef Name='ForslagStatus'  /><Value Type='Text'>Realisert</Value></Neq></Where></Query></View>";        
-         
-        if(this.props.Type == SuggestionType.SuccessStories)
-            CAMLQuery = "<View><Query><OrderBy><FieldRef Name='Created' Ascending='FALSE' /></OrderBy><Where><Eq><FieldRef Name='ForslagStatus'  /><Value Type='Text'>Realisert</Value></Eq></Where></Query></View>";
- 
-        Suggestions.GetByQuery(CAMLQuery)
+    loadSuggestions()
+    {
+        var eqc = (this.props.Type == SuggestionType.SuccessStories ) ? "Eq" : "Neq";
+         var filterand = ""; 
+         var filtercaml = ""; 
+         var filterandclose = "";
+
+         if(this.state.selectedFilter != null && this.state.selectedFilter != "")
+         {
+            filterand = "<And>"; 
+            filterandclose = "</And>"
+            filtercaml = "<Eq><FieldRef Name='ForslagType' /><Value Type='Text'>"+this.state.selectedFilter+"</Value></Eq>";
+
+         } 
+          var CAMLQuery = 
+            `<View><Query>
+                    <OrderBy>
+                        <FieldRef Name='${this.mapSortFieldToType(this.state.selectedSort)}' Ascending='${ (this.state.selectedSort == SortTypes.Oldest ? "TRUE" : "FALSE" ) }' />
+                    </OrderBy>
+                    <Where>
+                    ${filterand}
+                        <${eqc}>
+                            <FieldRef Name='ForslagStatus'  /><Value Type='Text'>Realisert</Value>
+                        </${eqc}>                   
+                        ${filtercaml}
+                    ${filterandclose}</Where></Query></View>`;  
+       
+
+
+             Suggestions.GetByQuery(CAMLQuery)
             .done( ((result:Array<Suggestion>) => 
             {
+                console.log("result");
+                console.log(result);
                 this.setState({suggestions:result});   
                 
                 var numPartitions = 
@@ -99,20 +170,29 @@ export class SuggestionList extends React.Component<SuggestionListProps, Suggest
                 .done( ((computedPartitions:Array<Array<Suggestion>>) =>    
                 {                   
                     this.setState({partitions:computedPartitions});
+                    this.handleResize();
                 }).bind(this));
 
         }).bind(this));
     }
 
+    mapSortFieldToType(sortType:SortTypes):string
+    {
+        switch(sortType)
+        {
+            case SortTypes.Oldest : 
+            case SortTypes.Newest : return "Created";
+            case SortTypes.Likes : return "Likes"; 
+            case SortTypes.Comments : return "AntallKommentarer";             
+            default : return "Created";            
+        }        
+    }
+
+
  
   handleResize()
   {
-      this.setState({windowWidth:window.innerWidth});    
-
-      if(this.state.suggestions.length <= 0)
-        return; 
-
-        
+      this.setState({windowWidth:window.innerWidth}, (() => {
       var width = this.state.windowWidth; 
       var parts = 4;
       if(width <= 544) // xs
@@ -145,10 +225,12 @@ export class SuggestionList extends React.Component<SuggestionListProps, Suggest
     {
         this.setState({partitions:computedPartitions});
     }).bind(this));    
+
+      }).bind(this));
   }
 
     detailedMode():boolean{
-        return this.props.DisplayMode == SuggestionViewDisplayMode.Detailed;
+        return this.state.DisplayMode == SuggestionViewDisplayMode.Detailed;
     }
 
     renderIndicators()
@@ -158,7 +240,6 @@ export class SuggestionList extends React.Component<SuggestionListProps, Suggest
 
         if(this.state.suggestions.length <= 3)
             return <div></div>;
-
         return ( <div className="carousel-indicators-wrap" >
                     <a className="carousel-control left glyphicon glyphicon-chevron-left " href={'#'+this.id} data-slide="prev"></a>
                     <ol className="carousel-indicators">
@@ -170,35 +251,52 @@ export class SuggestionList extends React.Component<SuggestionListProps, Suggest
                     <a className="carousel-control right glyphicon glyphicon-chevron-right" href={'#'+this.id} data-slide="next"></a>
                 </div>);
     } 
-    
+
+    changeDisplayMode() {
+        this.setState({DisplayMode: (this.detailedMode()) ? SuggestionViewDisplayMode.Brief : SuggestionViewDisplayMode.Detailed}, ( () => {
+            this.loadSuggestions();
+        }).bind(this));
+    }
+
+    /* RENDER */ 
     render() {       
         if(this.state.suggestions.length <= 0)
-            return <div></div>;
-        
+            return (
+                <div> 
+                    {this.renderFilters()}
+                </div>);
 
 
     return (
         <div>
-            <h1>{this.props.Title}</h1> 
-            {this.renderFilters()}
-            <div id={this.id} className="carousel slide" data-interval="false">   
-                <div className="carousel-inner">
-                    {this.state.partitions.map((item, index) => {
-                         if(this.detailedMode())
-                         {
-                             if(!this.filterMatch(item[index]))
-                                return <span></span>
-                         }                       
-
-                        return <CarouselViewItem suggestions={item} index={index} DisplayMode={this.props.DisplayMode} Fullwidth={this.state.ShowFullWidthItem} />
-                    })}
-                </div>
-                {this.renderIndicators()}
-            </div>    
+        <div className="row">
+            <div className="col-xs-6">
+                <h1>{this.props.Title}</h1>
+            </div>
+            <div className="col-xs-6">
+                 <ShowAllButton DisplayMode={this.state.DisplayMode}  OnClickHandler={this.changeDisplayMode.bind(this)} />
+            </div>
+        </div>
+        <div className="row">
+            <div className="col-xs-12">
+                {this.renderFilters()}
+                <div id={this.id} className="carousel slide" data-interval="false">   
+                    <div className="carousel-inner">
+                        {this.state.partitions.map((item, index) => {
+                            if(this.detailedMode())
+                            {
+                                if(!this.filterMatch(item[index]))
+                                    return <span></span>
+                            }
+                            return <CarouselViewItem suggestions={item} index={index} DisplayMode={this.state.DisplayMode} Fullwidth={this.state.ShowFullWidthItem} />
+                        })}
+                    </div>
+                    {this.renderIndicators()}
+                </div>   
+            </div> 
+        </div>
         </div> ); 
     }
-
-
     
     renderFilters()
     {
@@ -210,16 +308,19 @@ export class SuggestionList extends React.Component<SuggestionListProps, Suggest
             <div className="filters form-group">
                 <div className="col-xs-4">
                     <span className="glyphicon glyphicon-filter"></span><strong>Filtrer </strong>
-                    <select className="form-control" onChange={this.filterChange}>
-                        <option value="test" selected></option>
-                        <option value="Fag">Fag</option>
-                        <option value="Forslag">Forslag</option>
-                        <option value="Fag2">Fag2</option>
+                    <select className="form-control" onChange={this.filterChange.bind(this)}>
+                        <option value="" selected></option>
+                        {this.state.filters.map( ((item:ITaxonomyTerm, index:number) => {
+                         return <option value={item.Title}>{item.Title}</option>
+                        }).bind(this))
+
+                        }
+                     
                     </select>
                 </div>
                 <div className="col-xs-4">
                     <span className="glyphicon glyphicon-sort"></span><strong>Sorter </strong>
-                    <select className="form-control" onChange={this.sortChange}>
+                    <select className="form-control" onChange={this.sortChange.bind(this)}>
                         <option value={SortTypes.Newest} selected>Nyeste</option>
                         <option value={SortTypes.Oldest}>Eldste</option>
                         <option value={SortTypes.Comments}>Kommentarer</option>
@@ -232,31 +333,25 @@ export class SuggestionList extends React.Component<SuggestionListProps, Suggest
     }
     sortChange(event:any)
     {
-        var selected= event.target.value; 
-        if(selected == SortTypes.Newest)
-        {
-            console.log("TEST");
-        }
+        var selected = parseInt(event.target.value);
+        this.setState({selectedSort:selected}, (() => this.loadSuggestions() ).bind(this));      
+     
     }
     filterChange(event:any){
-        console.log(event.target);
+        var selected = event.target.value;
+        this.setState({selectedFilter:selected}, (() => this.loadSuggestions() ).bind(this));                
+
     }
 
     filterMatch(item:Suggestion):boolean
     {
-        if(this.state.filters.length <= 0)
+        if(this.state.selectedFilter == null || this.state.selectedFilter == "")
             return true; 
-        
-        if(item.ForslagType == null || item.ForslagType.Id == null)
-            return false;  
-        
-        for(var i=0;i<this.state.filters.length;i++)
-        {
-            if(item.ForslagType.Id == this.state.filters[i].Id)
-                return true; 
-        }
-        return false; 
 
+        if(item.ForslagType.Title == this.state.selectedFilter)
+            return true; 
+
+        return false;
     }
 }
 
@@ -285,8 +380,20 @@ interface CarouselItemProps { suggestion:Suggestion, DisplayMode?:SuggestionView
 
 class CarouselItem extends React.Component<CarouselItemProps, {}> 
 {
-    
+    mapsApiKey:string; 
+    id:string;    
+    componentWillMount()
+    {
+        this.id = SP.Guid.newGuid().toString();
+        this.mapsApiKey = "AIzaSyBm6VUBv0vOatSFO61u9Cn83L11d5qpu8A"; // DEVELOPER KEY, WILL BE INVALIDATED WITHOUT WARNING!
 
+   
+    }
+
+    componentDidMount()
+    {
+    }
+  
     renderTags()
     {        
         if(this.props.suggestion.ForslagType.Id.length <= 0)
@@ -324,14 +431,32 @@ class CarouselItem extends React.Component<CarouselItemProps, {}>
         window.location.href = "Forslag.aspx?ref="+this.props.suggestion.Id; 
     }
 
+    getGMapsBGImage():any 
+    {
+        var addr = this.props.suggestion.Adresse;
+        var pnr = this.props.suggestion.Postnummer; 
+        if(addr == null && pnr == null)
+            return {backgroundImage:"none"};
+
+        if(pnr == null)
+            pnr = "";
+
+        pnr = ","+pnr; 
+
+        var str = "https://maps.googleapis.com/maps/api/staticmap?center="+addr+pnr+"&zoom=13&size=245x206&maptype=roadmap&key="+this.mapsApiKey;
+
+        return {backgroundImage:"url('"+str+"')"} 
+    }
+
     render()
     {              
        var fullWidth = (this.props.Fullwidth) ? "fullwidth" : "";
-       console.log(this.props.Fullwidth);
+       var bgImgUrl = this.getGMapsBGImage();
+
        var xsSize = (this.props.DisplayMode == SuggestionViewDisplayMode.Detailed) ? "col-xs-12" : "col-xs-6";
         return (        
          <div className={`col-sm-4 col-md-4 col-lg-3 ${xsSize}`} >
-            <section className={`ki-shadow-box-item ${fullWidth}`}>
+            <section className={`ki-shadow-box-item ${fullWidth}`} id={this.id} style={bgImgUrl} >
                 <article className="carousel-item kiGradient clickable" onClick={this.redirect.bind(this)}>
                     <header>{this.props.suggestion.Utfordring}</header>
                         <main className="">                                                        

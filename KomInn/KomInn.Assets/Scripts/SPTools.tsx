@@ -155,7 +155,7 @@ export class Taxonomy
 
        context.load(termStore);
        context.executeQueryAsync(s.bind(this), f.bind(this))
-       function f() { console.log(":("); }
+       function f() { console.log("Cache update failed."); }
        
        function s() {
        var termSets = termStore.getTermSetsByName(termset, language);
@@ -177,7 +177,7 @@ export class Taxonomy
                     Title:term.get_name(), 
                     Id:term.get_id().toString()});                    
             } 
-            console.log(retrievedTerms);
+            
             df.resolve(retrievedTerms);                
         }
         function fail()
@@ -381,6 +381,8 @@ export class Comments
             return df.promise(); 
     }
 
+    
+
     // Determine role based on retriever data from roledata. 
     private static DetermineRole(userId:number, roleData:any):string
     {
@@ -430,22 +432,21 @@ export class Comments
             relSuggestionField.set_lookupId(suggestionListItemId);            
             item.set_item("Forslag", relSuggestionField);
 
-            var rolle = this.DetermineRole(userId, roleData)
-            item.set_item("Rolle", rolle)            
+            var rolle = this.DetermineRole(userId, roleData);
+            item.set_item("Rolle", rolle);     
             item.update();
+
+ this.incrementNumCommentsOnSuggestionList(suggestionListItemId)
+                        .done( () => {
+
             context.load(item);
             context.executeQueryAsync( 
                 (result:any) => 
-                { 
-                    this.incrementNumCommentsOnSuggestionList(suggestionListItemId)
-                        .done( () => { 
-                           
+                {                            
                     // Get own properties 
                     UserProfile.GetIUserById(userId)
                         .done( (user:IUser) => 
-                        {                
-                            console.log("USER");
-                            console.log(user);            
+                        {                                        
                             let comment:Comment = 
                             { 
                                 Person:user, 
@@ -455,15 +456,16 @@ export class Comments
                                 Image:""                        
                             }            
                             df.resolve(comment);
-                        });
-                    });
+                        });                   
                 },
                 (err:any) => 
                 { 
                     console.log(err); 
                     df.reject(err);
                 });
-            }).bind(this));
+            });
+        }));
+    
 
         return df.promise();
     }
@@ -472,18 +474,13 @@ export class Comments
     {
         var df = $.Deferred();
 
-       ListData.getDataFromList("Forslag", "?$select=AntallKommentarer&$filter=Id eq "+listitem_id)
-        .done( (result:any) => {
-            var numComments = result.d.results[0].AntallKommentarer;
-            if(numComments == undefined || numComments == null)
-                numComments = 0;
-             
-            
+         
+        var comments = this.AllComments(new Suggestion(listitem_id)).done( (result:Array<Comment>) => {
             var context = SP.ClientContext.get_current();
             var list = context.get_web().get_lists().getByTitle("Forslag"); 
             var item = list.getItemById(listitem_id);         
          
-            item.set_item("AntallKommentarer", numComments + 1);
+            item.set_item("AntallKommentarer", result.length + 1);
             item.update();
             context.executeQueryAsync( 
                 ((r:any) => {                                   
@@ -592,7 +589,7 @@ export class Suggestion
         var self = new SP.FieldUserValue();
         self.set_lookupId(_spPageContextInfo.userId);
         item.set_item("Navn", self);             
-        console.log(this.ForslagType);
+        
         if(this.ForslagType.Id != null && this.ForslagType.Id.length > 0)
         {                    
             var taxSingle = new SP.Taxonomy.TaxonomyFieldValue();            
@@ -780,8 +777,7 @@ export class Suggestions {
             f.Virksomhet = listItem.get_item("Virksomhet");
             f.AntallKommentarer = listItem.get_item("AntallKommentarer");            
             fArr.push(f); 
-        }
-        console.log("Resolving Farr");
+        }        
         deferred.resolve(fArr);
             
         
