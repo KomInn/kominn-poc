@@ -27,7 +27,7 @@ Select your platform:
             if(choice == "111")
             {
                 var pwd = Input.ReadSecureString();
-                var p = new ProvisioningTool("DEV\\Administrator", pwd, "http://kominn2.smebydev.dev/",  @"D:\Git\KomInn-poc\KomInn\KomInn.Assets\Provisioning", Platform.Onprem);
+                var p = new ProvisioningTool("DEV\\Administrator", pwd, "http://smebydev/sites/kominn4",  @"D:\Git\KomInn-poc\KomInn\KomInn.Assets\Provisioning", Platform.Onprem);
                 p.InstallSolution();
                 Console.WriteLine("Installend");
                 Console.ReadKey();

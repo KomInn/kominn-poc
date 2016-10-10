@@ -9,6 +9,10 @@
     <Import_RootNamespace>KomInn.Assets</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\21850fc6-5102-4d2e-b3bb-5dc52f911d59.xaml" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\fcf19334-783d-4ca9-86ef-1ad55c454cc7.xaml" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SitePages\Forslag.aspx" />
+    <None Include="$(MSBuildThisFileDirectory)Provisioning\SitePages\Home.aspx" />
     <None Include="$(MSBuildThisFileDirectory)readme.md" />
     <None Include="$(MSBuildThisFileDirectory)Scripts\dependencies.js" />
     <None Include="$(MSBuildThisFileDirectory)Scripts\index.tsx" />

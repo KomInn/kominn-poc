@@ -122,7 +122,7 @@
 	        return true;
 	    };
 	    TextArea.prototype.render = function () {
-	        this.validate();
+	        // this.validate(); 
 	        var markErrorClass = "";
 	        if (!this.validate())
 	            markErrorClass = "label-error";
@@ -138,9 +138,6 @@
 	    function TextField() {
 	        _super.apply(this, arguments);
 	    }
-	    TextField.prototype.render = function () {
-	        return React.createElement("div", {className: "form-group"}, React.createElement("label", null, this.props.Label), React.createElement("input", {type: "text", className: "form-control", onChange: this.handleChange.bind(this), value: this.props.Value, placeholder: this.props.Placeholder, onBlur: this.forceLengthCheck.bind(this)}));
-	    };
 	    TextField.prototype.handleChange = function (event) {
 	        if (this.props.Locked)
 	            return;
@@ -158,6 +155,19 @@
 	        if (!this.state.isValid && this.props.Value.length > 0) {
 	            return React.createElement("label", {className: "label-error"}, "Feltet må ha ", this.props.ForceLength, " tegn.");
 	        }
+	    };
+	    TextField.prototype.validate = function () {
+	        if (!this.props.Validate)
+	            return true;
+	        if (this.props.Value.length <= 0)
+	            return false;
+	        return true;
+	    };
+	    TextField.prototype.render = function () {
+	        var errorClass = "";
+	        if (!this.validate())
+	            errorClass = "label-error";
+	        return React.createElement("div", {className: "form-group"}, React.createElement("label", {className: "" + errorClass}, this.props.Label), React.createElement("input", {type: "text", className: "form-control", onChange: this.handleChange.bind(this), value: this.props.Value, placeholder: this.props.Placeholder, onBlur: this.forceLengthCheck.bind(this)}));
 	    };
 	    return TextField;
 	}(React.Component));
@@ -285,6 +295,8 @@
 	    };
 	    NewSuggestionForm.prototype.doesFormValidate = function () {
 	        var canSubmit = true;
+	        if (this.state.suggestion.Title.length <= 0)
+	            canSubmit = false;
 	        if (this.state.suggestion.ForslagTilLosning.length <= 0)
 	            canSubmit = false;
 	        if (this.state.suggestion.Utfordring.length <= 0)
@@ -333,7 +345,7 @@
 	            return React.createElement(ThankYouPage, null);
 	        if (this.state.submitting)
 	            return React.createElement("h4", null, "Sender...");
-	        return (React.createElement("div", null, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("h1", null, "Nytt forslag"), React.createElement("p", null, "Tekst her?"))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12 col-sm-4 col-md-4 "}, React.createElement(TextField, {Label: "Postnummer", OnChangeHandler: this.postnrLookup.bind(this), Value: this.state.postalCodeText, Name: "Postnummer", ForceLength: 4}), this.renderPostalCodeError(), React.createElement(TextArea, {Label: "Utfordring *", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.suggestion.Utfordring, Name: "Utfordring", Placeholder: "Fortell om utfordringen", Validate: this.state.validate}), React.createElement(TextArea, {Label: "Forslag til løsning *", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.suggestion.ForslagTilLosning, Name: "ForslagTilLosning", Validate: this.state.validate}), React.createElement(TextArea, {Label: "Nyttig for andre? *", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.suggestion.NyttigForAndre, Name: "NyttigForAndre", Validate: this.state.validate}), React.createElement(SPTaxonomyField, {Label: "Type nytte / nytteverdi", Value: "", Name: "ForslagType", Termset: "ForslagType", LCID: 1033, TaxonomySelectedHandler: this.typeUtfordringSelectedHandler.bind(this)}), React.createElement("input", {type: "button", onClick: this.submitForm.bind(this), value: "Send inn"}), this.renderSubmitValidationFailed(), this.rendersubmitFailed()), React.createElement("div", {className: "col-xs-12 col-sm-4  col-md-4 "}, React.createElement(TextField, {Label: "Navn", Value: this.state.suggestion.Navn.DisplayName, Name: "Navn", Locked: true}), React.createElement(TextField, {Label: "Adresse", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.suggestion.Adresse, Name: "Adresse"}), React.createElement(TextField, {Label: "Mailadresse", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.suggestion.Epostadresse, Name: "Epostadresse"}), React.createElement(TextField, {Label: "Telefon", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.suggestion.Telefon, Name: "Telefon"})))));
+	        return (React.createElement("div", null, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12"}, React.createElement("h1", null, "Nytt forslag"), React.createElement("p", null, "Tekst her?"))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12 col-sm-4 col-md-4 "}, React.createElement(TextField, {Label: "Postnummer", OnChangeHandler: this.postnrLookup.bind(this), Value: this.state.postalCodeText, Name: "Postnummer", ForceLength: 4}), this.renderPostalCodeError(), React.createElement(TextField, {Label: "Tittel *", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.suggestion.Title, Name: "Title", Placeholder: "Beskriv ideen med én setning", Validate: this.state.validate}), React.createElement(TextArea, {Label: "Utfordring *", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.suggestion.Utfordring, Name: "Utfordring", Placeholder: "Fortell om utfordringen", Validate: this.state.validate}), React.createElement(TextArea, {Label: "Forslag til løsning *", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.suggestion.ForslagTilLosning, Name: "ForslagTilLosning", Validate: this.state.validate}), React.createElement(TextArea, {Label: "Nyttig for andre? *", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.suggestion.NyttigForAndre, Name: "NyttigForAndre", Validate: this.state.validate}), React.createElement(SPTaxonomyField, {Label: "Type nytte / nytteverdi", Value: "", Name: "ForslagType", Termset: "ForslagType", LCID: 1033, TaxonomySelectedHandler: this.typeUtfordringSelectedHandler.bind(this)}), React.createElement("input", {type: "button", onClick: this.submitForm.bind(this), value: "Send inn"}), this.renderSubmitValidationFailed(), this.rendersubmitFailed()), React.createElement("div", {className: "col-xs-12 col-sm-4  col-md-4 "}, React.createElement(TextField, {Label: "Navn", Value: this.state.suggestion.Navn.DisplayName, Name: "Navn", Locked: true}), React.createElement(TextField, {Label: "Adresse", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.suggestion.Adresse, Name: "Adresse"}), React.createElement(TextField, {Label: "Mailadresse", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.suggestion.Epostadresse, Name: "Epostadresse"}), React.createElement(TextField, {Label: "Telefon", OnChangeHandler: this.changeEvent.bind(this), Value: this.state.suggestion.Telefon, Name: "Telefon"})))));
 	    };
 	    return NewSuggestionForm;
 	}(React.Component));
@@ -12648,10 +12660,10 @@
 	        this.Loaded = false;
 	        this.Processing = false;
 	    }
-	    Like.LoadForSuggestion = function (suggestion) {
+	    Like.Load = function (suggestion) {
 	        var df = $.Deferred();
 	        ListData.getDataFromList("Likerklikk", "?$select=*,Forslag/Id,Person/Id&$expand=Forslag,Person&$filter=Forslag/Id eq " + suggestion.Id + " and Person/Id eq " + _spPageContextInfo.userId)
-	            .then((function (d) {
+	            .done((function (d) {
 	            var like = new Like(suggestion);
 	            like.Loaded = true;
 	            if (d.d.results.length <= 0) {
@@ -12661,8 +12673,8 @@
 	            like.UserLikesThis = true;
 	            like.setLikeListItemId(d.d.results[0].Id);
 	            df.resolve(like);
-	        }).bind(this), function () { df.reject(); });
-	        return df.promise();
+	        }).bind(this));
+	        return df;
 	    };
 	    Like.prototype.LikeUnlike = function () {
 	        if (this.UserLikesThis)
@@ -12696,7 +12708,7 @@
 	        context.load(item);
 	        context.executeQueryAsync((function (result) {
 	            _this.SuggestionItem.Likes += 1;
-	            _this.UpdateLikeCountInList().then(function () {
+	            _this.UpdateLikeCountInList().done(function () {
 	                _this.LikeListItemId = item.get_id();
 	                _this.UserLikesThis = true;
 	                _this.Processing = false;
@@ -12757,7 +12769,10 @@
 	    }
 	    Comments.AllComments = function (suggestion) {
 	        var df = $.Deferred();
-	        ListData.getDataFromList("Kommentarer", "?$select=Kommentar,Forslag/Id,Person/Title,Created,Person/Id,Person/UserName&$expand=Forslag,Person&$filter=Forslag/Id eq " + suggestion.Id + "&$orderby=Created desc").then((function (d) {
+	        ListData.getDataFromList("Kommentarer", "?$select=Kommentar,Forslag/Id,Person/Title,Created,Person/Id,Person/UserName&$expand=Forslag,Person&$filter=Forslag/Id eq " + suggestion.Id + "&$orderby=Created desc")
+	            .done((commentsRetrievedSuccessfulHandler).bind(this))
+	            .fail(commentsRetrievalFailedHandler);
+	        function commentsRetrievedSuccessfulHandler(d) {
 	            var comments = new Array();
 	            for (var i = 0; i < d.d.results.length; i++) {
 	                var item = d.d.results[i];
@@ -12773,10 +12788,11 @@
 	                });
 	            }
 	            df.resolve(comments);
-	        }).bind(this), function (err) {
+	        }
+	        function commentsRetrievalFailedHandler(err) {
 	            console.log(err);
 	            df.reject();
-	        });
+	        }
 	        return df.promise();
 	    };
 	    // Determine role based on retriever data from roledata. 
@@ -12868,6 +12884,7 @@
 	        this.NarmesteLeder = { DisplayName: null, Id: null, LoginName: null };
 	        this.Navn = { DisplayName: null, Id: null, LoginName: null };
 	        this.Id = -1;
+	        this.Title = "";
 	        this.Adresse = "";
 	        this.Avdeling = "";
 	        this.Created = "";
@@ -12897,6 +12914,7 @@
 	        var list = context.get_web().get_lists().getByTitle("Forslag");
 	        var itemcreationinfo = new SP.ListItemCreationInformation();
 	        var item = list.addItem(itemcreationinfo);
+	        item.set_item("Title", this.Title);
 	        item.set_item("Adresse", this.Adresse);
 	        item.set_item("Avdeling", this.Avdeling);
 	        item.set_item("E_x002d_postadresse", this.Epostadresse);
@@ -13051,6 +13069,7 @@
 	                            Title: cItem.get_label() });
 	                    }
 	                }
+	                f.Title = listItem.get_item("Title");
 	                f.Adresse = listItem.get_item("Adresse");
 	                f.Attachments = listItem.get_item("Attachments");
 	                f.Avdeling = listItem.get_item("Avdeling");
@@ -13069,6 +13088,10 @@
 	                f.Utfordring = listItem.get_item("Utfordring");
 	                f.Virksomhet = listItem.get_item("Virksomhet");
 	                f.AntallKommentarer = listItem.get_item("AntallKommentarer");
+	                if (f.AntallKommentarer == null)
+	                    f.AntallKommentarer = 0;
+	                if (f.Likes == null)
+	                    f.Likes = 0;
 	                fArr.push(f);
 	            }
 	            deferred.resolve(fArr);
@@ -13179,14 +13202,16 @@
 	    function SuggestionList() {
 	        _super.call(this);
 	        this.id = SP.Guid.newGuid().toString();
-	        this.state = { partitions: new Array(),
+	        this.state = {
+	            partitions: new Array(),
 	            windowWidth: window.innerWidth,
 	            suggestions: new Array(),
 	            ShowFullWidthItem: false,
 	            filters: new Array(),
 	            selectedSort: SPTools_1.SortTypes.Newest,
 	            selectedFilter: null,
-	            DisplayMode: SPTools_1.SuggestionViewDisplayMode.Brief };
+	            DisplayMode: SPTools_1.SuggestionViewDisplayMode.Brief
+	        };
 	    }
 	    SuggestionList.prototype.componentWillMount = function () {
 	        var _this = this;
@@ -13352,7 +13377,7 @@
 	        return (React.createElement("span", {className: "iconspace"}, React.createElement("span", {className: "icon glyphicon glyphicon-tag"}), this.props.suggestion.ForslagType.Title));
 	    };
 	    CarouselItem.prototype.renderLikes = function () {
-	        if (this.props.suggestion.Likes == null)
+	        if (this.props.suggestion.Likes <= 0)
 	            return;
 	        return (React.createElement("span", {className: "iconspace"}, React.createElement("span", {className: "icon glyphicon glyphicon-thumbs-up"}), this.props.suggestion.Likes));
 	    };
@@ -13365,14 +13390,17 @@
 	        window.location.href = "Forslag.aspx?ref=" + this.props.suggestion.Id;
 	    };
 	    CarouselItem.prototype.getGMapsBGImage = function () {
-	        var addr = this.props.suggestion.Adresse;
-	        var pnr = this.props.suggestion.Postnummer;
-	        if (addr == null && pnr == null)
-	            return { backgroundImage: "none" };
-	        if (pnr == null)
-	            pnr = "";
-	        pnr = "," + pnr;
-	        var str = "https://maps.googleapis.com/maps/api/staticmap?center=" + addr + pnr + "&zoom=13&size=245x206&maptype=roadmap&key=" + this.mapsApiKey;
+	        var place = this.props.suggestion.Kommune;
+	        var zoom = 5;
+	        if (place != null && place.length > 0) {
+	            zoom = 12;
+	        }
+	        if (place == null)
+	            place = "";
+	        var size = "245x206";
+	        if (this.props.suggestion.AntallKommentarer == 0 && this.props.suggestion.Likes == 0)
+	            size = "245x229";
+	        var str = "https://maps.googleapis.com/maps/api/staticmap?center=" + place + " Norway&zoom=" + zoom + "&size=" + size + "&key=" + this.mapsApiKey;
 	        return { backgroundImage: "url('" + str + "')" };
 	    };
 	    CarouselItem.prototype.render = function () {
@@ -13402,7 +13430,7 @@
 	    __extends(ViewSuggestion, _super);
 	    function ViewSuggestion() {
 	        _super.call(this);
-	        this.state = { Suggestion: new SPTools_1.Suggestion(), Like: new SPTools_1.Like(null) };
+	        this.state = { Suggestion: new SPTools_1.Suggestion() };
 	        this.self = { DisplayName: "", LoginName: "", Id: _spPageContextInfo.userId };
 	    }
 	    ViewSuggestion.prototype.componentWillMount = function () {
@@ -13414,24 +13442,14 @@
 	        suggestionId = parseInt(sId);
 	        SPTools_1.Suggestions.GetById(suggestionId).done((function (res) {
 	            _this.setState({ Suggestion: res });
-	            SPTools_1.Like.LoadForSuggestion(res).done((function (like) {
-	                _this.setState({ Like: like });
-	            }).bind(_this));
 	        }).bind(this));
 	    };
 	    ViewSuggestion.prototype.render = function () {
 	        if (this.state.Suggestion.Id == -1)
 	            return React.createElement("div", null);
-	        return (React.createElement("div", null, React.createElement(SuggestionDataView, {Suggestion: this.state.Suggestion, LikeEventHandler: this.HandleLikeClick.bind(this), Like: this.state.Like}), React.createElement(SuggestionComments, {Suggestion: this.state.Suggestion})));
+	        return (React.createElement("div", null, React.createElement(SuggestionDataView, {Suggestion: this.state.Suggestion}), React.createElement(SuggestionComments, {Suggestion: this.state.Suggestion})));
 	    };
 	    ViewSuggestion.prototype.HandleLikeClick = function () {
-	        var _this = this;
-	        this.state.Like.LikeUnlike().done(function (numLikes) {
-	            _this.state.Suggestion.Likes = numLikes;
-	            _this.setState({ Suggestion: _this.state.Suggestion });
-	        }).fail(function (err) {
-	            console.log(err);
-	        });
 	    };
 	    return ViewSuggestion;
 	}(React.Component));
@@ -13443,23 +13461,43 @@
 	    }
 	    SuggestionDataView.prototype.render = function () {
 	        console.log(this.props.Suggestion);
-	        return (React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12 col-md-6"}, React.createElement(SuggestionDataHeader, {Text: "Forslag", Display: ""}), React.createElement(SuggestionDataRow, {Text: "Forslagsstiller:", Display: this.props.Suggestion.Navn.DisplayName}), React.createElement(SuggestionDataRow, {Text: "Kommune:", Display: this.props.Suggestion.Kommune}), React.createElement(SuggestionDataRow, {Text: "Type:", Display: this.props.Suggestion.ForslagType.Title}), React.createElement(SuggestionDataRow, {Text: "Utfordring:", Display: this.props.Suggestion.Utfordring}), React.createElement(SuggestionDataRow, {Text: "Nyttig for andre?:", Display: this.props.Suggestion.NyttigForAndre}), React.createElement(SuggestionDataRow, {Text: "Forslag til løsning:", Display: this.props.Suggestion.ForslagTilLosning}), React.createElement("hr", null), React.createElement(SuggestionDataViewFooter, {Suggestion: this.props.Suggestion, LikeEventHandler: this.props.LikeEventHandler, Like: this.props.Like})), React.createElement("div", {className: "col-md-6"})));
+	        return (React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-xs-12 col-md-6"}, React.createElement(SuggestionDataHeader, {Text: "Forslag", Display: ""}), React.createElement(SuggestionDataRow, {Text: "Forslagsstiller:", Display: this.props.Suggestion.Navn.DisplayName}), React.createElement(SuggestionDataRow, {Text: "Kommune:", Display: this.props.Suggestion.Kommune}), React.createElement(SuggestionDataRow, {Text: "Type:", Display: this.props.Suggestion.ForslagType.Title}), React.createElement(SuggestionDataRow, {Text: "Utfordring:", Display: this.props.Suggestion.Utfordring}), React.createElement(SuggestionDataRow, {Text: "Nyttig for andre?:", Display: this.props.Suggestion.NyttigForAndre}), React.createElement(SuggestionDataRow, {Text: "Forslag til løsning:", Display: this.props.Suggestion.ForslagTilLosning}), React.createElement("hr", null), React.createElement(SuggestionDataViewFooter, {Suggestion: this.props.Suggestion})), React.createElement("div", {className: "col-md-6"})));
 	    };
 	    return SuggestionDataView;
 	}(React.Component));
 	var SuggestionDataViewFooter = (function (_super) {
 	    __extends(SuggestionDataViewFooter, _super);
 	    function SuggestionDataViewFooter() {
-	        _super.apply(this, arguments);
+	        _super.call(this);
+	        this.state = { numberOfLikes: 0, processing: false, userLikesThis: false };
 	    }
+	    SuggestionDataViewFooter.prototype.componentWillMount = function () {
+	        var _this = this;
+	        this.setState({ numberOfLikes: this.props.Suggestion.Likes });
+	        this.like = new SPTools_1.Like(this.props.Suggestion);
+	        SPTools_1.Like.Load(this.props.Suggestion).done(function (like) {
+	            _this.like = like;
+	            _this.setState({ userLikesThis: like.UserLikesThis });
+	        });
+	    };
 	    SuggestionDataViewFooter.prototype.handleLikeClick = function () {
-	        this.props.LikeEventHandler();
+	        var _this = this;
+	        if (this.state.processing)
+	            return;
+	        this.setState({ processing: true });
+	        this.like.LikeUnlike().done(function (numLikes) {
+	            _this.setState({ numberOfLikes: numLikes });
+	            _this.setState({ userLikesThis: _this.like.UserLikesThis });
+	            _this.setState({ processing: false });
+	        }).fail(function (err) {
+	            console.log(err);
+	        });
 	    };
 	    SuggestionDataViewFooter.prototype.renderLikes = function () {
 	        if (this.props.Suggestion.Likes <= 0)
 	            return React.createElement("div", null);
 	        var likes = this.props.Suggestion.Likes;
-	        return React.createElement("div", {className: "col-xs-4 likes"}, React.createElement("span", {className: "glyphicon glyphicon-thumbs-up"}), this.props.Suggestion.Likes);
+	        return React.createElement("div", {className: "col-xs-4 likes"}, React.createElement("span", {className: "glyphicon glyphicon-thumbs-up"}), this.state.numberOfLikes);
 	    };
 	    SuggestionDataViewFooter.prototype.renderTags = function () {
 	        if (this.props.Suggestion.Tags.length <= 0)
@@ -13469,10 +13507,10 @@
 	        }))));
 	    };
 	    SuggestionDataViewFooter.prototype.renderLikebutton = function () {
-	        if (!this.props.Like.Loaded || this.props.Like.Processing)
-	            return React.createElement("div", {className: "btn-xs btn-like"});
-	        var btnType = (this.props.Like.UserLikesThis) ? "btn-primary disabled" : "btn-success";
-	        var text = (this.props.Like.UserLikesThis) ? "Du liker dette" : "Godt forslag!";
+	        var btnType = (this.state.userLikesThis) ? "btn-primary disabled" : "btn-success";
+	        var text = (this.state.userLikesThis) ? "Du liker dette" : "Godt forslag!";
+	        if (this.state.processing)
+	            text = "Vent litt...";
 	        return (React.createElement("div", {className: "likebutton col-xs-4"}, React.createElement("div", {className: "btn-xs btn-like " + btnType, onClick: this.handleLikeClick.bind(this)}, React.createElement("span", {className: "glyphicon glyphicon-thumbs-up"}), text)));
 	    };
 	    SuggestionDataViewFooter.prototype.render = function () {

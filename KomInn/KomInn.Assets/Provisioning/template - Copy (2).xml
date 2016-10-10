@@ -763,11 +763,23 @@
             <pnp:FieldDefault FieldName="StartDate" />
           </pnp:FieldDefaults>
         </pnp:ListInstance>
+
+
       </pnp:Lists>
 
-       <pnp:Files>        
-        <pnp:Directory Src="\Provisioning\SiteAssets" Folder="SiteAssets/test/" Overwrite="true" Recursive="true" IncludedExtensions="*.js" ExcludedExtensions="*.ts" />
-      </pnp:Files>
+
+      <pnp:Pages>
+        <pnp:Page Url="{site}/SitePages/Home.aspx" Overwrite="true" Layout="Custom">
+          <pnp:Fields>
+            <pnp:Field FieldName="WikiField"><![CDATA[<div class="ExternalClass08D5147F1A4245959FC86043944EAAE6">
+            <table id="layoutsTable" style="width&#58;100%;"><tbody><tr style="vertical-align&#58;top;"><td colspan="2"><div class="ms-rte-layoutszone-outer" style="width&#58;100%;"><div class="ms-rte-layoutszone-inner" role="textbox" aria-autocomplete="both" aria-haspopup="true" aria-multiline="true"><div class="ms-rtestate-read ms-rte-embedcode ms-rte-embedil ms-rtestate-notify"><button>Legg inn nytt forslag</button></div>
+</div></div></td></tr><tr style="vertical-align&#58;top;"><td style="width&#58;49.95%;"><div class="ms-rte-layoutszone-outer" style="width&#58;100%;"><div class="ms-rte-layoutszone-inner" role="textbox" aria-autocomplete="both" aria-haspopup="true" aria-multiline="true">
+</div>&#160;</div></td><td class="ms-wiki-columnSpacing" style="width&#58;49.95%;"><div class="ms-rte-layoutszone-outer" style="width&#58;100%;"><div class="ms-rte-layoutszone-inner" role="textbox" aria-autocomplete="both" aria-haspopup="true" aria-multiline="true">​
+</div></div></td></tr></tbody></table>
+            <span id="layoutsData" style="display&#58;none;">true,false,2</span></div>]]></pnp:Field>
+          </pnp:Fields>
+        </pnp:Page>
+      </pnp:Pages>
 
   <pnp:Features>
         <pnp:SiteFeatures>
