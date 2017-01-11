@@ -64,7 +64,7 @@ gulp.task('tscauto', function() {
 });
 
 gulp.task("distributejs", function() {
-    gulp.src("./Provisioning/SiteAssets/js/bundle.js")
+    gulp.src("./Provisioning/SiteAssets/js/*")
     .pipe(gulp.dest(paths.sp_js));
 });
 

@@ -253,3 +253,6 @@ hr {
 .filters input[type=select] {
   margin-left: 10px;
   padding: 5px; }
+
+span[role=status] {
+  display: none; }

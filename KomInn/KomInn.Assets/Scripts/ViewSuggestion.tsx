@@ -1,4 +1,4 @@
-///<reference path="../typings/globals/sharepoint/index.d.ts" /> 
+
 import * as React from "react";
 import * as $ from "jquery";
 import {Suggestion, Suggestions, Like, UserProfile, IUser, ITaxonomyTerm, Comment, Comments } from "./SPTools"

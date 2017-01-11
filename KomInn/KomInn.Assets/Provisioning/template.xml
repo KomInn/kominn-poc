@@ -13,28 +13,28 @@
         <pnp:PropertyBagEntry Key="sharepointhelpoverride" Value="SPOStandard" Overwrite="false" />
         <pnp:PropertyBagEntry Key="OriginalNotebookUrl" Value="https://sitemaster-2110f347-fa90-4995-95d7-82b24f621c26/_layouts/15/WopiFrame.aspx?sourcedoc={def9594b-7b30-4c3e-8889-df1f817eb856}&amp;action=editnew" Overwrite="false" />
         <pnp:PropertyBagEntry Key="SiteCollectionGroupIde355bea1-2fd3-4b28-95be-a52bb8e837e8" Value="7c850e32-117a-495f-88f6-a3575434e18b" Overwrite="false" />
-        <pnp:PropertyBagEntry Key="Microsoft.SharePoint.WorkflowServices.SPWebScopeUri" Value="https://kominndev.sharepoint.com/sites/kominn" Overwrite="false" />
+        <pnp:PropertyBagEntry Key="Microsoft.SharePoint.WorkflowServices.SPWebScopeUri" Value="https://smebydev.sharepoint.com/sites/kominn" Overwrite="false" />
       </pnp:PropertyBagEntries>
 
       <pnp:Security>
         <pnp:AdditionalAdministrators>
-          <pnp:User Name="i:0#.w|dev\administrator" />
+          <pnp:User Name="admin@kominn.onmicrosoft.com" />
         </pnp:AdditionalAdministrators>
         <pnp:SiteGroups>         
-          <pnp:SiteGroup Title="Saksbehandlere" Description="" Owner="i:0#.w|dev\administrator" AllowMembersEditMembership="false" AllowRequestToJoinLeave="false" AutoAcceptRequestToJoinLeave="false" OnlyAllowMembersViewMembership="true">
+          <pnp:SiteGroup Title="Saksbehandlere" Description="" Owner="admin@kominn.onmicrosoft.com" AllowMembersEditMembership="false" AllowRequestToJoinLeave="false" AutoAcceptRequestToJoinLeave="false" OnlyAllowMembersViewMembership="true">
             <pnp:Members>
-              <pnp:User Name="i:0#.w|dev\administrator" />
+              <pnp:User Name="admin@kominn.onmicrosoft.com" />
             </pnp:Members>
           </pnp:SiteGroup>
-          <pnp:SiteGroup Title="Saksmottak" Description="" Owner="i:0#.w|dev\administrator" AllowMembersEditMembership="false" AllowRequestToJoinLeave="false" AutoAcceptRequestToJoinLeave="false" OnlyAllowMembersViewMembership="true">
+          <pnp:SiteGroup Title="Saksmottak" Description="" Owner="admin@kominn.onmicrosoft.com" AllowMembersEditMembership="false" AllowRequestToJoinLeave="false" AutoAcceptRequestToJoinLeave="false" OnlyAllowMembersViewMembership="true">
             <pnp:Members>
-              <pnp:User Name="i:0#.w|dev\administrator" />
+              <pnp:User Name="admin@kominn.onmicrosoft.com" />
             </pnp:Members>
           </pnp:SiteGroup>
         </pnp:SiteGroups>
         <pnp:Permissions>
           <pnp:RoleAssignments>
-            <pnp:RoleAssignment Principal="i:0#.w|dev\administrator" RoleDefinition="{roledefinition:Administrator}" />
+            <pnp:RoleAssignment Principal="admin@kominn.onmicrosoft.com" RoleDefinition="{roledefinition:Administrator}" />
             <pnp:RoleAssignment Principal="c:0(.s|true" RoleDefinition="{roledefinition:Contributor}" />
             <pnp:RoleAssignment Principal="Saksmottak" RoleDefinition="{roledefinition:Contributor}" />
             <pnp:RoleAssignment Principal="Saksbehandlere" RoleDefinition="{roledefinition:Contributor}" />
@@ -137,6 +137,8 @@
         <Field Type="Text" DisplayName="Kommunenummer" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="KomInn" ID="{e6a79483-c1d1-43f5-a1a1-9c575f3ac4ed}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Kommunenummer" Name="Kommunenummer">
         </Field>
         <Field Type="Text" DisplayName="Postnummer" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="KomInn" ID="{ac9b3991-7431-4d2e-a4e6-f9a96c99f0a0}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Postnummer" Name="Postnummer">
+        </Field>
+         <Field Type="Text" DisplayName="AntallKommentarer" Required="FALSE" EnforceUniqueValues="FALSE" Indexed="FALSE" MaxLength="255" Group="KomInn" ID="{6a99f05a-57b1-463d-8c41-9c59d81671f2}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="AntallKommentarer" Name="AntallKommentarer">
         </Field>
         <Field Type="TaxonomyFieldTypeMulti" DisplayName="Tags" List="{{listid:TaxonomyHiddenList}}" WebId="f0f500ae-b70c-4fc7-b64b-5715184dda2f" ShowField="Term1033" Required="FALSE" EnforceUniqueValues="FALSE" Mult="TRUE" Sortable="FALSE" Group="KomInn" ID="{57db7e98-492e-43b2-889c-5bb222806187}" SourceID="{f0f500ae-b70c-4fc7-b64b-5715184dda2f}" StaticName="Tags" Name="Tags">
           <Default>
@@ -248,6 +250,8 @@
             <pnp:FieldRef ID="8d7f7f09-3c3f-4caa-b586-5a87fc7113cc" Name="l7db7e98492e43b2889c5bb222806187" Hidden="true" />
             <pnp:FieldRef ID="57db7e98-492e-43b2-889c-5bb222806187" Name="Tags" />
             <pnp:FieldRef ID="6b5cc237-6b91-474a-932e-7b32071fb9ed" Name="Nærmeste_x0020_leder" />
+            
+            <pnp:FieldRef ID="6a99f05a-57b1-463d-8c41-9c59d81671f2" Name="AntallKommentarer" />
           </pnp:FieldRefs>
         </pnp:ContentType>
       </pnp:ContentTypes>
@@ -301,6 +305,7 @@
             <pnp:FieldRef ID="e6a79483-c1d1-43f5-a1a1-9c575f3ac4ed" Name="Kommunenummer" DisplayName="Kommunenummer" />
             <pnp:FieldRef ID="57db7e98-492e-43b2-889c-5bb222806187" Name="Tags" DisplayName="Tags" />
             <pnp:FieldRef ID="6b5cc237-6b91-474a-932e-7b32071fb9ed" Name="N_x00e6_rmeste_x0020_leder0" DisplayName="Nærmeste leder" />
+            <pnp:FieldRef ID="6a99f05a-57b1-463d-8c41-9c59d81671f2" Name="AntallKommentarer" />
           </pnp:FieldRefs>
         </pnp:ListInstance>
         <pnp:ListInstance Title="Kommentarer" Description="" DocumentTemplate="" TemplateType="100" Url="Lists/Kommentarer" MinorVersionLimit="0" MaxVersionLimit="0" DraftVersionVisibility="0" TemplateFeatureID="00bfea71-de22-43b2-a848-c05709900100" EnableFolderCreation="false">
@@ -765,9 +770,7 @@
         </pnp:ListInstance>
       </pnp:Lists>
 
-       <pnp:Files>        
-        <pnp:Directory Src="\Provisioning\SiteAssets" Folder="SiteAssets/test/" Overwrite="true" Recursive="true" IncludedExtensions="*.js" ExcludedExtensions="*.ts" />
-      </pnp:Files>
+     
 
   <pnp:Features>
         <pnp:SiteFeatures>
@@ -800,25 +803,7 @@
           </pnp:TermSets>
           <pnp:Contributors />
           <pnp:Managers />
-        </pnp:TermGroup>
-        <pnp:TermGroup Name="System" ID="028161ca-0ba6-4597-83e5-26105060a95e" Description="These term sets are used by the system itself.">
-          <pnp:TermSets>
-            <pnp:TermSet Name="Hashtags" ID="3ceb0050-69a1-40e7-a427-83e2fac80c27" Description="This term set contains all of the terms that have been used as hashtags." IsOpenForTermCreation="true" />
-            <pnp:TermSet Name="Keywords" ID="6581df83-ce23-4ded-93a0-b536ef5ea9b8" Description="This term set contains all of the terms that have been used as keywords that are not in existing term sets." IsOpenForTermCreation="true">
-              <pnp:Terms>
-                <pnp:Term Name="0" ID="33a04c3d-5e69-4e13-9231-878beb72c1a6" SourceTermId="33a04c3d-5e69-4e13-9231-878beb72c1a6" />
-                <pnp:Term Name="0,1" ID="01ab8db9-bfc7-40b1-af92-dae6ff686da5" SourceTermId="01ab8db9-bfc7-40b1-af92-dae6ff686da5" />
-                <pnp:Term Name="0,1,2" ID="bdfc8ce5-231f-46e6-b80d-374e80a5f8e0" SourceTermId="bdfc8ce5-231f-46e6-b80d-374e80a5f8e0" />
-                <pnp:Term Name="0,1,2,3" ID="ace3eeb3-83c2-401a-bdbe-8f0751423b3f" SourceTermId="ace3eeb3-83c2-401a-bdbe-8f0751423b3f" />
-                <pnp:Term Name="0,2" ID="c0531991-5849-4d6f-8302-3f9054326e76" SourceTermId="c0531991-5849-4d6f-8302-3f9054326e76" />
-                <pnp:Term Name="0,2,1" ID="44448435-2ea5-47fb-a20b-0496479cdac3" SourceTermId="44448435-2ea5-47fb-a20b-0496479cdac3" />
-                <pnp:Term Name="0,2,3" ID="440ed73b-fe78-4abb-988d-c616476355c1" SourceTermId="440ed73b-fe78-4abb-988d-c616476355c1" />
-              </pnp:Terms>
-            </pnp:TermSet>
-          </pnp:TermSets>
-          <pnp:Contributors />
-          <pnp:Managers />
-        </pnp:TermGroup>
+        </pnp:TermGroup>       
       </pnp:TermGroups>
 
  <pnp:Workflows>
@@ -831,11 +816,11 @@
               <pnp:Property Key="HistoryListId" Value="{listid:Workflow History}" />
               <pnp:Property Key="ContentTypeId" Value="0x01002A2479FF33DD4BC3B1533A012B653717007DDE48D47574DD4B89CCE240CB3A51D5" />
               <pnp:Property Key="Definition.Description" Value="" />
-              <pnp:Property Key="vti_modifiedby" Value="i:0#.f|membership|helges@kominndev.onmicrosoft.com" />
+              <pnp:Property Key="vti_modifiedby" Value="i:0#.f|membership|admin@kominn.onmicrosoft.com" />
               <pnp:Property Key="vti_parserversion" Value="16.0.0.5722" />
               <pnp:Property Key="SubscriptionId" Value="{182CBCCF-CC6F-4A65-9507-83287A5AFEA6}" />
               <pnp:Property Key="FormField" Value="&lt;Fields/&gt;&#xD;&#xA;" />
-              <pnp:Property Key="vti_author" Value="i:0#.f|membership|helges@kominndev.onmicrosoft.com" />
+              <pnp:Property Key="vti_author" Value="i:0#.f|membership|admin@kominn.onmicrosoft.com" />
               <pnp:Property Key="vti_foldersubfolderitemcount" Value="0" />
               <pnp:Property Key="vti_writevalidationtoken" Value="H3udDRB2Qt3B90rFJAJE1yA85xw=" />
               <pnp:Property Key="InitiationUrl" Value="" />
@@ -856,9 +841,9 @@
               <pnp:Property Key="Definition.ListItemId" Value="2" />
               <pnp:Property Key="ContentType" Value="WorkflowServiceDefinition" />
               <pnp:Property Key="Definition.CreatedDate" Value="9/28/2016 10:37:05 PM" />
-              <pnp:Property Key="Definition.AuthorId" Value="9;#Helge Smeby,#i:0#.f|membership|helges@kominndev.onmicrosoft.com,#helges@kominndev.onmicrosoft.com,#helges@kominndev.onmicrosoft.com,#Helge Smeby" />
+              <pnp:Property Key="Definition.AuthorId" Value="9;#Helge Smeby,#i:0#.f|membership|admin@kominn.onmicrosoft.com,#admin@kominn.onmicrosoft.com,#admin@kominn.onmicrosoft.com,#Helge Smeby" />
               <pnp:Property Key="Definition.ModifiedDate" Value="9/29/2016 12:17:07 AM" />
-              <pnp:Property Key="Definition.EditorId" Value="9;#Helge Smeby,#i:0#.f|membership|helges@kominndev.onmicrosoft.com,#helges@kominndev.onmicrosoft.com,#helges@kominndev.onmicrosoft.com,#Helge Smeby" />
+              <pnp:Property Key="Definition.EditorId" Value="9;#Helge Smeby,#i:0#.f|membership|admin@kominn.onmicrosoft.com,#admin@kominn.onmicrosoft.com,#admin@kominn.onmicrosoft.com,#Helge Smeby" />
               <pnp:Property Key="_ModerationStatus" Value="0" />
               <pnp:Property Key="Definition.FullName" Value="/sites/kominn/wfsvc/fcf19334783d4ca986ef1ad55c454cc7/workflow.xaml" />
               <pnp:Property Key="Definition.Path" Value="/sites/kominn/wfsvc/fcf19334783d4ca986ef1ad55c454cc7" />
@@ -877,8 +862,8 @@
               <pnp:Property Key="VirusStatus" Value="2;#17278" />
               <pnp:Property Key="CheckedOutTitle" Value="2;#" />
               <pnp:Property Key="_CheckinComment" Value="" />
-              <pnp:Property Key="Definition.EditorLogin" Value="i:0#.f|membership|helges@kominndev.onmicrosoft.com" />
-              <pnp:Property Key="Definition.AuthorLogin" Value="i:0#.f|membership|helges@kominndev.onmicrosoft.com" />
+              <pnp:Property Key="Definition.EditorLogin" Value="i:0#.f|membership|admin@kominn.onmicrosoft.com" />
+              <pnp:Property Key="Definition.AuthorLogin" Value="i:0#.f|membership|admin@kominn.onmicrosoft.com" />
               <pnp:Property Key="File_x0020_Type" Value="xaml" />
               <pnp:Property Key="_EditMenuTableStart" Value="workflow.xaml" />
               <pnp:Property Key="_EditMenuTableStart2" Value="2" />
@@ -888,10 +873,10 @@
               <pnp:Property Key="LinkFilename2" Value="workflow.xaml" />
               <pnp:Property Key="DocIcon" Value="xaml" />
               <pnp:Property Key="ServerUrl" Value="/sites/kominn/wfsvc/fcf19334783d4ca986ef1ad55c454cc7/workflow.xaml" />
-              <pnp:Property Key="EncodedAbsUrl" Value="https://kominndev.sharepoint.com/sites/kominn/wfsvc/fcf19334783d4ca986ef1ad55c454cc7/workflow.xaml" />
+              <pnp:Property Key="EncodedAbsUrl" Value="https://smebydev.sharepoint.com/sites/kominn/wfsvc/fcf19334783d4ca986ef1ad55c454cc7/workflow.xaml" />
               <pnp:Property Key="BaseName" Value="workflow" />
               <pnp:Property Key="FileSizeDisplay" Value="17278" />
-              <pnp:Property Key="MetaInfo" Value="SPDConfig.StartManually:SW|true&#xD;&#xA;vti_parserversion:SR|16.0.0.5722&#xD;&#xA;WSDescription:SW|&#xD;&#xA;IsProjectMode:SW|false&#xD;&#xA;WSGUID:SW|fcf19334-783d-4ca9-86ef-1ad55c454cc7&#xD;&#xA;WSDisplayName:SW|E-post til forslagsstiller&#xD;&#xA;WSPublishState:IW|3&#xD;&#xA;vti_author:SR|i:0#.f|membership|helges@kominndev.onmicrosoft.com&#xD;&#xA;SPDConfig.StartOnChange:SW|true&#xD;&#xA;AutosetStatusToStageName:SW|true&#xD;&#xA;SubscriptionName:SW|E-post til forslagsstiller&#xD;&#xA;vti_writevalidationtoken:SW|H3udDRB2Qt3B90rFJAJE1yA85xw=&#xD;&#xA;RestrictToScope:SW|C7AB65D4-9C16-48B1-924B-A170B67C85A1&#xD;&#xA;RestrictToType:SW|List&#xD;&#xA;vti_foldersubfolderitemcount:IW|0&#xD;&#xA;HistoryListId:SW|{FA1C666D-B5E0-485D-9F4F-71546758A42D}&#xD;&#xA;vti_modifiedby:SR|i:0#.f|membership|helges@kominndev.onmicrosoft.com&#xD;&#xA;ContentTypeId:SW|0x01002A2479FF33DD4BC3B1533A012B653717007DDE48D47574DD4B89CCE240CB3A51D5&#xD;&#xA;SPDConfig.StartOnCreate:SW|true&#xD;&#xA;FileLeafRef:SW|workflow.xaml&#xD;&#xA;RequiresInitiationForm:SW|false&#xD;&#xA;InitiationUrl:SW|&#xD;&#xA;SubscriptionId:SW|{182CBCCF-CC6F-4A65-9507-83287A5AFEA6}&#xD;&#xA;FormField:SW|&lt;Fields/&gt;\r\n&#xD;&#xA;TaskListId:SW|{A74AF1EB-E2DF-43EC-A17B-AA67D977644B}&#xD;&#xA;SPDConfig.LastEditMode:SW|TextBased&#xD;&#xA;vti_folderitemcount:IW|0&#xD;&#xA;isReusable:SW|false&#xD;&#xA;" />
+              <pnp:Property Key="MetaInfo" Value="SPDConfig.StartManually:SW|true&#xD;&#xA;vti_parserversion:SR|16.0.0.5722&#xD;&#xA;WSDescription:SW|&#xD;&#xA;IsProjectMode:SW|false&#xD;&#xA;WSGUID:SW|fcf19334-783d-4ca9-86ef-1ad55c454cc7&#xD;&#xA;WSDisplayName:SW|E-post til forslagsstiller&#xD;&#xA;WSPublishState:IW|3&#xD;&#xA;vti_author:SR|i:0#.f|membership|admin@kominn.onmicrosoft.com&#xD;&#xA;SPDConfig.StartOnChange:SW|true&#xD;&#xA;AutosetStatusToStageName:SW|true&#xD;&#xA;SubscriptionName:SW|E-post til forslagsstiller&#xD;&#xA;vti_writevalidationtoken:SW|H3udDRB2Qt3B90rFJAJE1yA85xw=&#xD;&#xA;RestrictToScope:SW|C7AB65D4-9C16-48B1-924B-A170B67C85A1&#xD;&#xA;RestrictToType:SW|List&#xD;&#xA;vti_foldersubfolderitemcount:IW|0&#xD;&#xA;HistoryListId:SW|{FA1C666D-B5E0-485D-9F4F-71546758A42D}&#xD;&#xA;vti_modifiedby:SR|i:0#.f|membership|admin@kominn.onmicrosoft.com&#xD;&#xA;ContentTypeId:SW|0x01002A2479FF33DD4BC3B1533A012B653717007DDE48D47574DD4B89CCE240CB3A51D5&#xD;&#xA;SPDConfig.StartOnCreate:SW|true&#xD;&#xA;FileLeafRef:SW|workflow.xaml&#xD;&#xA;RequiresInitiationForm:SW|false&#xD;&#xA;InitiationUrl:SW|&#xD;&#xA;SubscriptionId:SW|{182CBCCF-CC6F-4A65-9507-83287A5AFEA6}&#xD;&#xA;FormField:SW|&lt;Fields/&gt;\r\n&#xD;&#xA;TaskListId:SW|{A74AF1EB-E2DF-43EC-A17B-AA67D977644B}&#xD;&#xA;SPDConfig.LastEditMode:SW|TextBased&#xD;&#xA;vti_folderitemcount:IW|0&#xD;&#xA;isReusable:SW|false&#xD;&#xA;" />
               <pnp:Property Key="_Level" Value="1" />
               <pnp:Property Key="_IsCurrentVersion" Value="True" />
               <pnp:Property Key="ItemChildCount" Value="0" />
@@ -924,7 +909,7 @@
               <pnp:Property Key="DocConcurrencyNumber" Value="17" />
               <pnp:Property Key="ParentUniqueId" Value="{714BCC07-48FC-4DD7-A4EE-0A7F1C9A3466}" />
               <pnp:Property Key="StreamHash" Value="0x021F7B9D0D107642DDC1F74AC5240244D7203CE71C" />
-              <pnp:Property Key="ModifiedBy" Value="i:0#.f|membership|helges@kominndev.onmicrosoft.com" />
+              <pnp:Property Key="ModifiedBy" Value="i:0#.f|membership|admin@kominn.onmicrosoft.com" />
             </pnp:Properties>
             <pnp:FormField>
               <Fields />
@@ -938,11 +923,11 @@
               <pnp:Property Key="HistoryListId" Value="{listid:Workflow History}" />
               <pnp:Property Key="ContentTypeId" Value="0x01002A2479FF33DD4BC3B1533A012B653717007DDE48D47574DD4B89CCE240CB3A51D5" />
               <pnp:Property Key="Definition.Description" Value="" />
-              <pnp:Property Key="vti_modifiedby" Value="i:0#.f|membership|helges@kominndev.onmicrosoft.com" />
+              <pnp:Property Key="vti_modifiedby" Value="i:0#.f|membership|admin@kominn.onmicrosoft.com" />
               <pnp:Property Key="vti_parserversion" Value="16.0.0.5722" />
               <pnp:Property Key="SubscriptionId" Value="{9AB4FB99-11F8-41AB-84AC-44B494C15D31}" />
               <pnp:Property Key="FormField" Value="&lt;Fields /&gt;" />
-              <pnp:Property Key="vti_author" Value="i:0#.f|membership|helges@kominndev.onmicrosoft.com" />
+              <pnp:Property Key="vti_author" Value="i:0#.f|membership|admin@kominn.onmicrosoft.com" />
               <pnp:Property Key="vti_foldersubfolderitemcount" Value="0" />
               <pnp:Property Key="vti_writevalidationtoken" Value="a2HDuyknzpolQHhTyY6QY240AwY=" />
               <pnp:Property Key="InitiationUrl" Value="" />
@@ -963,9 +948,9 @@
               <pnp:Property Key="Definition.ListItemId" Value="7" />
               <pnp:Property Key="ContentType" Value="WorkflowServiceDefinition" />
               <pnp:Property Key="Definition.CreatedDate" Value="9/28/2016 11:08:31 PM" />
-              <pnp:Property Key="Definition.AuthorId" Value="9;#Helge Smeby,#i:0#.f|membership|helges@kominndev.onmicrosoft.com,#helges@kominndev.onmicrosoft.com,#helges@kominndev.onmicrosoft.com,#Helge Smeby" />
+              <pnp:Property Key="Definition.AuthorId" Value="9;#Helge Smeby,#i:0#.f|membership|admin@kominn.onmicrosoft.com,#admin@kominn.onmicrosoft.com,#admin@kominn.onmicrosoft.com,#Helge Smeby" />
               <pnp:Property Key="Definition.ModifiedDate" Value="9/28/2016 11:12:45 PM" />
-              <pnp:Property Key="Definition.EditorId" Value="9;#Helge Smeby,#i:0#.f|membership|helges@kominndev.onmicrosoft.com,#helges@kominndev.onmicrosoft.com,#helges@kominndev.onmicrosoft.com,#Helge Smeby" />
+              <pnp:Property Key="Definition.EditorId" Value="9;#Helge Smeby,#i:0#.f|membership|admin@kominn.onmicrosoft.com,#admin@kominn.onmicrosoft.com,#admin@kominn.onmicrosoft.com,#Helge Smeby" />
               <pnp:Property Key="_ModerationStatus" Value="0" />
               <pnp:Property Key="Definition.FullName" Value="/sites/kominn/wfsvc/21850fc651024d2eb3bb5dc52f911d59/workflow.xaml" />
               <pnp:Property Key="Definition.Path" Value="/sites/kominn/wfsvc/21850fc651024d2eb3bb5dc52f911d59" />
@@ -984,8 +969,8 @@
               <pnp:Property Key="VirusStatus" Value="7;#11026" />
               <pnp:Property Key="CheckedOutTitle" Value="7;#" />
               <pnp:Property Key="_CheckinComment" Value="" />
-              <pnp:Property Key="Definition.EditorLogin" Value="i:0#.f|membership|helges@kominndev.onmicrosoft.com" />
-              <pnp:Property Key="Definition.AuthorLogin" Value="i:0#.f|membership|helges@kominndev.onmicrosoft.com" />
+              <pnp:Property Key="Definition.EditorLogin" Value="i:0#.f|membership|admin@kominn.onmicrosoft.com" />
+              <pnp:Property Key="Definition.AuthorLogin" Value="i:0#.f|membership|admin@kominn.onmicrosoft.com" />
               <pnp:Property Key="File_x0020_Type" Value="xaml" />
               <pnp:Property Key="_EditMenuTableStart" Value="workflow.xaml" />
               <pnp:Property Key="_EditMenuTableStart2" Value="7" />
@@ -995,10 +980,10 @@
               <pnp:Property Key="LinkFilename2" Value="workflow.xaml" />
               <pnp:Property Key="DocIcon" Value="xaml" />
               <pnp:Property Key="ServerUrl" Value="/sites/kominn/wfsvc/21850fc651024d2eb3bb5dc52f911d59/workflow.xaml" />
-              <pnp:Property Key="EncodedAbsUrl" Value="https://kominndev.sharepoint.com/sites/kominn/wfsvc/21850fc651024d2eb3bb5dc52f911d59/workflow.xaml" />
+              <pnp:Property Key="EncodedAbsUrl" Value="https://smebydev.sharepoint.com/sites/kominn/wfsvc/21850fc651024d2eb3bb5dc52f911d59/workflow.xaml" />
               <pnp:Property Key="BaseName" Value="workflow" />
               <pnp:Property Key="FileSizeDisplay" Value="11026" />
-              <pnp:Property Key="MetaInfo" Value="SPDConfig.StartManually:SW|true&#xD;&#xA;vti_parserversion:SR|16.0.0.5722&#xD;&#xA;WSDescription:SW|&#xD;&#xA;IsProjectMode:SW|false&#xD;&#xA;WSGUID:SW|21850fc6-5102-4d2e-b3bb-5dc52f911d59&#xD;&#xA;WSDisplayName:SW|E-post til saksbehandler&#xD;&#xA;WSPublishState:IW|3&#xD;&#xA;vti_author:SR|i:0#.f|membership|helges@kominndev.onmicrosoft.com&#xD;&#xA;SPDConfig.StartOnChange:SW|true&#xD;&#xA;AutosetStatusToStageName:SW|true&#xD;&#xA;SubscriptionName:SW|E-post til saksbehandler&#xD;&#xA;vti_writevalidationtoken:SW|a2HDuyknzpolQHhTyY6QY240AwY=&#xD;&#xA;RestrictToScope:SW|C7AB65D4-9C16-48B1-924B-A170B67C85A1&#xD;&#xA;RestrictToType:SW|List&#xD;&#xA;vti_foldersubfolderitemcount:IW|0&#xD;&#xA;HistoryListId:SW|{FA1C666D-B5E0-485D-9F4F-71546758A42D}&#xD;&#xA;vti_modifiedby:SR|i:0#.f|membership|helges@kominndev.onmicrosoft.com&#xD;&#xA;ContentTypeId:SW|0x01002A2479FF33DD4BC3B1533A012B653717007DDE48D47574DD4B89CCE240CB3A51D5&#xD;&#xA;SPDConfig.StartOnCreate:SW|true&#xD;&#xA;FileLeafRef:SW|workflow.xaml&#xD;&#xA;RequiresInitiationForm:SW|false&#xD;&#xA;InitiationUrl:SW|&#xD;&#xA;SubscriptionId:SW|{9AB4FB99-11F8-41AB-84AC-44B494C15D31}&#xD;&#xA;FormField:SW|&lt;Fields /&gt;&#xD;&#xA;TaskListId:SW|{A74AF1EB-E2DF-43EC-A17B-AA67D977644B}&#xD;&#xA;SPDConfig.LastEditMode:SW|TextBased&#xD;&#xA;vti_folderitemcount:IW|0&#xD;&#xA;isReusable:SW|false&#xD;&#xA;" />
+              <pnp:Property Key="MetaInfo" Value="SPDConfig.StartManually:SW|true&#xD;&#xA;vti_parserversion:SR|16.0.0.5722&#xD;&#xA;WSDescription:SW|&#xD;&#xA;IsProjectMode:SW|false&#xD;&#xA;WSGUID:SW|21850fc6-5102-4d2e-b3bb-5dc52f911d59&#xD;&#xA;WSDisplayName:SW|E-post til saksbehandler&#xD;&#xA;WSPublishState:IW|3&#xD;&#xA;vti_author:SR|i:0#.f|membership|admin@kominn.onmicrosoft.com&#xD;&#xA;SPDConfig.StartOnChange:SW|true&#xD;&#xA;AutosetStatusToStageName:SW|true&#xD;&#xA;SubscriptionName:SW|E-post til saksbehandler&#xD;&#xA;vti_writevalidationtoken:SW|a2HDuyknzpolQHhTyY6QY240AwY=&#xD;&#xA;RestrictToScope:SW|C7AB65D4-9C16-48B1-924B-A170B67C85A1&#xD;&#xA;RestrictToType:SW|List&#xD;&#xA;vti_foldersubfolderitemcount:IW|0&#xD;&#xA;HistoryListId:SW|{FA1C666D-B5E0-485D-9F4F-71546758A42D}&#xD;&#xA;vti_modifiedby:SR|i:0#.f|membership|admin@kominn.onmicrosoft.com&#xD;&#xA;ContentTypeId:SW|0x01002A2479FF33DD4BC3B1533A012B653717007DDE48D47574DD4B89CCE240CB3A51D5&#xD;&#xA;SPDConfig.StartOnCreate:SW|true&#xD;&#xA;FileLeafRef:SW|workflow.xaml&#xD;&#xA;RequiresInitiationForm:SW|false&#xD;&#xA;InitiationUrl:SW|&#xD;&#xA;SubscriptionId:SW|{9AB4FB99-11F8-41AB-84AC-44B494C15D31}&#xD;&#xA;FormField:SW|&lt;Fields /&gt;&#xD;&#xA;TaskListId:SW|{A74AF1EB-E2DF-43EC-A17B-AA67D977644B}&#xD;&#xA;SPDConfig.LastEditMode:SW|TextBased&#xD;&#xA;vti_folderitemcount:IW|0&#xD;&#xA;isReusable:SW|false&#xD;&#xA;" />
               <pnp:Property Key="_Level" Value="1" />
               <pnp:Property Key="_IsCurrentVersion" Value="True" />
               <pnp:Property Key="ItemChildCount" Value="0" />
@@ -1031,7 +1016,7 @@
               <pnp:Property Key="DocConcurrencyNumber" Value="8" />
               <pnp:Property Key="ParentUniqueId" Value="{4EA13875-5FF0-4923-8D6E-12E760E580D3}" />
               <pnp:Property Key="StreamHash" Value="0x026B61C3BB2927CE9A25407853C98E90636E340306" />
-              <pnp:Property Key="ModifiedBy" Value="i:0#.f|membership|helges@kominndev.onmicrosoft.com" />
+              <pnp:Property Key="ModifiedBy" Value="i:0#.f|membership|admin@kominn.onmicrosoft.com" />
             </pnp:Properties>
             <pnp:FormField>
               <Fields />
@@ -1047,13 +1032,13 @@
               <pnp:PropertyDefinition Key="WSPublishState" Value="3" />
               <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.EventSourceId" Value="c7ab65d4-9c16-48b1-924b-a170b67c85a1" />
               <pnp:PropertyDefinition Key="HistoryListId" Value="{listid:Workflow History}" />
-              <pnp:PropertyDefinition Key="CurrentWebUri" Value="https://kominndev.sharepoint.com/sites/kominn" />
+              <pnp:PropertyDefinition Key="CurrentWebUri" Value="https://smebydev.sharepoint.com/sites/kominn" />
               <pnp:PropertyDefinition Key="ContentTypeId" Value="0x0100AA27A923036E459D9EF0D18BBD0B95870095FF9A65EDF23049AC1EB22511FA72A7" />
-              <pnp:PropertyDefinition Key="vti_modifiedby" Value="i:0#.f|membership|helges@kominndev.onmicrosoft.com" />
+              <pnp:PropertyDefinition Key="vti_modifiedby" Value="i:0#.f|membership|admin@kominn.onmicrosoft.com" />
               <pnp:PropertyDefinition Key="StatusFieldName" Value="E_x002d_post_x0020_til_x0020_for" />
               <pnp:PropertyDefinition Key="CreatedBySPD" Value="1" />
               <pnp:PropertyDefinition Key="vti_parserversion" Value="16.0.0.5722" />
-              <pnp:PropertyDefinition Key="vti_author" Value="i:0#.f|membership|helges@kominndev.onmicrosoft.com" />
+              <pnp:PropertyDefinition Key="vti_author" Value="i:0#.f|membership|admin@kominn.onmicrosoft.com" />
               <pnp:PropertyDefinition Key="vti_foldersubfolderitemcount" Value="0" />
               <pnp:PropertyDefinition Key="vti_writevalidationtoken" Value="AAAAAAAAAAAAAAAAAAAAAAAAAAA=" />
               <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.DisplayName" Value="E-post til forslagsstiller" />
@@ -1064,7 +1049,7 @@
               <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.Id" Value="182cbccf-cc6f-4a65-9507-83287a5afea6" />
               <pnp:PropertyDefinition Key="vti_privatelistexempt" Value="true" />
               <pnp:PropertyDefinition Key="TaskListId" Value="{listid:Workflow Tasks}" />
-              <pnp:PropertyDefinition Key="ModifiedBy" Value="i:0#.f|membership|helges@kominndev.onmicrosoft.com" />
+              <pnp:PropertyDefinition Key="ModifiedBy" Value="i:0#.f|membership|admin@kominn.onmicrosoft.com" />
               <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.Name" Value="WorkflowAssociation_f23c756d55f6473db578f64dd9220f78" />
               <pnp:PropertyDefinition Key="Order" Value="300.000000000000" />
               <pnp:PropertyDefinition Key="Microsoft.SharePoint.ActivationProperties.ParentContentTypeId" Value="0x0100F75F717C365A9948A76B964889E90F0D" />
@@ -1073,9 +1058,9 @@
               <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.ListItemId" Value="3" />
               <pnp:PropertyDefinition Key="ContentType" Value="WorkflowServiceSubscription" />
               <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.CreatedDate" Value="9/28/2016 10:46:59 PM" />
-              <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.AuthorId" Value="9;#Helge Smeby,#i:0#.f|membership|helges@kominndev.onmicrosoft.com,#helges@kominndev.onmicrosoft.com,#helges@kominndev.onmicrosoft.com,#Helge Smeby" />
+              <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.AuthorId" Value="9;#Helge Smeby,#i:0#.f|membership|admin@kominn.onmicrosoft.com,#admin@kominn.onmicrosoft.com,#admin@kominn.onmicrosoft.com,#Helge Smeby" />
               <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.ModifiedDate" Value="9/29/2016 12:17:10 AM" />
-              <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.EditorId" Value="9;#Helge Smeby,#i:0#.f|membership|helges@kominndev.onmicrosoft.com,#helges@kominndev.onmicrosoft.com,#helges@kominndev.onmicrosoft.com,#Helge Smeby" />
+              <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.EditorId" Value="9;#Helge Smeby,#i:0#.f|membership|admin@kominn.onmicrosoft.com,#admin@kominn.onmicrosoft.com,#admin@kominn.onmicrosoft.com,#Helge Smeby" />
               <pnp:PropertyDefinition Key="_ModerationStatus" Value="0" />
               <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.FullName" Value="/sites/kominn/wfsvc/fcf19334783d4ca986ef1ad55c454cc7/WorkflowAssociation_f23c756d55f6473db578f64dd9220f78" />
               <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.Path" Value="/sites/kominn/wfsvc/fcf19334783d4ca986ef1ad55c454cc7" />
@@ -1094,8 +1079,8 @@
               <pnp:PropertyDefinition Key="VirusStatus" Value="3;#0" />
               <pnp:PropertyDefinition Key="CheckedOutTitle" Value="3;#" />
               <pnp:PropertyDefinition Key="_CheckinComment" Value="" />
-              <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.EditorLogin" Value="i:0#.f|membership|helges@kominndev.onmicrosoft.com" />
-              <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.AuthorLogin" Value="i:0#.f|membership|helges@kominndev.onmicrosoft.com" />
+              <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.EditorLogin" Value="i:0#.f|membership|admin@kominn.onmicrosoft.com" />
+              <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.AuthorLogin" Value="i:0#.f|membership|admin@kominn.onmicrosoft.com" />
               <pnp:PropertyDefinition Key="_EditMenuTableStart" Value="WorkflowAssociation_f23c756d55f6473db578f64dd9220f78" />
               <pnp:PropertyDefinition Key="_EditMenuTableStart2" Value="3" />
               <pnp:PropertyDefinition Key="_EditMenuTableEnd" Value="3" />
@@ -1103,10 +1088,10 @@
               <pnp:PropertyDefinition Key="LinkFilename" Value="WorkflowAssociation_f23c756d55f6473db578f64dd9220f78" />
               <pnp:PropertyDefinition Key="LinkFilename2" Value="WorkflowAssociation_f23c756d55f6473db578f64dd9220f78" />
               <pnp:PropertyDefinition Key="ServerUrl" Value="/sites/kominn/wfsvc/fcf19334783d4ca986ef1ad55c454cc7/WorkflowAssociation_f23c756d55f6473db578f64dd9220f78" />
-              <pnp:PropertyDefinition Key="EncodedAbsUrl" Value="https://kominndev.sharepoint.com/sites/kominn/wfsvc/fcf19334783d4ca986ef1ad55c454cc7/WorkflowAssociation_f23c756d55f6473db578f64dd9220f78" />
+              <pnp:PropertyDefinition Key="EncodedAbsUrl" Value="https://smebydev.sharepoint.com/sites/kominn/wfsvc/fcf19334783d4ca986ef1ad55c454cc7/WorkflowAssociation_f23c756d55f6473db578f64dd9220f78" />
               <pnp:PropertyDefinition Key="BaseName" Value="WorkflowAssociation_f23c756d55f6473db578f64dd9220f78" />
               <pnp:PropertyDefinition Key="FileSizeDisplay" Value="0" />
-              <pnp:PropertyDefinition Key="MetaInfo" Value="vti_parserversion:SR|16.0.0.5722&#xD;&#xA;Order:DW|300.000000000000&#xD;&#xA;WSGUID:SW|182cbccf-cc6f-4a65-9507-83287a5afea6&#xD;&#xA;WSDisplayName:SW|E-post til forslagsstiller&#xD;&#xA;WSEnabled:BW|true&#xD;&#xA;WSPublishState:IW|3&#xD;&#xA;vti_author:SR|i:0#.f|membership|helges@kominndev.onmicrosoft.com&#xD;&#xA;vti_writevalidationtoken:SW|AAAAAAAAAAAAAAAAAAAAAAAAAAA=&#xD;&#xA;HistoryListId:SW|FA1C666D-B5E0-485D-9F4F-71546758A42D&#xD;&#xA;WSEventSourceGUID:SW|c7ab65d4-9c16-48b1-924b-a170b67c85a1&#xD;&#xA;WSEventType:SW|WorkflowStart#;ItemAdded#;ItemUpdated#;&#xD;&#xA;vti_modifiedby:SR|i:0#.f|membership|helges@kominndev.onmicrosoft.com&#xD;&#xA;vti_foldersubfolderitemcount:IR|0&#xD;&#xA;Microsoft.SharePoint.ActivationProperties.ListId:SW|c7ab65d4-9c16-48b1-924b-a170b67c85a1&#xD;&#xA;vti_privatelistexempt:BW|true&#xD;&#xA;FileLeafRef:SW|WorkflowAssociation_f23c756d55f6473db578f64dd9220f78&#xD;&#xA;Microsoft.SharePoint.ActivationProperties.ListName:SW|Forslag&#xD;&#xA;WSEventContextKeys:SW|StatusColumnCreated;#WorkflowService\r\nCreatedBySPD;#WorkflowService\r\nCurrentWebUri;#WorkflowService\r\nHistoryListId;#WorkflowService\r\nSharePointWorkflowContext.ActivationProperties.SiteId;#WorkflowService\r\nTaskListId;#WorkflowService\r\nMicrosoft.SharePoint.ActivationProperties.ParentContentTypeId;#Instance\r\nSharePointWorkflowContext.ActivationProperties.WebId;#WorkflowService\r\nMicrosoft.SharePoint.ActivationProperties.ListId;#WorkflowService\r\nMicrosoft.SharePoint.ActivationProperties.ListName;#WorkflowService\r\nMicrosoft.SharePoint.ActivationProperties.CurrentItemUrl;#Instance\r\nMicrosoft.SharePoint.ActivationProperties.ItemId;#Instance\r\nMicrosoft.SharePoint.ActivationProperties.ItemGuid;#Instance\r\nMicrosoft.SharePoint.ActivationProperties.UniqueId;#Instance\r\nStatusFieldName;#WorkflowService\r\nMicrosoft.SharePoint.ActivationProperties.RelatedItems;#Instance\r\n&#xD;&#xA;Microsoft.SharePoint.ActivationProperties.ParentContentTypeId:SW|0x0100F75F717C365A9948A76B964889E90F0D&#xD;&#xA;ContentTypeId:SW|0x0100AA27A923036E459D9EF0D18BBD0B95870095FF9A65EDF23049AC1EB22511FA72A7&#xD;&#xA;ModifiedBy:SW|i:0#.f|membership|helges@kominndev.onmicrosoft.com&#xD;&#xA;StatusColumnCreated:SW|1&#xD;&#xA;SharePointWorkflowContext.ActivationProperties.WebId:SW|F6355679-6AFA-401C-B31B-C5C66F4E743C&#xD;&#xA;CurrentWebUri:SW|https://kominndev.sharepoint.com/sites/kominn&#xD;&#xA;TaskListId:SW|A74AF1EB-E2DF-43EC-A17B-AA67D977644B&#xD;&#xA;StatusFieldName:SW|E_x002d_post_x0020_til_x0020_for&#xD;&#xA;SharePointWorkflowContext.ActivationProperties.SiteId:SW|E7E8005B-7879-4D8F-8BCD-28A70B950E8B&#xD;&#xA;vti_folderitemcount:IR|0&#xD;&#xA;CreatedBySPD:SW|1&#xD;&#xA;" />
+              <pnp:PropertyDefinition Key="MetaInfo" Value="vti_parserversion:SR|16.0.0.5722&#xD;&#xA;Order:DW|300.000000000000&#xD;&#xA;WSGUID:SW|182cbccf-cc6f-4a65-9507-83287a5afea6&#xD;&#xA;WSDisplayName:SW|E-post til forslagsstiller&#xD;&#xA;WSEnabled:BW|true&#xD;&#xA;WSPublishState:IW|3&#xD;&#xA;vti_author:SR|i:0#.f|membership|admin@kominn.onmicrosoft.com&#xD;&#xA;vti_writevalidationtoken:SW|AAAAAAAAAAAAAAAAAAAAAAAAAAA=&#xD;&#xA;HistoryListId:SW|FA1C666D-B5E0-485D-9F4F-71546758A42D&#xD;&#xA;WSEventSourceGUID:SW|c7ab65d4-9c16-48b1-924b-a170b67c85a1&#xD;&#xA;WSEventType:SW|WorkflowStart#;ItemAdded#;ItemUpdated#;&#xD;&#xA;vti_modifiedby:SR|i:0#.f|membership|admin@kominn.onmicrosoft.com&#xD;&#xA;vti_foldersubfolderitemcount:IR|0&#xD;&#xA;Microsoft.SharePoint.ActivationProperties.ListId:SW|c7ab65d4-9c16-48b1-924b-a170b67c85a1&#xD;&#xA;vti_privatelistexempt:BW|true&#xD;&#xA;FileLeafRef:SW|WorkflowAssociation_f23c756d55f6473db578f64dd9220f78&#xD;&#xA;Microsoft.SharePoint.ActivationProperties.ListName:SW|Forslag&#xD;&#xA;WSEventContextKeys:SW|StatusColumnCreated;#WorkflowService\r\nCreatedBySPD;#WorkflowService\r\nCurrentWebUri;#WorkflowService\r\nHistoryListId;#WorkflowService\r\nSharePointWorkflowContext.ActivationProperties.SiteId;#WorkflowService\r\nTaskListId;#WorkflowService\r\nMicrosoft.SharePoint.ActivationProperties.ParentContentTypeId;#Instance\r\nSharePointWorkflowContext.ActivationProperties.WebId;#WorkflowService\r\nMicrosoft.SharePoint.ActivationProperties.ListId;#WorkflowService\r\nMicrosoft.SharePoint.ActivationProperties.ListName;#WorkflowService\r\nMicrosoft.SharePoint.ActivationProperties.CurrentItemUrl;#Instance\r\nMicrosoft.SharePoint.ActivationProperties.ItemId;#Instance\r\nMicrosoft.SharePoint.ActivationProperties.ItemGuid;#Instance\r\nMicrosoft.SharePoint.ActivationProperties.UniqueId;#Instance\r\nStatusFieldName;#WorkflowService\r\nMicrosoft.SharePoint.ActivationProperties.RelatedItems;#Instance\r\n&#xD;&#xA;Microsoft.SharePoint.ActivationProperties.ParentContentTypeId:SW|0x0100F75F717C365A9948A76B964889E90F0D&#xD;&#xA;ContentTypeId:SW|0x0100AA27A923036E459D9EF0D18BBD0B95870095FF9A65EDF23049AC1EB22511FA72A7&#xD;&#xA;ModifiedBy:SW|i:0#.f|membership|admin@kominn.onmicrosoft.com&#xD;&#xA;StatusColumnCreated:SW|1&#xD;&#xA;SharePointWorkflowContext.ActivationProperties.WebId:SW|F6355679-6AFA-401C-B31B-C5C66F4E743C&#xD;&#xA;CurrentWebUri:SW|https://smebydev.sharepoint.com/sites/kominn&#xD;&#xA;TaskListId:SW|A74AF1EB-E2DF-43EC-A17B-AA67D977644B&#xD;&#xA;StatusFieldName:SW|E_x002d_post_x0020_til_x0020_for&#xD;&#xA;SharePointWorkflowContext.ActivationProperties.SiteId:SW|E7E8005B-7879-4D8F-8BCD-28A70B950E8B&#xD;&#xA;vti_folderitemcount:IR|0&#xD;&#xA;CreatedBySPD:SW|1&#xD;&#xA;" />
               <pnp:PropertyDefinition Key="_Level" Value="1" />
               <pnp:PropertyDefinition Key="_IsCurrentVersion" Value="True" />
               <pnp:PropertyDefinition Key="ItemChildCount" Value="0" />
@@ -1148,13 +1133,13 @@
               <pnp:PropertyDefinition Key="WSPublishState" Value="3" />
               <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.EventSourceId" Value="c7ab65d4-9c16-48b1-924b-a170b67c85a1" />
               <pnp:PropertyDefinition Key="HistoryListId" Value="{listid:Workflow History}" />
-              <pnp:PropertyDefinition Key="CurrentWebUri" Value="https://kominndev.sharepoint.com/sites/kominn" />
+              <pnp:PropertyDefinition Key="CurrentWebUri" Value="https://smebydev.sharepoint.com/sites/kominn" />
               <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.EventType" Value="WorkflowStart#;ItemAdded#;ItemUpdated#;" />
-              <pnp:PropertyDefinition Key="vti_modifiedby" Value="i:0#.f|membership|helges@kominndev.onmicrosoft.com" />
+              <pnp:PropertyDefinition Key="vti_modifiedby" Value="i:0#.f|membership|admin@kominn.onmicrosoft.com" />
               <pnp:PropertyDefinition Key="StatusFieldName" Value="E_x002d_post_x0020_til_x0020_sak" />
               <pnp:PropertyDefinition Key="CreatedBySPD" Value="1" />
               <pnp:PropertyDefinition Key="vti_parserversion" Value="16.0.0.5722" />
-              <pnp:PropertyDefinition Key="vti_author" Value="i:0#.f|membership|helges@kominndev.onmicrosoft.com" />
+              <pnp:PropertyDefinition Key="vti_author" Value="i:0#.f|membership|admin@kominn.onmicrosoft.com" />
               <pnp:PropertyDefinition Key="vti_foldersubfolderitemcount" Value="0" />
               <pnp:PropertyDefinition Key="vti_writevalidationtoken" Value="AAAAAAAAAAAAAAAAAAAAAAAAAAA=" />
               <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.DisplayName" Value="E-post til saksbehandler" />
@@ -1172,9 +1157,9 @@
               <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.ListItemId" Value="8" />
               <pnp:PropertyDefinition Key="ContentType" Value="WorkflowServiceSubscription" />
               <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.CreatedDate" Value="9/28/2016 11:12:47 PM" />
-              <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.AuthorId" Value="9;#Helge Smeby,#i:0#.f|membership|helges@kominndev.onmicrosoft.com,#helges@kominndev.onmicrosoft.com,#helges@kominndev.onmicrosoft.com,#Helge Smeby" />
+              <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.AuthorId" Value="9;#Helge Smeby,#i:0#.f|membership|admin@kominn.onmicrosoft.com,#admin@kominn.onmicrosoft.com,#admin@kominn.onmicrosoft.com,#Helge Smeby" />
               <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.ModifiedDate" Value="9/28/2016 11:13:08 PM" />
-              <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.EditorId" Value="9;#Helge Smeby,#i:0#.f|membership|helges@kominndev.onmicrosoft.com,#helges@kominndev.onmicrosoft.com,#helges@kominndev.onmicrosoft.com,#Helge Smeby" />
+              <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.EditorId" Value="9;#Helge Smeby,#i:0#.f|membership|admin@kominn.onmicrosoft.com,#admin@kominn.onmicrosoft.com,#admin@kominn.onmicrosoft.com,#Helge Smeby" />
               <pnp:PropertyDefinition Key="_ModerationStatus" Value="0" />
               <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.FullName" Value="/sites/kominn/wfsvc/21850fc651024d2eb3bb5dc52f911d59/WorkflowAssociation_58a82bd841f74323a4fb6e375f637ca4" />
               <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.Path" Value="/sites/kominn/wfsvc/21850fc651024d2eb3bb5dc52f911d59" />
@@ -1193,8 +1178,8 @@
               <pnp:PropertyDefinition Key="VirusStatus" Value="8;#0" />
               <pnp:PropertyDefinition Key="CheckedOutTitle" Value="8;#" />
               <pnp:PropertyDefinition Key="_CheckinComment" Value="" />
-              <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.EditorLogin" Value="i:0#.f|membership|helges@kominndev.onmicrosoft.com" />
-              <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.AuthorLogin" Value="i:0#.f|membership|helges@kominndev.onmicrosoft.com" />
+              <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.EditorLogin" Value="i:0#.f|membership|admin@kominn.onmicrosoft.com" />
+              <pnp:PropertyDefinition Key="SharePointWorkflowContext.Subscription.AuthorLogin" Value="i:0#.f|membership|admin@kominn.onmicrosoft.com" />
               <pnp:PropertyDefinition Key="_EditMenuTableStart" Value="WorkflowAssociation_58a82bd841f74323a4fb6e375f637ca4" />
               <pnp:PropertyDefinition Key="_EditMenuTableStart2" Value="8" />
               <pnp:PropertyDefinition Key="_EditMenuTableEnd" Value="8" />
@@ -1202,10 +1187,10 @@
               <pnp:PropertyDefinition Key="LinkFilename" Value="WorkflowAssociation_58a82bd841f74323a4fb6e375f637ca4" />
               <pnp:PropertyDefinition Key="LinkFilename2" Value="WorkflowAssociation_58a82bd841f74323a4fb6e375f637ca4" />
               <pnp:PropertyDefinition Key="ServerUrl" Value="/sites/kominn/wfsvc/21850fc651024d2eb3bb5dc52f911d59/WorkflowAssociation_58a82bd841f74323a4fb6e375f637ca4" />
-              <pnp:PropertyDefinition Key="EncodedAbsUrl" Value="https://kominndev.sharepoint.com/sites/kominn/wfsvc/21850fc651024d2eb3bb5dc52f911d59/WorkflowAssociation_58a82bd841f74323a4fb6e375f637ca4" />
+              <pnp:PropertyDefinition Key="EncodedAbsUrl" Value="https://smebydev.sharepoint.com/sites/kominn/wfsvc/21850fc651024d2eb3bb5dc52f911d59/WorkflowAssociation_58a82bd841f74323a4fb6e375f637ca4" />
               <pnp:PropertyDefinition Key="BaseName" Value="WorkflowAssociation_58a82bd841f74323a4fb6e375f637ca4" />
               <pnp:PropertyDefinition Key="FileSizeDisplay" Value="0" />
-              <pnp:PropertyDefinition Key="MetaInfo" Value="vti_parserversion:SR|16.0.0.5722&#xD;&#xA;WSGUID:SW|9ab4fb99-11f8-41ab-84ac-44b494c15d31&#xD;&#xA;WSDisplayName:SW|E-post til saksbehandler&#xD;&#xA;WSEnabled:BW|TRUE&#xD;&#xA;WSPublishState:IW|3&#xD;&#xA;CreatedBySPD:SW|1&#xD;&#xA;vti_author:SR|i:0#.f|membership|helges@kominndev.onmicrosoft.com&#xD;&#xA;vti_writevalidationtoken:SW|AAAAAAAAAAAAAAAAAAAAAAAAAAA=&#xD;&#xA;HistoryListId:SW|FA1C666D-B5E0-485D-9F4F-71546758A42D&#xD;&#xA;WSEventSourceGUID:SW|c7ab65d4-9c16-48b1-924b-a170b67c85a1&#xD;&#xA;WSEventType:SW|WorkflowStart#;ItemAdded#;ItemUpdated#;&#xD;&#xA;vti_modifiedby:SR|i:0#.f|membership|helges@kominndev.onmicrosoft.com&#xD;&#xA;vti_foldersubfolderitemcount:IR|0&#xD;&#xA;Microsoft.SharePoint.ActivationProperties.ListId:SW|c7ab65d4-9c16-48b1-924b-a170b67c85a1&#xD;&#xA;vti_privatelistexempt:BW|true&#xD;&#xA;FileLeafRef:SW|WorkflowAssociation_58a82bd841f74323a4fb6e375f637ca4&#xD;&#xA;Microsoft.SharePoint.ActivationProperties.ListName:SW|Forslag&#xD;&#xA;WSEventContextKeys:SW|StatusColumnCreated;#WorkflowService\r\nCreatedBySPD;#WorkflowService\r\nCurrentWebUri;#WorkflowService\r\nHistoryListId;#WorkflowService\r\nSharePointWorkflowContext.ActivationProperties.SiteId;#WorkflowService\r\nTaskListId;#WorkflowService\r\nMicrosoft.SharePoint.ActivationProperties.ParentContentTypeId;#Instance\r\nSharePointWorkflowContext.ActivationProperties.WebId;#WorkflowService\r\nMicrosoft.SharePoint.ActivationProperties.ListId;#WorkflowService\r\nMicrosoft.SharePoint.ActivationProperties.ListName;#WorkflowService\r\nMicrosoft.SharePoint.ActivationProperties.CurrentItemUrl;#Instance\r\nMicrosoft.SharePoint.ActivationProperties.ItemId;#Instance\r\nMicrosoft.SharePoint.ActivationProperties.ItemGuid;#Instance\r\nMicrosoft.SharePoint.ActivationProperties.UniqueId;#Instance\r\nStatusFieldName;#WorkflowService\r\nMicrosoft.SharePoint.ActivationProperties.RelatedItems;#Instance\r\n&#xD;&#xA;Microsoft.SharePoint.ActivationProperties.ParentContentTypeId:SW|&#xD;&#xA;ContentTypeId:SW|0x0100AA27A923036E459D9EF0D18BBD0B95870095FF9A65EDF23049AC1EB22511FA72A7&#xD;&#xA;StatusColumnCreated:SW|1&#xD;&#xA;SharePointWorkflowContext.ActivationProperties.WebId:SW|F6355679-6AFA-401C-B31B-C5C66F4E743C&#xD;&#xA;CurrentWebUri:SW|https://kominndev.sharepoint.com/sites/kominn&#xD;&#xA;TaskListId:SW|A74AF1EB-E2DF-43EC-A17B-AA67D977644B&#xD;&#xA;StatusFieldName:SW|E_x002d_post_x0020_til_x0020_sak&#xD;&#xA;SharePointWorkflowContext.ActivationProperties.SiteId:SW|E7E8005B-7879-4D8F-8BCD-28A70B950E8B&#xD;&#xA;vti_folderitemcount:IR|0&#xD;&#xA;" />
+              <pnp:PropertyDefinition Key="MetaInfo" Value="vti_parserversion:SR|16.0.0.5722&#xD;&#xA;WSGUID:SW|9ab4fb99-11f8-41ab-84ac-44b494c15d31&#xD;&#xA;WSDisplayName:SW|E-post til saksbehandler&#xD;&#xA;WSEnabled:BW|TRUE&#xD;&#xA;WSPublishState:IW|3&#xD;&#xA;CreatedBySPD:SW|1&#xD;&#xA;vti_author:SR|i:0#.f|membership|admin@kominn.onmicrosoft.com&#xD;&#xA;vti_writevalidationtoken:SW|AAAAAAAAAAAAAAAAAAAAAAAAAAA=&#xD;&#xA;HistoryListId:SW|FA1C666D-B5E0-485D-9F4F-71546758A42D&#xD;&#xA;WSEventSourceGUID:SW|c7ab65d4-9c16-48b1-924b-a170b67c85a1&#xD;&#xA;WSEventType:SW|WorkflowStart#;ItemAdded#;ItemUpdated#;&#xD;&#xA;vti_modifiedby:SR|i:0#.f|membership|admin@kominn.onmicrosoft.com&#xD;&#xA;vti_foldersubfolderitemcount:IR|0&#xD;&#xA;Microsoft.SharePoint.ActivationProperties.ListId:SW|c7ab65d4-9c16-48b1-924b-a170b67c85a1&#xD;&#xA;vti_privatelistexempt:BW|true&#xD;&#xA;FileLeafRef:SW|WorkflowAssociation_58a82bd841f74323a4fb6e375f637ca4&#xD;&#xA;Microsoft.SharePoint.ActivationProperties.ListName:SW|Forslag&#xD;&#xA;WSEventContextKeys:SW|StatusColumnCreated;#WorkflowService\r\nCreatedBySPD;#WorkflowService\r\nCurrentWebUri;#WorkflowService\r\nHistoryListId;#WorkflowService\r\nSharePointWorkflowContext.ActivationProperties.SiteId;#WorkflowService\r\nTaskListId;#WorkflowService\r\nMicrosoft.SharePoint.ActivationProperties.ParentContentTypeId;#Instance\r\nSharePointWorkflowContext.ActivationProperties.WebId;#WorkflowService\r\nMicrosoft.SharePoint.ActivationProperties.ListId;#WorkflowService\r\nMicrosoft.SharePoint.ActivationProperties.ListName;#WorkflowService\r\nMicrosoft.SharePoint.ActivationProperties.CurrentItemUrl;#Instance\r\nMicrosoft.SharePoint.ActivationProperties.ItemId;#Instance\r\nMicrosoft.SharePoint.ActivationProperties.ItemGuid;#Instance\r\nMicrosoft.SharePoint.ActivationProperties.UniqueId;#Instance\r\nStatusFieldName;#WorkflowService\r\nMicrosoft.SharePoint.ActivationProperties.RelatedItems;#Instance\r\n&#xD;&#xA;Microsoft.SharePoint.ActivationProperties.ParentContentTypeId:SW|&#xD;&#xA;ContentTypeId:SW|0x0100AA27A923036E459D9EF0D18BBD0B95870095FF9A65EDF23049AC1EB22511FA72A7&#xD;&#xA;StatusColumnCreated:SW|1&#xD;&#xA;SharePointWorkflowContext.ActivationProperties.WebId:SW|F6355679-6AFA-401C-B31B-C5C66F4E743C&#xD;&#xA;CurrentWebUri:SW|https://smebydev.sharepoint.com/sites/kominn&#xD;&#xA;TaskListId:SW|A74AF1EB-E2DF-43EC-A17B-AA67D977644B&#xD;&#xA;StatusFieldName:SW|E_x002d_post_x0020_til_x0020_sak&#xD;&#xA;SharePointWorkflowContext.ActivationProperties.SiteId:SW|E7E8005B-7879-4D8F-8BCD-28A70B950E8B&#xD;&#xA;vti_folderitemcount:IR|0&#xD;&#xA;" />
               <pnp:PropertyDefinition Key="_Level" Value="1" />
               <pnp:PropertyDefinition Key="_IsCurrentVersion" Value="True" />
               <pnp:PropertyDefinition Key="ItemChildCount" Value="0" />
@@ -1238,7 +1223,7 @@
               <pnp:PropertyDefinition Key="DocConcurrencyNumber" Value="2" />
               <pnp:PropertyDefinition Key="ParentUniqueId" Value="{4EA13875-5FF0-4923-8D6E-12E760E580D3}" />
               <pnp:PropertyDefinition Key="StreamHash" Value="0x020000000000000000000000000000000000000000" />
-              <pnp:PropertyDefinition Key="ModifiedBy" Value="i:0#.f|membership|helges@kominndev.onmicrosoft.com" />
+              <pnp:PropertyDefinition Key="ModifiedBy" Value="i:0#.f|membership|admin@kominn.onmicrosoft.com" />
             </pnp:PropertyDefinitions>
           </pnp:WorkflowSubscription>
         </pnp:WorkflowSubscriptions>

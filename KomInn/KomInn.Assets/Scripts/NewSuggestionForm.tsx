@@ -1,8 +1,10 @@
 import * as React from "react";
 import * as $ from "jquery";
-import "../Provisioning/SiteAssets/lib/typeahead/typeahead.jquery.js"
+import "../Provisioning/SiteAssets/lib/typeahead/typeahead.bundle.min.js"
 import "../Provisioning/SiteAssets/lib/jquery.autogrow-textarea/jquery.autogrow-textarea.js"
+
 import {ListData, UserProfile, ITaxonomyTerm, IUser, Taxonomy, IUserProfileProperty, Suggestion, Suggestions } from "./SPTools"
+
 
 interface Validator {
     Required: boolean,
@@ -14,11 +16,11 @@ interface InputFieldState { isValid: boolean }
 
 class TextArea extends React.Component<InputFieldProps, {}>
 {
-    validate(): boolean {
+    validate(): boolean {        
         if (!this.props.Validate)
             return true;
 
-        if (this.props.Value.length <= 0)
+        if (this.props.Value.length <= 0) 
             return false;
 
         return true;
@@ -155,12 +157,14 @@ class SPTaxonomyField extends React.Component<TaxonomyFieldProps, SPTaxonomyFiel
             queryTokenizer: Bloodhound.tokenizers.whitespace,
             local: this.state.terms
         };
+        
         var engine = new Bloodhound<ITaxonomyTerm>(bo);
-        var dataset: Twitter.Typeahead.Dataset<string> = { source: d, display: "Title" };
-        var options: Twitter.Typeahead.Options = { highlight: true, hint: true, minLength: 0 };
+        
+        var dataset:Twitter.Typeahead.Dataset<string> = { source: d, display: "Title" };
+        var options:Twitter.Typeahead.Options = { highlight: true, hint: false, minLength: 0 };
         $(".typeahead").typeahead(options, dataset).blur(this.onLeave.bind(this));
         $(".typeahead").on("typeahead:selected", handler.bind(this));
-
+        
         function handler(obj: any, datum: ITaxonomyTerm, name: any) {
             if (this.props.TaxonomySelectedHandler)
                 this.props.TaxonomySelectedHandler(datum);
@@ -194,7 +198,7 @@ export class NewSuggestionForm extends React.Component<void, NewSuggestionFormSt
     }
 
 
-
+ 
     submitForm(data: any) {
         if (this.state.submitting)
             return;
@@ -209,7 +213,7 @@ export class NewSuggestionForm extends React.Component<void, NewSuggestionFormSt
             .done((() => {
                 this.setState({ submitted: true });
             }).bind(this))
-            .fail((() => {
+            .fail((() => { 
                 this.setState({ submitFailed: true });
                 this.setState({ submitting: false })
             }).bind(this));
@@ -294,12 +298,12 @@ export class NewSuggestionForm extends React.Component<void, NewSuggestionFormSt
             return <ThankYouPage />
 
         if (this.state.submitting)
-            return <h4>Sender...</h4>
+            return <h3>Sender...</h3>
 
-        return (<div><div className="row">
+        return (<div><div className="row"> 
             <div className="col-xs-12">
                 <h1>Nytt forslag</h1>
-                <p>Tekst her?</p>
+                <p>Tekst her...</p> 
             </div>
         </div>
             <div className="row">

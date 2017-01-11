@@ -32,17 +32,25 @@ export interface ISPUserProfile {
     PictureUrl?: string;
     UserProfileProperties: UserProfilePropertyArray<IUserProfileProperty>
 }
-
+ 
 interface UserImage { ImageUrl: string, Username: string }
 
-class UserProfilePropertyArray<IUserProfileProperty> extends Array<any>
-{
-    public findByKey(key: string): IUserProfileProperty {
+class UserProfilePropertyArray<T> extends Array<any>
+{ 
+    public findByKey(key: string): T {
+        console.log("Finding" + key); 
         for (var i = 0; i < this.length; i++) {
             if (this[i].Key == key)
+            {
+                console.log("found key"); 
                 return this[i];
-        }
-
+            }
+        }  
+        console.log("Returning default"); 
+        let def:IUserProfileProperty = {Value:"", ValueType:"", Key:"" };
+        console.log(def);
+        console.log("TEST");
+        return def as T;   
     }
 }
 
@@ -538,9 +546,12 @@ export class Suggestion {
         item.set_item("Utfordring", this.Utfordring);
         item.set_item("Virksomhet", this.Virksomhet);
 
-        var manager = new SP.FieldUserValue();
-        manager.set_lookupId(this.NarmesteLeder.Id);
-        item.set_item("N_x00e6_rmeste_x0020_leder", manager);
+        if(this.NarmesteLeder != null && this.NarmesteLeder.Id != null)
+        {
+            var manager = new SP.FieldUserValue();
+            manager.set_lookupId(this.NarmesteLeder.Id);
+            item.set_item("N_x00e6_rmeste_x0020_leder", manager);
+        }
 
         var self = new SP.FieldUserValue();
         self.set_lookupId(_spPageContextInfo.userId);
@@ -569,17 +580,27 @@ export class Suggestion {
         return df.promise();
     }
 
+    private findProperty(property:string, props:UserProfilePropertyArray<IUserProfileProperty>):string
+    {
+         for (var i = 0; i < props.length; i++) {
+            if (props[i].Key == property)
+            {                
+                return props[i].Value;
+            }
+        }  
+    }
+
     public PopulateFromUserProfile(): JQueryPromise<Suggestion> {
 
         var df = $.Deferred();
         UserProfile.GetMyProperties()
             .done((results: ISPUserProfile) => {
                 var props: UserProfilePropertyArray<IUserProfileProperty> = results.UserProfileProperties
-                this.Adresse = props.findByKey("Office").Value;
-                this.Avdeling = props.findByKey("SPS-JobTitle").Value;
-                this.Epostadresse = props.findByKey("WorkEmail").Value;
-                this.Telefon = props.findByKey("CellPhone").Value;
-                this.Virksomhet = props.findByKey("Department").Value;
+                this.Adresse = this.findProperty("Office", props);
+                this.Avdeling = this.findProperty("SPS-JobTitle", props);
+                this.Epostadresse = this.findProperty("WorkEmail", props);
+                this.Telefon = this.findProperty("CellPhone", props );
+                this.Virksomhet = this.findProperty("Department", props);
                 this.Dato = this.getTodaysDate();
                 this.Konkurransereferanse = GetUrlKeyValue("ref");
 
@@ -590,9 +611,10 @@ export class Suggestion {
                             LoginName: self.AcountName,
                             Id: _spPageContextInfo.userId
                         }
-
-                        if (props.findByKey("Manager") != null) {
-                            UserProfile.ensureUser(props.findByKey("Manager").Value)
+                        var manager = this.findProperty("Manager", props);                         
+                        if (manager != null && manager != "") 
+                        {                        
+                            UserProfile.ensureUser(manager)
                                 .done((result: any) => {
                                     this.NarmesteLeder = {
                                         DisplayName: result.d.Title,

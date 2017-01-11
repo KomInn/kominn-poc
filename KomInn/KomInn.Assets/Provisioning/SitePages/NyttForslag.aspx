@@ -23,8 +23,8 @@
      
       <script src="../SiteAssets/lib/bootstrap/js/bootstrap.min.js"></script> 
       <script src="../SiteAssets/lib/typeahead/bloodhound.js"></script>
-      <script src="../SiteAssets/lib/typeahead/typeahead.jquery.js"></script>
-      <script src="../SiteAssets/lib/jquery.autogrow-textarea/jquery.autogrow-textarea.js" ></script>   
+    <%--<script src="../SiteAssets/lib/typeahead/typeahead.jquery.js"></script>
+      <script src="../SiteAssets/lib/jquery.autogrow-textarea/jquery.autogrow-textarea.js" ></script>    --%>
         <link rel="stylesheet" href="../SiteAssets/lib/bootstrap/css/bootstrap.min.css" />
       <link rel="stylesheet" href="../SiteAssets/css/Style.css" />
 </asp:Content>

@@ -295,10 +295,10 @@ export class SuggestionList extends React.Component<SuggestionListProps, Suggest
                     <div className="col-xs-4">
                         <span className="glyphicon glyphicon-sort"></span><strong>Sorter </strong>
                         <select className="form-control" onChange={this.sortChange.bind(this) }>
-                            <option value={SortTypes.Newest} selected>Nyeste</option>
-                            <option value={SortTypes.Oldest}>Eldste</option>
-                            <option value={SortTypes.Comments}>Kommentarer</option>
-                            <option value={SortTypes.Likes}>Likerklikk</option>
+                            <option value={SortTypes.Newest.toString()} selected>Nyeste</option>
+                            <option value={SortTypes.Oldest.toString()}>Eldste</option>
+                            <option value={SortTypes.Comments.toString()}>Kommentarer</option>
+                            <option value={SortTypes.Likes.toString()}>Likerklikk</option>
                         </select>
                     </div>
                 </div>
