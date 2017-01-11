@@ -164,8 +164,7 @@ body {
     padding: 5px;
     font-weight: bold;
     background-color: rgba(92, 184, 92, 0.7);
-    border-bottom: 1px solid #4cae4c;
-    word-break: break-all; }
+    border-bottom: 1px solid #4cae4c; }
   .carousel-item main {
     word-break: break-word;
     padding: 5px; }

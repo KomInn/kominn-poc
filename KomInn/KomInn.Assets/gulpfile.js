@@ -3,11 +3,11 @@ var sass = require('gulp-sass');
 var webpack = require('webpack-stream');
 
 var paths = {   
-    sp_libroot:"W:\\", 
-    sp_js:"W:\\js\\",
-    sp_css:"W:\\css\\",
-    sp_sitepageslib:"X:\\",
-    sptest_libroot:"Y:\\",
+    sp_libroot:"Y:\\", 
+    sp_js:"Y:\\js\\",
+    sp_css:"Y:\\css\\",
+    sp_sitepageslib:"Y:\\",
+    sptest_libroot:"W:\\",
     lc_sitepagessrc:"./Provisioning/SitePages/",
     lc_libroot:"./Provisioning/SiteAssets/",
     lc_js:"./Provisioning/SiteAssets/js/",

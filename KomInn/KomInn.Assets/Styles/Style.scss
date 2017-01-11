@@ -216,7 +216,7 @@ body {
 
 .ki-shadow-box-item
 {
- margin:10px;
+ margin:10px; 
   height:250px;
   width:245px;
   background-color:$kiGrayTransparent;
@@ -230,7 +230,7 @@ body {
     font-weight:bold;
     background-color:rgba(92,184,92,0.7);
     border-bottom:1px solid $kiBorderGreen;
-    word-break:break-all; 
+   
   }
   
   main{
