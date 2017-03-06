@@ -1,3 +1,4 @@
+var webpack = require("webpack"); 
 module.exports = {
     entry: __dirname + "/Scripts/index",
     output: {
@@ -10,7 +11,7 @@ module.exports = {
 
     resolve: {
         // Add '.ts' and '.tsx' as resolvable extensions.
-        extensions: ["", ".webpack.js", ".web.js", ".ts", ".tsx", ".js"]
+        extensions: [".tsx", ".ts", ".js"]
     },
 
     module: {
@@ -18,12 +19,23 @@ module.exports = {
             // All files with a '.ts' or '.tsx' extension will be handled by 'awesome-typescript-loader'.
             { test: /\.tsx?$/, loader: "ts-loader" }
         ],
-
-        preLoaders: [
-            // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
-            { test: /\.js$/, loader: "source-map-loader" }
-        ]
     },
+    plugins: [
+    new webpack.optimize.UglifyJsPlugin({
+       mangle:true, 
+     minimize: true,
+     compress:{ 
+         warnings:false,
+         sequences:true, 
+         dead_code:true, 
+         conditionals:true, 
+         booleans:true, 
+         unused:true, 
+         if_return:true, 
+         join_vars:true
+         //drop_console:true
+     }
+    })],
 
     // When importing a module whose path matches one of the following, just
     // assume a corresponding global variable exists and use that instead.

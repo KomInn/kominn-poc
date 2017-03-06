@@ -1,8 +1,8 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-import { NewSuggestionForm } from "./NewSuggestionForm";
-import { AllSuggestions } from "./AllSuggestions";
+import { NewSuggestion } from "./NewSuggestion";
+import { Frontpage } from "./Frontpage";
 import { ViewSuggestion }  from "./ViewSuggestion";
 
 
@@ -10,7 +10,7 @@ import { ViewSuggestion }  from "./ViewSuggestion";
 function renderSuggestionForm(id:string) 
 {
     ReactDOM.render(
-    <NewSuggestionForm />,
+    <NewSuggestion />,
         document.getElementById(id)
     );
 }
@@ -18,7 +18,7 @@ function renderSuggestionForm(id:string)
 function renderShowAllSuggestions(id:string)
 {
     ReactDOM.render(
-    <AllSuggestions />,
+    <Frontpage />,
         document.getElementById(id)
     );
 }

@@ -6,11 +6,11 @@
         - SuggestionList
             - CarouselViewItem
             - CarouselItem
-*/
+ */
 
 import * as React from "react";
-import * as $ from "jquery";
-import { ListData, Suggestion, Suggestions, SuggestionType, SuggestionViewDisplayMode, ITaxonomyTerm, SortTypes, Taxonomy  } from "./SPTools"
+import * as $ from "jquery"; 
+import { ListData, Suggestion, Suggestions, SuggestionType, SuggestionViewDisplayMode, ITaxonomyTerm, SortTypes, Taxonomy  } from "../SPTools"
 
 
 interface ShowAllButtonState { DisplayMode: SuggestionViewDisplayMode }

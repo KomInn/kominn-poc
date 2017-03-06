@@ -3,7 +3,7 @@ import * as $ from "jquery";
 import "../Provisioning/SiteAssets/lib/typeahead/typeahead.bundle.min.js"
 import "../Provisioning/SiteAssets/lib/jquery.autogrow-textarea/jquery.autogrow-textarea.js"
 
-import {ListData, UserProfile, ITaxonomyTerm, IUser, Taxonomy, IUserProfileProperty, Suggestion, Suggestions } from "./SPTools"
+import {ListData, UserProfile, ITaxonomyTerm, IUser, Taxonomy, IUserProfileProperty, Suggestion, Suggestions } from "../SPTools"
 
 
 interface Validator {
