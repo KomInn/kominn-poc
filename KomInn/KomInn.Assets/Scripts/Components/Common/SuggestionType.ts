@@ -1,0 +1,1 @@
+export enum SuggestionType { Submitted, Published, NotPublished, Draft, Success }

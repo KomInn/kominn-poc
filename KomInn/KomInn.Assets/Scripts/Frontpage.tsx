@@ -17,12 +17,7 @@ export class Frontpage extends React.Component<any, any>
                 <SuccessStories />
                 <MySuggestions />
                 <a className="accessibility" href="#wrapper">Back to top</a>
-            </div>
-           
-            // Promoted suggestions
-            // Popular suggestions
-            // Success-stories
-            // My suggestions
+            </div>           
         )
     }
 }

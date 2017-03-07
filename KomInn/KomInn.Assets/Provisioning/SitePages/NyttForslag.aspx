@@ -19,14 +19,12 @@
       
   
     <meta name="WebPartPageExpansion" content="full" />
-     
-     
-      <script src="../SiteAssets/lib/bootstrap/js/bootstrap.min.js"></script> 
-      <script src="../SiteAssets/lib/typeahead/bloodhound.js"></script>
-    <%--<script src="../SiteAssets/lib/typeahead/typeahead.jquery.js"></script>
-      <script src="../SiteAssets/lib/jquery.autogrow-textarea/jquery.autogrow-textarea.js" ></script>    --%>
-        <link rel="stylesheet" href="../SiteAssets/lib/bootstrap/css/bootstrap.min.css" />
-      <link rel="stylesheet" href="../SiteAssets/css/Style.css" />
+               
+      <script src="../SiteAssets/lib/bootstrap/js/bootstrap.min.js"></script>
+      <link rel="stylesheet" href="../SiteAssets/lib/bootstrap/css/bootstrap.min.css" />
+      <link rel="stylesheet" href="../SiteAssets/css/Main.css" />
+      
+
 </asp:Content>
 
 <%-- The markup in the following Content element will be placed in the TitleArea of the page --%>
@@ -35,12 +33,8 @@
 </asp:Content>
 
 <%-- The markup and script in the following Content element will be placed in the <body> of the page --%>
-<asp:Content ContentPlaceHolderID="PlaceHolderMain" runat="server">
-
-     <div class="container">
-        <div id="form"></div>                       
-     </div>
-
+<asp:Content ContentPlaceHolderID="PlaceHolderMain" runat="server">    
+      <div id="form"></div>   
       <script src="../SiteAssets/lib/react/react.min.js"></script>
       <script src="../SiteAssets/lib/react-dom/react-dom.min.js"></script>
       <script src="../SiteAssets/js/bundle.js"></script>

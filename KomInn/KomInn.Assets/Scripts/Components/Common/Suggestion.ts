@@ -15,8 +15,18 @@ export class Suggestion
     public Likes:number;     
     public Image:string; 
     public Location:Location;     
+    public UsefulForOthers:string; 
     public UsefulnessType:string; 
     public Submitter:Person; 
     public NumberOfComments:number;     
     public Comments:Array<Comment>;
+    
+
+    constructor()
+    {
+        this.Id = -1; 
+        this.Comments = new Array<Comment>(); 
+        this.Likes = 0;  
+        this.Submitter = new Person();               
+    }
 }

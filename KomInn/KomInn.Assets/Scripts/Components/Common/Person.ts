@@ -7,5 +7,5 @@ export class Person{
     public City:string; 
     public Manager:string; 
     public Department:string; 
-    public CountyCode:string;
+    public CountyCode:string;    
 }
