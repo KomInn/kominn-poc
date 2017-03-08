@@ -15,17 +15,21 @@ export class ViewSuggestion extends React.Component<any, any>
         return (
         <div className="container-fluid">
             <Searchbar />
-            <div className="col-md-8">
-                <Content />
-                <Summary />
-                <InspiredBy />
-                <Comments/>
+            <div className="container">
+                <div className="col-md-6">
+                    <article>
+                        <Content />
+                        <Summary />
+                        <InspiredBy />
+                        <Comments/>
+                    </article>
+                </div>
+                <div className="col-md-2">
+                    <Actions />
+                    <Map />
+                </div>
             </div>
-            <div className="col-md-4">
-                <Actions />
-                <Map />
-            </div>
-        </div>   
+        </div>
         )
     }
 }

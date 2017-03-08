@@ -10,12 +10,14 @@ export class Comments extends React.Component<any, any>
         return (
             <Row>                
                 <section className="item-section">
-                    <div className="item-container">
+                    <div className="item-holder">
                         <form action="#" className="comments-form">
                             <label htmlFor="kommentarer">Kommentarer</label>
                             <textarea id="kommentarer" cols={30} rows={10} placeholder="Hva syntes du om forslaget?"></textarea>
                             <button type="submit" className="btn">Post kommentarer</button>
                         </form>
+                    </div>
+                    <div className="item-holder">
                         <ul className="comments-list">
                             <li>
                                 <div className="img-block">

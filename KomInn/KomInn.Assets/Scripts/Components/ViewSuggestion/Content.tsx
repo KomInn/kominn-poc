@@ -8,10 +8,10 @@ export class Content extends React.Component<any, any>
         return (
             <Row>                
                 <section className="item-section">
-                    <div className="item-container">
-                        <h2>Lekeplass / uteområde for barna</h2>
+                    <h2>Lekeplass / uteområde for barna</h2>
+                    <div className="item-holder">
                         <div className="img-frame">
-                            <img src="images/img-6.png" width="531" height="299" alt="image description"/   >
+                            <img src="images/img-6.png" width="531" height="299" alt="image description" />
                         </div>
                     </div>  
                 </section>               
