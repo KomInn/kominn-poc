@@ -8,7 +8,7 @@ export class Actions extends React.Component<any, any>
         return (
             <Row>                
                 <section className="item-section">
-                    <div className="item-container">
+                    <div className="item-holder">
 						<div className="sub-box">
 							<div className="list-holder">
 								<strong className="title-block"><span className="counter">128</span>Likes</strong>
@@ -19,6 +19,8 @@ export class Actions extends React.Component<any, any>
 								</ul>
 							</div>
 						</div>
+					</div>
+                    <div className="item-holder">
 						<div className="sub-box">
 							<h3>Del gjerne forslaget</h3>
 							<p>Dersom du liker dette forslaget setter vi pris på om du deler det med familie, venner og kjente. Takk! </p>
