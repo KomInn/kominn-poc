@@ -20,24 +20,28 @@
 						<label for="tittel">Tittel</label>
 						<input id="tittel" type="text">
 						<label for="sammendrag">Sammendrag</label>
-						<textarea id="sammendrag" cols="30" rows="10" placeholder="Kort beskrivelse av forslaget ditt, og hvorfor det er viktig."></textarea>
+						<textarea id="sammendrag" cols="30" rows="10" placeholder="Beskriv forslaget ditt med to setninger."></textarea>
 					</div>
 					<div class="row">
-						<label for="utfordringer">Utfordringer</label>
-						<textarea id="utfordringer" cols="30" rows="10" placeholder="Beskriv hvilke utfordringer ser du for deg? Er det f.eks konkrete problemer du ønsker å løse? I så fall, hvor lenge har disse problemene eksisert?"></textarea>
+						<label for="utfordringer">Utfordring</label>
+						<textarea id="utfordring" cols="30" rows="10" placeholder="Beskriv utfordringen(e) dette forslaget er ment å ta tak i. Hvorfor er det viktig å ta tak i dette? Er det f.eks konkrete problemer du ønsker å løse? I så fall, hvor lenge har disse problemene eksistert?"></textarea>
 						<label for="løsningsforslag">Løsningsforslag</label>
-						<textarea id="løsningsforslag" cols="30" rows="10" placeholder="Har du et forslag på hvordan eventuelle utfordringer eller problemer kan løses?"></textarea>
+						<textarea id="løsningsforslag" cols="30" rows="10" placeholder="Beskriv forslaget til løsning mer detaljert. Vet du noe om hva dette vil koste? Er det andre som må være med på å realisere løsningen? Etc.."></textarea>
 					</div>
 					<div class="row">
-						<label for="nyttig">Nyttig for andre?</label>
-						<input id="nyttig" type="text">
 						<label for="select-1">Hvilken type nytte?</label>
 						<select id="select-1">
 							<option selected="selected">Velg nytte-type</option>
-							<option>Select option 2</option>
-							<option>Select option 3</option>
-							<option>Select option 4</option>
+							<option>Tidstyvjakt/Effektivisering</option>
+							<option>Bedre kvalitet på tjenesten/Tjenesteinnovasjon</option>
+							<option>Samskaping/Gjøre noe sammen med andre enn kommunale aktører</option>
+							<option>Annet</option>
+							<!-- vises kun ved valg annet over -->
+							<input id="annet" type="text">
+							<!-- slutt annet -->
 						</select>
+						<label for="nyttig">Nyttig for andre?</label>
+						<input id="nyttig" type="text" placeholder="Kan forslaget ditt være nyttig for andre enn deg/din virksomhet?">
 					</div>
 					<div class="form-area">
 						<strong class="title">Bilder (valgfritt)</strong>
@@ -52,13 +56,13 @@
 					</div>
 					<div class="form-area">
 						<label for="inspirasjon">Inspirasjon(valgfritt)</label>
-						<input id="inspirasjon" type="text" placeholder="Ble du inspirert av andre forslag?">
+						<input id="inspirasjon" type="text" placeholder="Søk opp forslag som du ble inspirert av">
 						<div class="offers-table alt">
 							<div class="table-row">
 								<div class="col">
 									<a href="#" class="title-block">
 										<div class="img-block">
-											<img src="images/placeholder-1.jpg" width="49" height="49" alt="image description">
+											<img src="images/img-5.jpg" width="49" height="49" alt="image description">
 										</div>
 										<strong class="table-title">Bygg en lekeplass for barna</strong>
 									</a>
@@ -71,7 +75,7 @@
 								<div class="col">
 									<a href="#" class="title-block">
 										<div class="img-block">
-											<img src="images/placeholder-1.jpg" width="49" height="49" alt="image description">
+											<img src="images/img-5.jpg" width="49" height="49" alt="image description">
 										</div>
 										<strong class="table-title">Hva med utendørs buldrevegg på Festningen?</strong>
 									</a>

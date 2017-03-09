@@ -5,7 +5,7 @@ export class Person{
     public Telephone:string;
     public Zipcode:string;
     public City:string; 
-    public Manager:string; 
+    public Manager:number;  // Manager user ID 
     public Department:string; 
     public CountyCode:string;    
 }

@@ -4,7 +4,7 @@
  */
 import { Suggestion } from "./Suggestion"; 
 import { Comment } from "./Comment";
-import { SuggestionType }from "./SuggestionType";
+import { Status }from "./Status";
 import { SPDataAdapter } from "./SPDataAdapter"; 
 let adapter = SPDataAdapter; 
 
@@ -23,9 +23,18 @@ export class DataAdapter
      * Param: (optional) SuggestionType 
      * Returns: Array with all suggestions, sorted by date. 
      */
-    getAllSuggestions(type?:SuggestionType):JQueryPromise<Array<Suggestion>>
+    getAllSuggestions(type?:Status, count?:number):JQueryPromise<Array<Suggestion>>
     {        
         return adapter.getAllSuggestions(type); 
+    }
+
+    /**
+     * Get my suggestions
+     * Gets all suggestions submitted by user 
+     */
+    getMySuggestions():JQueryPromise<Array<Suggestion>>
+    {
+        return adapter.getMySuggestions(); 
     }
 
     /**

@@ -1,9 +1,12 @@
 /**
  * Data model for suggestions
  */
+
+// TODO: Endre navn fra Person til Text 
 import { Comment } from "./Comment";
 import { Location }from "./Location"; 
 import { Person } from "./Person"; 
+import { Status } from "./Status"; 
 export class Suggestion 
 {
     public Id:number;  // List item ID
@@ -20,8 +23,10 @@ export class Suggestion
     public Submitter:Person; 
     public NumberOfComments:number;     
     public Comments:Array<Comment>;
+    public Tags:Array<string>;
+    public Status:Status; 
+    public Created:Date; 
     
-
     constructor()
     {
         this.Id = -1; 

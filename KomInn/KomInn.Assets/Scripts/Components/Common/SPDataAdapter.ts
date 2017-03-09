@@ -5,8 +5,13 @@
  */
 
 import { Suggestion } from "./Suggestion"; 
+import { Person }from "./Person";
 import { Comment } from "./Comment";
-import { SuggestionType }from "./SuggestionType";
+import { Status }from "./Status";
+import { Tools } from "./Tools"; 
+$.ajaxSetup({ headers: { "Accept": "application/json;odata=verbose" } })
+
+
 
 export class SPDataAdapter {
       /**
@@ -21,14 +26,63 @@ export class SPDataAdapter {
     }
     /**
      * Get all suggestions
-     * Param: (optional) SuggestionType 
+     * Param: (optional) Status: Gets all with assigned status
+     * Param: (optional) Count: Gets a set count
      * Returns: Array with all suggestions, sorted by date. 
      */
-    static getAllSuggestions(type?:SuggestionType):JQueryPromise<Array<Suggestion>>
+    static getAllSuggestions(type?:Status, count?:number, customFilter?:string):JQueryPromise<Array<Suggestion>>
     {
-        return null; 
+        var numResults = (count == null) ? 100 : count; 
+        var query = (type == null) ? "" : "&$filter=Status eq '"+Tools.statusToString(type)+"'";
+        if(customFilter != null)
+            query = customFilter; 
+
+        var df = $.Deferred(); 
+        var suggestions = new Array<Suggestion>(); 
+        $.get(_spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Forslag')/Items?$top="+numResults+"&$orderby=Created desc " +query).then( (result:any) => {           
+
+            var results = result.d.results; 
+            for(var i=0;i<results.length;i++)
+            {
+                var p = new Person();
+                var s = new Suggestion();                
+                p.Name = results[i].Name; 
+                p.Address = results[i].Address;
+                p.City = results[i].City; 
+                p.CountyCode = results[i].CountyCode; 
+                p.Department = results[i].Department; 
+                p.MailAddress = results[i].MailAddress; 
+                p.Manager = results[i].ManagerId;
+                p.Telephone = results[i].Telephone; 
+                p.Zipcode = results[i].Zipcode; 
+                s.Id = results[i].Id; 
+                s.Challenges = results[i].Challenges; 
+                s.Image = Tools.IsNull(results[i].Image) ? "" : results[i].Image;
+                s.Likes = Tools.IsNull(results[i].Likes) ? 0 : results[i].Likes; 
+                s.Location = results[i].Location; 
+                s.NumberOfComments = Tools.IsNull(results[i].NumberOfComments) ? 0 : results[i].NumberOfComments; 
+                s.Status = Tools.convertStatus(results[i].Status); 
+                s.Submitter = p; 
+                s.SuggestedSolution = results[i].SuggestedSolution; 
+                s.Summary = results[i].Summary; 
+                s.Tags = results[i].Tags.results; 
+                s.Title = results[i].Title; 
+                s.UsefulForOthers = results[i].UsefulForOthers; 
+                s.UsefulnessType = results[i].UsefulnessType; 
+                s.Created = new Date(results[i].Created);
+                suggestions.push(s); 
+            }            
+            df.resolve(suggestions); 
+        });
+        return df.promise();
     }
 
+    public static getMySuggestions():JQueryPromise<Array<Suggestion>>
+    {
+        var userId = _spPageContextInfo.userId; 
+        return this.getAllSuggestions(null, null, "&$filter=AuthorId eq " + userId); 
+
+    }
     /**
      * Submit suggestions
      * Returns: (Suggestion) The submitted suggestion
