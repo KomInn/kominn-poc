@@ -37,5 +37,5 @@
       <div id="form"></div>   
       <script src="../SiteAssets/lib/react/react.min.js"></script>
       <script src="../SiteAssets/lib/react-dom/react-dom.min.js"></script>
-      <script src="../SiteAssets/js/bundle2.js"></script>
+      <script src="../SiteAssets/js/bundle.js"></script>
 </asp:Content>

@@ -14,7 +14,7 @@ export class PopularSuggestions extends React.Component<any, PopularSuggestionsS
     componentWillMount()
     {
         var d = new DataAdapter();
-        d.getAllSuggestions(Status.Published, 3).then( (results:Array<Suggestion>)  => {             
+        d.getAllSuggestions(Status.Published, 4).then( (results:Array<Suggestion>)  => {             
             this.setState({suggestions:results}); 
         });
     }
@@ -32,12 +32,12 @@ export class PopularSuggestions extends React.Component<any, PopularSuggestionsS
                 {this.state.suggestions.map( (item:Suggestion, index:number) => {
                 return ( <article className="item-wrapp">
                     <div className="item">
-                        <a href="#" className="img-block">
+                        <a href={item.Url} className="img-block">
                             { item.Image == "" ? "" : 
                             <img src={item.Image} width="298" height="200" alt="image description"/>}
                         </a>
                         <div className="item-content">
-                            <h3><a href="#">{item.Title}</a></h3>
+                            <h3><a href={item.Url}>{item.Title}</a></h3>
                             <div className="text-block same-height-left">
                                 <p>{item.Summary}</p>
                             </div>
@@ -60,7 +60,8 @@ export class PopularSuggestions extends React.Component<any, PopularSuggestionsS
                 })
             };           
         </div>
-        <a href="#" className="btn">Vis flere populære forslag</a>    
+        { (this.state.suggestions.length <= 3) ? "" : 
+        <a href="#" className="btn">Vis flere populære forslag</a>  }  
         </div>
 </section>
 </Row>)

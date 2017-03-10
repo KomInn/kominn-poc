@@ -1,8 +1,8 @@
 ﻿$AppFilesPath = "C:\dev\KomInn\kominn-poc\KomInn\KomInn.Assets\";
 
 $env = @{   
-    SiteURL = "https://smebydev.sharepoint.com/sites/KomInn"; 
-    User = "helge@smeby.org"; 
+    SiteURL = "https://kominn.sharepoint.com/"; 
+    User = "admin@kominn.onmicrosoft.com"; 
 Pwd = ConvertTo-SecureString "---" -AsPlainText -Force
 }; 
 
@@ -16,25 +16,18 @@ Connect-PnPOnline -Url $($env.SiteURL) -Credentials $cred
 
 #cd $AppFilesPath
 #webpack
-Add-PnPFile -Path $($AppFilesPath + "Provisioning\SiteAssets\js\bundle2.js") -Folder "SiteAssets\js\"       
-#Add-PnPFile -Path $($AppFilesPath + "Provisioning\SiteAssets\js\bundle2.js.map") -Folder "SiteAssets\js\"       
+Add-PnPFile -Path $($AppFilesPath + "Provisioning\SiteAssets\js\bundle.js") -Folder "SiteAssets\js\"       
+Add-PnPFile -Path $($AppFilesPath + "Provisioning\SiteAssets\js\bundle.js.map") -Folder "SiteAssets\js\"       
 
 #Add-PnPFile -Path $($AppFilesPath + "Provisioning\SiteAssets\lib\jquery\jquery.main.js") -Folder "SiteAssets\js\"       
-#Add-PnPFile -Path $($AppFilesPath + "Styles\Main.css") -Folder "SiteAssets\css\"       
+Add-PnPFile -Path $($AppFilesPath + "Styles\Main.css") -Folder "SiteAssets\css\"       
 
 
 
 
-<<<<<<< HEAD
+
 # return; 
-# Add-PnPFile -Path $($AppFilesPath + "Provisioning\SitePages\Home.aspx") -Folder "SitePages\"       
-# Add-PnPFile -Path $($AppFilesPath + "Provisioning\SitePages\NyttForslag.aspx") -Folder "SitePages\"       
-Add-PnPFile -Path $($AppFilesPath + "Provisioning\SitePages\Forslag.aspx") -Folder "SitePages\"       
-   
-=======
-#Add-PnPFile -Path $($AppFilesPath + "Provisioning\SitePages\Home.aspx") -Folder "SitePages\"       
-Add-PnPFile -Path $($AppFilesPath + "Provisioning\SitePages\NyttForslag.aspx") -Folder "SitePages\"       
+ #Add-PnPFile -Path $($AppFilesPath + "Provisioning\SitePages\Home.aspx") -Folder "SitePages\"       
+ #Add-PnPFile -Path $($AppFilesPath + "Provisioning\SitePages\NyttForslag.aspx") -Folder "SitePages\"       
 #Add-PnPFile -Path $($AppFilesPath + "Provisioning\SitePages\Forslag.aspx") -Folder "SitePages\"       
->>>>>>> origin/master
-
- 
+   

@@ -69,7 +69,9 @@ export class SPDataAdapter {
                 s.Submitter = p; 
                 s.SuggestedSolution = results[i].SuggestedSolution; 
                 s.Summary = results[i].Summary; 
-                s.Tags = results[i].Tags.results; 
+                if(results[i].Tags != null)
+                    s.Tags = results[i].Tags.results; 
+                    
                 s.Title = results[i].Title; 
                 s.UsefulForOthers = results[i].UsefulForOthers; 
                 s.UsefulnessType = results[i].UsefulnessType; 
