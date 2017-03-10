@@ -25,8 +25,16 @@ Add-PnPFile -Path $($AppFilesPath + "Provisioning\SiteAssets\js\bundle2.js") -Fo
 
 
 
+<<<<<<< HEAD
+# return; 
+# Add-PnPFile -Path $($AppFilesPath + "Provisioning\SitePages\Home.aspx") -Folder "SitePages\"       
+# Add-PnPFile -Path $($AppFilesPath + "Provisioning\SitePages\NyttForslag.aspx") -Folder "SitePages\"       
+Add-PnPFile -Path $($AppFilesPath + "Provisioning\SitePages\Forslag.aspx") -Folder "SitePages\"       
+   
+=======
 #Add-PnPFile -Path $($AppFilesPath + "Provisioning\SitePages\Home.aspx") -Folder "SitePages\"       
 Add-PnPFile -Path $($AppFilesPath + "Provisioning\SitePages\NyttForslag.aspx") -Folder "SitePages\"       
 #Add-PnPFile -Path $($AppFilesPath + "Provisioning\SitePages\Forslag.aspx") -Folder "SitePages\"       
+>>>>>>> origin/master
 
  

@@ -15,20 +15,36 @@ export class ViewSuggestion extends React.Component<any, any>
         return (
         <div className="container-fluid">
             <Searchbar />
-            <div className="container">
-                <div className="col-md-6">
-                    <article>
+            <section className="section-frame">
+                <div className="container">
+                    <div className="box-wrapp">
                         <Content />
-                        <Summary />
-                        <InspiredBy />
-                        <Comments/>
-                    </article>
+                    </div>
+                    <div id="sidebar">
+                        <Actions />
+                        <Map />
+                    </div>
+                    <div className="box-wrapp">
+                        <div className="content">
+                            <ul className="tabset">
+                                <li><a href="#tab1" className="active">Detaljer</a></li>
+                                <li><a href="#tab2">Kommentarer</a></li>
+                                <li><a href="#tab3">Kopier</a></li>
+                            </ul>
+                            <div className="tab-content">
+                                <div id="tab1" className="active">
+                                    <Summary />
+                                    <InspiredBy />
+                                </div>
+                                <div id="tab2">
+                                    <Comments/>
+                                </div>
+                                <div id="tab3"><span className="hidden">About tab</span></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div className="col-md-2">
-                    <Actions />
-                    <Map />
-                </div>
-            </div>
+            </section>
         </div>
         )
     }
