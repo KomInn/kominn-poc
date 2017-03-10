@@ -5,6 +5,7 @@
 import { Suggestion } from "./Suggestion"; 
 import { Comment } from "./Comment";
 import { Status }from "./Status";
+import { Person } from "./Person"; 
 import { SPDataAdapter } from "./SPDataAdapter"; 
 let adapter = SPDataAdapter; 
 
@@ -36,6 +37,23 @@ export class DataAdapter
     {
         return adapter.getMySuggestions(); 
     }
+
+    /**
+     * Get suggestion by title (Search for suggestions)
+     */
+    getSuggestionByTitle(title:string)
+    {
+        return adapter.getSuggestionByTitle(title);
+    }
+
+    /**
+     * Get user profile 
+     * Retrieves any avilable fields for the Person-object. 
+     */
+     getMyUserProfile():JQueryPromise<Person>
+     {
+         return adapter.getMyUserProfile(); 
+     }
 
     /**
      * Submit suggestions

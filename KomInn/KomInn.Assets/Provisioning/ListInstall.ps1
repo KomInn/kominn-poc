@@ -18,12 +18,11 @@ $env = @{
 $cred = New-Object -typename System.Management.Automation.PSCredential -ArgumentList $env.User, $env.Pwd
 Connect-PnPOnline -Url $($env.SiteURL) -Credentials $cred
 
-    $title = "Bilder"; 
     
-    New-PnPList -Title $title -Template PictureLibrary -Url "Bilder"
     
     $title = "Forslag"; 
-    Remove-PnPField -Identity "Status" -List $title;
+    
+    return 
     New-PnPList -Title $title -Template GenericList -Url "Forslag"   -QuickLaunchOptions Off       
     Add-PnPField -List $title -DisplayName "Oppsummering" -InternalName "Summary" -Type Note -Group $group -AddToDefaultView
     Add-PnPField -List $title -DisplayName "Utfordringer" -InternalName "Challenges" -Type Note -Group $group -AddToDefaultView
@@ -48,7 +47,10 @@ Connect-PnPOnline -Url $($env.SiteURL) -Credentials $cred
 
 
 
-    return; 
+    return;    
+    
+    $title = "Bilder";     
+    New-PnPList -Title $title -Template PictureLibrary -Url "Bilder" 
 
     $group = "KomInn"; 
 

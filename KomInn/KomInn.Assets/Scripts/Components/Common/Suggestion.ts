@@ -1,10 +1,8 @@
 /**
  * Data model for suggestions
  */
-
 // TODO: Endre navn fra Person til Text 
 import { Comment } from "./Comment";
-import { Location }from "./Location"; 
 import { Person } from "./Person"; 
 import { Status } from "./Status"; 
 export class Suggestion 
@@ -14,10 +12,10 @@ export class Suggestion
     public Summary:string; 
     public Challenges:string; 
     public SuggestedSolution:string; 
-    public InspiredBy:Suggestion; 
+    public InspiredBy:Array<Suggestion>; 
     public Likes:number;     
     public Image:string; 
-    public Location:Location;     
+    public Location:string;     
     public UsefulForOthers:string; 
     public UsefulnessType:string; 
     public Submitter:Person; 
@@ -33,5 +31,15 @@ export class Suggestion
         this.Comments = new Array<Comment>(); 
         this.Likes = 0;  
         this.Submitter = new Person();               
+    }
+
+    public get Url():string 
+    {
+        return _spPageContextInfo.webAbsoluteUrl + "/SitePages/Forslag.aspx?forslag=" + this.Id; 
+    }
+
+    public get Validates():boolean 
+    {
+        return true; 
     }
 }

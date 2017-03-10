@@ -3,7 +3,7 @@ import { Row, Col } from "react-bootstrap";
 import { Suggestion } from "../Common/Suggestion"; 
 
 /* TODO: Implement validation */ 
-interface CommonFieldsProps { onSuggestionUpdate?(suggestion:Suggestion):void, validationMode?:boolean }
+interface CommonFieldsProps { onSuggestionUpdate?(suggestion:Suggestion):void }
 
 export class CommonFields extends React.Component<CommonFieldsProps, any>
 {
@@ -22,6 +22,9 @@ export class CommonFields extends React.Component<CommonFieldsProps, any>
         this._suggestion.UsefulnessType = this._type[0];
 
     }
+
+
+
     set(event:any)
     {        
         return event.target.value;
@@ -29,8 +32,22 @@ export class CommonFields extends React.Component<CommonFieldsProps, any>
     update() {       
         this.props.onSuggestionUpdate(this._suggestion); 
     }
+
+    formValidates():boolean
+    {        
+        if(this._suggestion.Title.length <= 0)
+            return false; 
+        if(this._suggestion.Challenges.length <= 0)
+            return false; 
+        if(this._suggestion.SuggestedSolution.length <= 0)
+            return false; 
+
+        return true; 
+    }
+
     render()
     {
+        var showValidationMessages = false;        
         return (
             <Row>                 
                 <Col xs={12}>
@@ -39,7 +56,7 @@ export class CommonFields extends React.Component<CommonFieldsProps, any>
                     <div >
 					<Row>
                         <Col xs={12}>
-						<label htmlFor="tittel">Tittel</label>
+						<label htmlFor="tittel">Tittel *</label>
 						<input id="tittel" type="text" 
                             onChange={ (a:any) =>  { this._suggestion.Title =  this.set(a); this.update(); }} value={this._suggestion.Title} />
 						<label htmlFor="sammendrag">Sammendrag</label>
@@ -49,12 +66,11 @@ export class CommonFields extends React.Component<CommonFieldsProps, any>
 					</Col>
                     </Row>
                     <Row>
-                        <Col xs={12}>
-					
-						<label htmlFor="utfordringer">Utfordringer</label>
+                        <Col xs={12}>					
+						<label htmlFor="utfordringer">Utfordringer *</label>
 						<textarea id="utfordringer" colSpan={30} rowSpan={10} placeholder="Beskriv hvilke utfordringer ser du for deg? Er det f.eks konkrete problemer du ønsker å løse? I så fall, hvor lenge har disse problemene eksisert?"
                             onChange={ (a:any) => { this._suggestion.Challenges = this.set(a);  this.update();  }} value={this._suggestion.Challenges} ></textarea>
-						<label htmlFor="løsningsforslag">Løsningsforslag</label>
+						<label htmlFor="løsningsforslag">Løsningsforslag *</label>
 						<textarea id="løsningsforslag" colSpan={30} rowSpan={10} placeholder="Har du et forslag på hvordan eventuelle utfordringer eller problemer kan løses?"
                             onChange={ (a:any) =>  { this._suggestion.SuggestedSolution = this.set(a); this.update(); }  } value={this._suggestion.SuggestedSolution}
                         ></textarea>

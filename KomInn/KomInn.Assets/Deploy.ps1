@@ -1,9 +1,9 @@
-﻿$AppFilesPath = "C:\git\kominn-poc\KomInn\KomInn.Assets\";
+﻿$AppFilesPath = "C:\dev\KomInn\kominn-poc\KomInn\KomInn.Assets\";
 
 $env = @{   
     SiteURL = "https://smebydev.sharepoint.com/sites/KomInn"; 
     User = "helge@smeby.org"; 
-    Pwd = ConvertTo-SecureString "Adg4ng5K0de" -AsPlainText -Force
+Pwd = ConvertTo-SecureString "---" -AsPlainText -Force
 }; 
 
 
@@ -14,10 +14,10 @@ $cred = New-Object -typename System.Management.Automation.PSCredential -Argument
 Connect-PnPOnline -Url $($env.SiteURL) -Credentials $cred
 
 
-cd $AppFilesPath
-webpack
-Add-PnPFile -Path $($AppFilesPath + "Provisioning\SiteAssets\js\bundle.js") -Folder "SiteAssets\js\"       
-Add-PnPFile -Path $($AppFilesPath + "Provisioning\SiteAssets\js\bundle.js.map") -Folder "SiteAssets\js\"       
+#cd $AppFilesPath
+#webpack
+Add-PnPFile -Path $($AppFilesPath + "Provisioning\SiteAssets\js\bundle2.js") -Folder "SiteAssets\js\"       
+#Add-PnPFile -Path $($AppFilesPath + "Provisioning\SiteAssets\js\bundle2.js.map") -Folder "SiteAssets\js\"       
 
 #Add-PnPFile -Path $($AppFilesPath + "Provisioning\SiteAssets\lib\jquery\jquery.main.js") -Folder "SiteAssets\js\"       
 #Add-PnPFile -Path $($AppFilesPath + "Styles\Main.css") -Folder "SiteAssets\css\"       
@@ -26,7 +26,7 @@ Add-PnPFile -Path $($AppFilesPath + "Provisioning\SiteAssets\js\bundle.js.map") 
 
 
 #Add-PnPFile -Path $($AppFilesPath + "Provisioning\SitePages\Home.aspx") -Folder "SitePages\"       
-#Add-PnPFile -Path $($AppFilesPath + "Provisioning\SitePages\NyttForslag.aspx") -Folder "SitePages\"       
+Add-PnPFile -Path $($AppFilesPath + "Provisioning\SitePages\NyttForslag.aspx") -Folder "SitePages\"       
 #Add-PnPFile -Path $($AppFilesPath + "Provisioning\SitePages\Forslag.aspx") -Folder "SitePages\"       
 
  
