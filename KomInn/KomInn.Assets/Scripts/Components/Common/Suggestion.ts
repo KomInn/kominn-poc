@@ -5,6 +5,8 @@
 import { Comment } from "./Comment";
 import { Person } from "./Person"; 
 import { Status } from "./Status"; 
+import { Tools } from "./Tools"; 
+
 export class Suggestion 
 {
     public Id:number;  // List item ID
@@ -40,11 +42,39 @@ export class Suggestion
 
     public get Validates():boolean 
     {
+        if(this.Title == null || this.Title.length <= 0)
+            return false; 
+        
+        if(this.Summary == null || this.Title.length <= 0)
+            return false;
+        
+        if(this.Challenges == null || this.Challenges.length <= 0)
+            return false;
+
+        if(this.SuggestedSolution == null || this.SuggestedSolution.length <= 0)
+            return false; 
+        
+        if(this.Submitter == null)
+            return false; 
+                    
+        if(this.Submitter.Name == null || this.Submitter.Name.length <= 0)
+            return false; 
+
         return true; 
     }
 
     public get CopyUrl():string
     {
         return _spPageContextInfo.webAbsoluteUrl  +"/SitePages/NyttForslag.aspx?kopier=" + this.Id; 
+    }
+
+    public get MapUrl():string
+    {
+        var str = ""; 
+        var url = "https://www.google.no/maps/";
+        if(Tools.IsLatLong(this.Location))
+            return url + "@"+this.Location + ",16z"; 
+                        
+        return "https://www.google.no/maps/place/" + this.Location.replace(" ","+");
     }
 }

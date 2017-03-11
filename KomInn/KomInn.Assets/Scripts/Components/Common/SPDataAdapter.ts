@@ -22,11 +22,29 @@ export class SPDataAdapter {
      * Upload image
      * Returns: Uploaded image path
      */
-    static uploadImage():JQueryPromise<string>
-    {
-        var df = $.Deferred();
-        
-        return df.promise(); 
+    static uploadImage(buffer:any, filename:string):JQueryPromise<any>
+    {     
+        var df = $.Deferred();   
+         Tools.getFileBuffer(buffer).then ( () => { 
+               console.log("running with fire"); 
+        var url =  _spPageContextInfo.webAbsoluteUrl +
+                        "/_api/web/lists/getbytitle('Bilder')/rootfolder/files" +
+                        "/add(url='" + filename + "', overwrite=true)";
+        jQuery.ajax({
+        url: url,
+        type: "POST",
+        data: buffer,
+        processData: false,
+        success:() => df.resolve(), 
+        error: () => df.reject(),
+        headers: {
+            "accept": "application/json;odata=verbose",
+            "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+            "content-length": buffer.byteLength
+        }});
+    });
+     return df.promise();
+       
     }
     /**
      * Get all suggestions
@@ -371,5 +389,24 @@ export class SPDataAdapter {
             df.reject(error.get_message());
         });        
         return df.promise();
+    }
+
+    public static getCityAndCountryCode(person:Person):JQueryPromise<Person>
+    {
+        var df = $.Deferred(); 
+        var p = person; 
+          $.get(_spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Kommunenumre')/Items?$filter=Postnummer eq '" + person.Zipcode + "'&$select=Kommunenummer,Sted&$top=1").then(
+              (result:any) => {                
+                 if(result.d.results.length <= 0)
+                 {
+                     df.resolve(p); 
+                     return; 
+                 }                
+                 p.CountyCode = result.d.results[0].Kommunenummer; 
+                 p.City = result.d.results[0].Sted; 
+                 df.resolve(p);
+              });
+
+        return df.promise(); 
     }
 }

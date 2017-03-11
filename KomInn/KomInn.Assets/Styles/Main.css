@@ -11,6 +11,20 @@
 }
 .form-control { height:50px; }
 
+.searchbar {
+	background: #e2e3cd;
+	padding-top:25px;	
+}
+
+.searchbar a { margin-top: 2px; }
+.city {
+    display: inline-block;
+    margin-left: 6px;
+    margin-bottom: -29px;
+    position: relative;
+    top: -12px;
+
+}
 /*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
 
 /**
@@ -2048,7 +2062,7 @@ address {
 }
 
 .form-section {
-	padding: 23px 0;
+/*	padding: 23px 0;*/
 }
 
 .form-section .container {
@@ -2436,11 +2450,11 @@ address {
 	}
 
 	.comments-list .comment-area {
-		padding: 17px 20px;
+	/*	padding: 17px 20px;*/
 	}
 
 	.form-section {
-		padding: 30px 0;
+	/*	padding: 30px 0;*/
 	}
 
 	.form-section h2 {
@@ -2464,7 +2478,7 @@ address {
 	}
 
 	.contacts-form .row {
-		margin-bottom: 50px;
+	/*	margin-bottom: 50px;*/
 	}
 
 	.contacts-form .form-area {

@@ -19,7 +19,7 @@ module.exports = {
             // All files with a '.ts' or '.tsx' extension will be handled by 'awesome-typescript-loader'.
             { test: /\.tsx?$/, loader: "awesome-typescript-loader" }
         ],
-    },
+    },/*
     plugins: [
     new webpack.optimize.UglifyJsPlugin({
        mangle:true, 
@@ -35,7 +35,7 @@ module.exports = {
          join_vars:true
          //drop_console:true
      }
-    })],
+    })],*/
 
     // When importing a module whose path matches one of the following, just
     // assume a corresponding global variable exists and use that instead.

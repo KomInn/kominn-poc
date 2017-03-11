@@ -67,7 +67,7 @@ export class InspiredBy extends React.Component<InspiredByProps, InspiredByState
 <Row>                 
     <Col xs={12}>        
     <div className="form-area">
-        <label htmlFor="inspirasjon">Inspirasjon(valgfritt)</label>
+        <label htmlFor="inspirasjon">Inspirasjon (valgfritt)</label>
         <input id="inspirasjon" type="text" placeholder="Ble du inspirert av andre forslag?" onChange={this.searchSuggestion.bind(this)} value={this.state.searchval} />
         <ListGroup style={{marginTop:"-31px"}}>
         {this.state.suggestions.map( (item:Suggestion, index:number) => {         

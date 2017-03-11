@@ -41,11 +41,44 @@ export class Tools
                 date.getFullYear(); 
     }
 
+    public static IsLatLong(location:string):boolean
+    {
+        if(location.indexOf(",") == -1)
+            return false; 
+
+        var parts = location.split(',');
+        if(parts.length != 2)
+            return false; 
+
+        if(isNaN(parseInt(parts[0]))|| isNaN(parseInt(parts[1])))
+            return false; 
+
+        var lat = parseInt(parts[0]); 
+        var lon = parseInt(parts[1]); 
+        if(lat < -90 || lat > 90)
+            return false;
+        
+        if(lon < -180 || lon > 180)
+            return false;
+
+        return true;             
+    }
+
     private static padZero(num:number):string
     {
         return (num < 10) ? "0" + num.toString() : num.toString();
     }
 
-
-
+    public static getFileBuffer(file:any):JQueryPromise<any> {
+        var df = $.Deferred()
+        var reader = new FileReader();
+        reader.onloadend = function (e:any) {
+            df.resolve(e.target.result);
+        }
+        reader.onerror = function (e:any) {
+            df.reject(e.target.error);
+        }
+        reader.readAsArrayBuffer(file);
+        return df.promise();
+    }
 }

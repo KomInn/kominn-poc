@@ -65,24 +65,16 @@ export class ViewSuggestion extends React.Component<any, ViewSuggestionState>
                     </div>
                     <div id="sidebar">
                         <Actions suggestion={this.state.suggestion} onLikeUpdated={this.loadSuggestion.bind(this)} />
-                        <Map />
+                        <Map suggestion={this.state.suggestion} />
                     </div>
                     <div className="box-wrapp">
-                        <div className="content">
-                            <ul className="tabset">
-                                <li><a href="#tab1" className="active">Detaljer</a></li>
-                                <li><a href="#tab2">Kommentarer</a></li>
-                                <li><a href="#tab3">Kopier</a></li>
-                            </ul>
-                            <div className="tab-content">
-                                <div id="tab1" className="active">
-                                    <Summary  suggestion={this.state.suggestion}  />
-                                    <InspiredBy  suggestion={this.state.suggestion}  />
-                                </div>
-                                <div id="kommentar">
-                                    <Comments  suggestion={this.state.suggestion} onCommentSubmitted={this.loadSuggestion.bind(this)} />
-                                </div>                               
-                            </div>
+                        <div className="content">                                                           
+                            <Summary  suggestion={this.state.suggestion}  />
+                            <InspiredBy  suggestion={this.state.suggestion}  />
+                            
+                            <div id="kommentar">
+                                <Comments  suggestion={this.state.suggestion} onCommentSubmitted={this.loadSuggestion.bind(this)} />
+                            </div>                                                           
                         </div>
                     </div>
                 </div>

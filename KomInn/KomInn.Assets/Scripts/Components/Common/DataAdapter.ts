@@ -15,9 +15,9 @@ export class DataAdapter
      * Upload image
      * Returns: Uploaded image path
      */
-    uploadImage():JQueryPromise<string>
+    uploadImage(buffer:any, filename:string):JQueryPromise<any>
     {
-        return adapter.uploadImage();        
+        return adapter.uploadImage(buffer, filename);        
     }
     /**
      * Get all suggestions
@@ -101,5 +101,14 @@ export class DataAdapter
     updateLike(suggestion:Suggestion):JQueryPromise<Suggestion>
     {
         return adapter.updateLike(suggestion); 
+    }
+
+    /**
+     * Get city and county code 
+     * @return {JQueryPromise<Promise>} A person-object with City and CountyCode filled out
+     */
+    getCityAndCountryCode(person:Person):JQueryPromise<Person>
+    {
+        return adapter.getCityAndCountryCode(person); 
     }
 }

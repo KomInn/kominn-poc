@@ -9,7 +9,7 @@
 <%-- The markup and script in the following Content element will be placed in the <head> of the page --%>
 <asp:Content ContentPlaceHolderID="PlaceHolderAdditionalPageHead" runat="server">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-   
+     
     <script src="../SiteAssets/lib/jquery/jquery.min.js" ></script>
      <script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/4.0/1/MicrosoftAjax.js"></script>
     <script type="text/javascript" src="../_layouts/15/sp.runtime.js"></script>
@@ -38,5 +38,5 @@
       <div id="forslag"></div>   
       <script src="../SiteAssets/lib/react/react.min.js"></script>
       <script src="../SiteAssets/lib/react-dom/react-dom.min.js"></script>
-      <script src="../SiteAssets/js/bundle.js"></script>
+      <script src="../SiteAssets/js/bundle.js"></script>      
 </asp:Content>

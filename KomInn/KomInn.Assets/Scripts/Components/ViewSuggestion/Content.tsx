@@ -11,9 +11,10 @@ export class Content extends React.Component<ContentProps, any>
             <Row>                
                 <h2>{this.props.suggestion.Title}</h2>
                 <div className="item-holder">
-                    <div className="img-frame">
+                     { (this.props.suggestion.Image == null || this.props.suggestion.Image == "") ? "" : 
+                    <div className="img-frame">                       
                         <img src={this.props.suggestion.Image} width="531" height="299" alt="" />
-                    </div>
+                    </div>}
                 </div>  
             </Row>                    
         )

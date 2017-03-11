@@ -1,8 +1,25 @@
 import * as React from "react";
 import { Row, Col } from "react-bootstrap";
-
-export class InspiredBy extends React.Component<any, any>
+import { Suggestion } from "../Common/Suggestion";
+import { DataAdapter } from "../Common/DataAdapter";
+interface InspiredByProps { suggestion:Suggestion }
+interface InspiredByState { InspiredBy:Array<Suggestion>, InspirationFor:Array<Suggestion>   }
+export class InspiredBy extends React.Component<InspiredByProps, InspiredByState>
 {
+    constructor()
+    {
+        super(); 
+        this.state ={ InspiredBy:new Array<Suggestion>(), InspirationFor:new Array<Suggestion>() }; 
+        
+    }
+
+    componentWillMount()
+    {
+        this.setState({InspiredBy:this.props.suggestion.InspiredBy})
+        var da = new DataAdapter();         
+
+    }
+
     render()
     {
         return (
