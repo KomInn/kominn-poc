@@ -34,7 +34,7 @@ export class MySuggestions extends React.Component<any, MySuggestionsState>
 							<a href="#" className="title-block">
 								{ item.Image == "" ? "" : 
 								<div className="img-block">									
-									<img src={item.Image} width="49" height="49" alt="image description"/>}
+									<img src={item.Image} width="49" height="49" alt="image description"/>
 								</div>}
 								<strong className="title">{item.Title}</strong>
 							</a>

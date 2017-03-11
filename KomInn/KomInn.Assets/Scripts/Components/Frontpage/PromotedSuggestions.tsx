@@ -67,10 +67,10 @@ export class PromotedSuggestions extends React.Component<PromotedSuggestionsProp
 			<div className="gallery">
 				<div className="mask">
 					<div className="slideset">						
-						<div className="slide" style={{backgroundImage:"url("+item.Image+");"}}>
+						<div className="slide" style={{backgroundImage:"url('"+item.Image+"')"}}>
 							<div className="text-block">
 								<p>Forslag #{item.Id}</p>
-								<h1>{item.Title}</h1>
+								<h1><a href={item.Url} style={{color:"white"}}>{item.Title}</a></h1>
 							</div>
 						</div>						
 					</div>

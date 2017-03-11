@@ -1,19 +1,29 @@
 import * as React from "react";
 import { Row, Col } from "react-bootstrap";
-
-export class Actions extends React.Component<any, any>
+import { Suggestion } from "../Common/Suggestion";
+import { DataAdapter } from "../Common/DataAdapter";
+interface ActionsProps { suggestion?:Suggestion, onLikeUpdated():void }
+export class Actions extends React.Component<ActionsProps, any>
 {
+
+	like()
+	{
+		var da = new DataAdapter(); 
+		da.updateLike(this.props.suggestion).then( () => { this.props.onLikeUpdated() }); 
+	}
+
     render()
     {
         return (
             <Row>                
 				<div className="sub-box">
 					<div className="list-holder">
-						<strong className="title-block"><span className="counter">128</span>Likes</strong>
+						{ (this.props.suggestion.Likes <= 0) ? "" : 
+						<strong className="title-block"><span className="counter">{this.props.suggestion.Likes}</span>Like {(this.props.suggestion.Likes > 1) ? "s" : "" }</strong>}
 						<ul className="btn-list">
-							<li className="active"><a href="#" className="btn icon"><i className="icon-like"></i>Like</a></li>
-							<li><a href="#" className="btn">Kommenter</a></li>
-							<li><a href="#" className="btn">Kopier forslag</a></li>
+							<li className="active"><a href="#" onClick={this.like.bind(this)} className="btn icon"><i className="icon-like"></i>Like</a></li>
+							<li><a href="#kommentar" className="btn">Kommenter</a></li>
+							<li><a href={this.props.suggestion.CopyUrl} className="btn">Kopier forslag</a></li>
 						</ul>
 					</div>
 				</div>

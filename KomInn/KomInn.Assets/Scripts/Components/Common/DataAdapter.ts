@@ -24,9 +24,13 @@ export class DataAdapter
      * Param: (optional) SuggestionType 
      * Returns: Array with all suggestions, sorted by date. 
      */
-    getAllSuggestions(type?:Status, count?:number):JQueryPromise<Array<Suggestion>>
-    {        
-        return adapter.getAllSuggestions(type); 
+    getAllSuggestions(type?:Status, top?:number):JQueryPromise<Array<Suggestion>>
+    {       
+        if(top != null)
+            return adapter.getAllSuggestions(type, top, null);
+        
+        
+        return adapter.getAllSuggestions(type, null, null);        
     }
 
     /**
@@ -45,6 +49,14 @@ export class DataAdapter
     {
         return adapter.getSuggestionByTitle(title);
     }
+
+    /**
+     * Get suggestion by id     
+     */
+     getSuggestionById(id:string)
+     {
+         return adapter.getAllSuggestions(null, 1, "&$filter=Id eq " + id); 
+     }
 
     /**
      * Get user profile 
@@ -77,9 +89,9 @@ export class DataAdapter
      * Submit comment for suggestion
      * Returns: The suggestion with the added comment
      */
-    submitCommentForSuggestion(comment:Comment, suggestion:Suggestion):JQueryPromise<Suggestion>
+    submitCommentForSuggestion(text:string, suggestion:Suggestion):JQueryPromise<Suggestion>
     {
-        return adapter.submitCommentForSuggestion(comment, suggestion); 
+        return adapter.submitCommentForSuggestion(text, suggestion); 
     }
 
     /**
@@ -90,13 +102,4 @@ export class DataAdapter
     {
         return adapter.updateLike(suggestion); 
     }
-
-    /**
-     * Gets the users profile picture
-     * Returns: The users profile picture (string) 
-     */
-     getUserProfilePicture(url:string):JQueryPromise<string>
-     {
-         return adapter.getUserProfilePicture(url); 
-     }
 }

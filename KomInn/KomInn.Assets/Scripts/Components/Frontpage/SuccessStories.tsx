@@ -56,14 +56,14 @@ export class SuccessStories extends React.Component<any, SuccessStoriesState>
 							{this.state.suggestions.map( (item:Suggestion, index:number) => { 
 							return (<div className="slide">
 								<article className="slide-holder">
-									<div className="img-block">
+									<div className="img-block" style={{backgroundImage:"url('"+item.Image+"')"}}>										
 									</div>
 									<div className="content-area">
 										<strong className="title">{item.Title}</strong>
 										<p>{item.Summary}</p>
 										<ul className="btn-list">
-											<li><a href="#" className="btn beige">Vis</a></li>
-											<li><a href="#" className="btn beige">Kopier forslag</a></li> 
+											<li><a href={item.Url} className="btn beige">Vis</a></li>
+											<li><a href={item.CopyUrl} className="btn beige">Kopier forslag</a></li> 
 										</ul>
 									</div>
 								</article>
@@ -71,8 +71,9 @@ export class SuccessStories extends React.Component<any, SuccessStoriesState>
 							})}
 						</div>
 					</div>
-					<a className="btn-prev" href="#" onClick={this.setPrevImage.bind(this)}><i className="icon-arrow-l"></i></a>
-					<a className="btn-next" href="#" onClick={this.setNextImage.bind(this)}><i className="icon-arrow-r"></i></a>
+					{ (this.state.suggestions.length <= 1) ? "" : 
+					<span><a className="btn-prev" href="#" onClick={this.setPrevImage.bind(this)}><i className="icon-arrow-l"></i></a>
+					<a className="btn-next" href="#" onClick={this.setNextImage.bind(this)}><i className="icon-arrow-r"></i></a></span>}
 					{/*<div className="pagination">
 						<ul>
 							<li><a href="#"><span className="hidden">bullet</span></a></li>

@@ -34,10 +34,11 @@ export class SPDataAdapter {
      * Param: (optional) Count: Gets a set count
      * Returns: Array with all suggestions, sorted by date. 
      */
-    static getAllSuggestions(type?:Status, count?:number, customFilter?:string):JQueryPromise<Array<Suggestion>>
+    static getAllSuggestions(type?:Status, top?:number, customFilter?:string):JQueryPromise<Array<Suggestion>>
     {
-        var numResults = (count == null) ? 100 : count; 
+        var numResults = (top == null) ? 100 : top; 
         var query = (type == null) ? "" : "&$filter=Status eq '"+Tools.statusToString(type)+"'";
+        
         if(customFilter != null)
             query = customFilter; 
 
@@ -71,7 +72,7 @@ export class SPDataAdapter {
                 s.Summary = results[i].Summary; 
                 if(results[i].Tags != null)
                     s.Tags = results[i].Tags.results; 
-                    
+
                 s.Title = results[i].Title; 
                 s.UsefulForOthers = results[i].UsefulForOthers; 
                 s.UsefulnessType = results[i].UsefulnessType; 
@@ -230,16 +231,57 @@ export class SPDataAdapter {
      */
     static getCommentsForSuggestion(suggestion:Suggestion):JQueryPromise<Suggestion>
     {
-        return null; 
+        var df = $.Deferred();
+        $.get(_spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Kommentarer')/Items?$filter=SuggestionId eq " + suggestion.Id + "").then( 
+            (result:any) => {                 
+                var c = new Array<Comment>(); 
+                for(let item of result.d.results)
+                {                    
+                    var comment = new Comment();
+                    comment.Created = new Date(item.Created); 
+                    comment.CreatedBy = item.Title; 
+                    comment.Image = item.Image; 
+                    comment.SuggestionId = item.SuggestionId; 
+                    comment.Text = item.Text; 
+                    c.push(comment);
+                }
+                var s = new Suggestion();
+                s = suggestion; 
+                s.Comments = c;                 
+                return df.resolve(s);
+                
+            })
+        return df.promise();
     }
 
     /**
      * Submit comment for suggestion
      * Returns: The suggestion with the added comment
      */
-    static submitCommentForSuggestion(comment:Comment, suggestion:Suggestion):JQueryPromise<Suggestion>
+    static submitCommentForSuggestion(text:string, suggestion:Suggestion):JQueryPromise<any>
     {
-        return null; 
+        var df = $.Deferred(); 
+        var s = suggestion; 
+        var context = SP.ClientContext.get_current();
+        var list = context.get_web().get_lists().getByTitle("Kommentarer");
+        var itemcreationinfo = new SP.ListItemCreationInformation();
+        var item = list.addItem(itemcreationinfo);
+        this.getMyUserProfile().then( (person:Person) => {             
+              item.set_item("Title", person.Name);
+              item.set_item("Text", text);
+              item.set_item("Image", person.ProfileImageUrl); 
+              item.set_item("SuggestionId", suggestion.Id); 
+              item.update();
+              context.load(item);
+              context.executeQueryAsync( 
+            (success:any) => {                 
+                    df.resolve();  
+            }, 
+            (fail:any, error:any) => {
+                df.reject(error.get_message());
+            });
+        });
+        return df.promise();
     }
 
     /**
@@ -248,15 +290,86 @@ export class SPDataAdapter {
      */
     static updateLike(suggestion:Suggestion):JQueryPromise<Suggestion>
     {
-        return null; 
+        var df = $.Deferred();
+
+        // Get existing like 
+        $.get(_spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Likes')/Items?$filter=(Forslag eq " + suggestion.Id + ") and (AuthorId eq " + _spPageContextInfo.userId + ")&$select=Id").then(
+            (result:any) => {                
+                console.log(result);
+                if(result.d.results.length <= 0)
+                {
+                    this.addLike(suggestion).then( 
+                        () => {
+                            this.UpdateLikeCountInList(suggestion, 1).then( () => {
+                                df.resolve();
+                            })
+                        }); 
+                    return; 
+                }           
+                this.removeLike(result.d.results[0].Id).then( 
+                    () => {
+                        this.UpdateLikeCountInList(suggestion, -1).then( () => {
+                            df.resolve();
+                        })
+                    }); 
+            });
+
+        return df.promise();
     }
 
-    /**
-     * Gets the users profile picture
-     * Returns: The users profile picture (string) 
-     */
-     static getUserProfilePicture(url:string):JQueryPromise<string>
-     {
-         return null; 
-     }
+     private static UpdateLikeCountInList(suggestion:Suggestion, count:number): JQueryPromise<{}> {
+        var df = $.Deferred();
+        var context = SP.ClientContext.get_current();
+        var list = context.get_web().get_lists().getByTitle("Forslag");
+        var item = list.getItemById(suggestion.Id);
+
+        item.set_item("Likes",count);
+        item.update();
+        context.executeQueryAsync(((r: any) => {
+            df.resolve();
+        }).bind(this),
+            (err: any) => {
+                console.log(err);
+                df.reject(err);
+            });
+        return df.promise();
+    }
+
+    private static removeLike(id:number):JQueryPromise<Suggestion>
+    {
+        var df = $.Deferred();
+        var context = SP.ClientContext.get_current();
+        var list = context.get_web().get_lists().getByTitle("Likes");
+        var item = list.getItemById(id);
+        item.deleteObject();
+        context.executeQueryAsync( 
+        (success:any) => {                 
+            df.resolve();  
+        }, 
+        (fail:any, error:any) => {
+            df.reject(error.get_message());
+        });       
+        return df.promise(); 
+    }
+
+    private static addLike(suggestion:Suggestion):JQueryPromise<Suggestion>
+    {
+         var df = $.Deferred(); 
+        var s = suggestion; 
+        var context = SP.ClientContext.get_current();
+        var list = context.get_web().get_lists().getByTitle("Likes");
+        var itemcreationinfo = new SP.ListItemCreationInformation();
+        var item = list.addItem(itemcreationinfo);        
+        item.set_item("Forslag", suggestion.Id);
+        item.update();
+        context.load(item);
+        context.executeQueryAsync( 
+        (success:any) => {                 
+            df.resolve();  
+        }, 
+        (fail:any, error:any) => {
+            df.reject(error.get_message());
+        });        
+        return df.promise();
+    }
 }

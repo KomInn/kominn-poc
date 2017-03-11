@@ -61,6 +61,7 @@ $title = "Likes";
       Add-PnPField -List $title -DisplayName "Tekst" -InternalName "Text" -Type Note -Group $group -AddToDefaultView
       Add-PnPField -List $title -DisplayName "Navn" -InternalName "Text" -Type Note -Group $group -AddToDefaultView
       Add-PnPField -List $title -DisplayName "Bilde" -InternalName "Image" -Type Text -Group $group -AddToDefaultView
+      Add-PnPField -List $title -DisplayName "Forslag" -InternalName "SuggestionId" -Type Number -Group $group -AddToDefaultView
       
       
 

@@ -42,4 +42,9 @@ export class Suggestion
     {
         return true; 
     }
+
+    public get CopyUrl():string
+    {
+        return _spPageContextInfo.webAbsoluteUrl  +"/SitePages/NyttForslag.aspx?kopier=" + this.Id; 
+    }
 }
