@@ -29,9 +29,7 @@ export class NewSuggestion extends React.Component<any, NewSuggestionState>
         this.setState({suggestion:su});
     }
     updatePerson(p:Person)
-    {
-        console.log("upd person"); 
-        console.log(p);
+    {        
         var s = this.state.suggestion; 
         s.Submitter = p; 
         this.setState({suggestion:s}, ()=> console.log(this.state.suggestion));
@@ -42,10 +40,10 @@ export class NewSuggestion extends React.Component<any, NewSuggestionState>
         s.Image = pictureURL;
         this.setState({suggestion:s}); 
     }
-    updateLocation(location:string)
+    updateLocation(lat:number, lon:number)
     {
         var s = this.state.suggestion; 
-        s.Location = location; 
+        s.Location = lat + "," + lon;
         this.setState({suggestion:s}); 
     }
     updateInspiredBy(inspiredby:Array<Suggestion>)
@@ -65,7 +63,7 @@ export class NewSuggestion extends React.Component<any, NewSuggestionState>
             return; 
         }                
         var d = new DataAdapter();
-        d.submitSuggestion(this.state.suggestion).then( () => { 
+        d.submitSuggestion(this.state.suggestion).done( () => { 
             this.setState({submitted:true}); 
         }) 
     }
@@ -73,8 +71,7 @@ export class NewSuggestion extends React.Component<any, NewSuggestionState>
     render()
     {
         if(this.state.submitted)
-        {
-            
+        {            
             return(
                  <div className="container-fluid newsuggestion-container contacts-form">
                      <h1 style={{color:"black"}}>Takk</h1>

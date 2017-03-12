@@ -69,12 +69,8 @@ export class Suggestion
     }
 
     public get MapUrl():string
-    {
-        var str = ""; 
-        var url = "https://www.google.no/maps/";
-        if(Tools.IsLatLong(this.Location))
-            return url + "@"+this.Location + ",16z"; 
-                        
-        return "https://www.google.no/maps/place/" + this.Location.replace(" ","+");
+    {                
+        var mapsApiKey = "AIzaSyBEQC7aWXruMiVIMfR_ev-7AFFqs96xn2c";                        
+        return "//www.google.com/maps/embed/v1/place?key="+mapsApiKey+"&q="+this.Location;
     }
 }

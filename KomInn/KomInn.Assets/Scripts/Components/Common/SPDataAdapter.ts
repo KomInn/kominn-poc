@@ -55,14 +55,14 @@ export class SPDataAdapter {
     static getAllSuggestions(type?:Status, top?:number, customFilter?:string):JQueryPromise<Array<Suggestion>>
     {
         var numResults = (top == null) ? 100 : top; 
-        var query = (type == null) ? "" : "&$filter=Status eq '"+Tools.statusToString(type)+"'";
+        var query = (type == null) ? "" : "&$filter=Status ne 'Sendt inn' and Status eq '"+Tools.statusToString(type)+"'";
         
         if(customFilter != null)
             query = customFilter; 
 
         var df = $.Deferred(); 
         var suggestions = new Array<Suggestion>(); 
-        $.get(_spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Forslag')/Items?$top="+numResults+"&$orderby=Created desc " +query).then( (result:any) => {           
+        $.get(_spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Forslag')/Items?$select=*,InspiredBy/Id,InspiredBy/Title&$expand=InspiredBy&$top="+numResults+"&$orderby=Created desc" +query).then( (result:any) => {           
 
             var results = result.d.results; 
             for(var i=0;i<results.length;i++)
@@ -88,6 +88,7 @@ export class SPDataAdapter {
                 s.Submitter = p; 
                 s.SuggestedSolution = results[i].SuggestedSolution; 
                 s.Summary = results[i].Summary; 
+                s.InspiredBy = (results[i].InspiredBy != null) ? results[i].InspiredBy.results : null; 
                 if(results[i].Tags != null)
                     s.Tags = results[i].Tags.results; 
 
@@ -106,12 +107,11 @@ export class SPDataAdapter {
     {
         var userId = _spPageContextInfo.userId; 
         return this.getAllSuggestions(null, null, "&$filter=AuthorId eq " + userId); 
-
     }
 
     public static getSuggestionByTitle(title:string):JQueryPromise<Array<Suggestion>>
     {
-        return this.getAllSuggestions(null, null, "&$filter=substringof('"+title+"', Title)");
+        return this.getAllSuggestions(null, null, "&$filter=substringof('"+title+"', Title) and Status ne 'Sendt inn'");
     }
 
     public static getMyUserProfile():JQueryPromise<Person>
@@ -237,6 +237,7 @@ export class SPDataAdapter {
                     df.resolve(s);  
             }, 
             (fail:any, error:any) => {
+                console.log(error.get_message());
                 df.reject(error.get_message());
             });
 
@@ -250,7 +251,7 @@ export class SPDataAdapter {
     static getCommentsForSuggestion(suggestion:Suggestion):JQueryPromise<Suggestion>
     {
         var df = $.Deferred();
-        $.get(_spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Kommentarer')/Items?$filter=SuggestionId eq " + suggestion.Id + "").then( 
+        $.get(_spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Kommentarer')/Items?$orderby=Created desc&$filter=SuggestionId eq " + suggestion.Id + "").then( 
             (result:any) => {                 
                 var c = new Array<Comment>(); 
                 for(let item of result.d.results)

@@ -4,8 +4,8 @@ import { Suggestion } from "../Common/Suggestion";
 import { DataAdapter } from "../Common/DataAdapter"; 
 import { Status } from "../Common/Status"; 
 interface PromotedSuggestionsState { suggestions?:Array<Suggestion>, CurrentImage?:number }
-interface PromotedSuggestionsProps { suggestions?:Array<Suggestion> }
-export class PromotedSuggestions extends React.Component<PromotedSuggestionsProps, PromotedSuggestionsState>
+
+export class PromotedSuggestions extends React.Component<any, PromotedSuggestionsState>
 {
 	constructor()
 	{
@@ -13,7 +13,7 @@ export class PromotedSuggestions extends React.Component<PromotedSuggestionsProp
 		this.state ={ suggestions:new Array<Suggestion>(), CurrentImage:0 }; 
 	}
 
-	componentWillMount(newprops:PromotedSuggestionsProps)
+	componentWillMount()
 	{
 		 var d = new DataAdapter();
         d.getAllSuggestions(Status.Promoted, 50).then( (results:Array<Suggestion>)  => {             

@@ -56,6 +56,7 @@ Add-PnPFile -Path $($InstalledFilesPath + "\SitePages\NyttForslag.aspx") -Folder
  Add-PnPFile -Path $($InstalledFilesPath + "\SiteAssets\lib\react-dom\react-dom.min.js") -Folder "SiteAssets\lib\react-dom"
  Add-PnPFile -Path $($InstalledFilesPath + "\SiteAssets\lib\jquery\jquery.min.js") -Folder "SiteAssets\lib\jquery" 
  Add-PnPFile -Path $($InstalledFilesPath + "\SiteAssets\lib\typeahead\typeahead.bundle.min.js") -Folder "SiteAssets\lib\typeahead"
+
    
  Add-PnPFile -Path $($InstalledFilesPath + "\SiteAssets\js\bundle.js") -Folder "SiteAssets\js"
  Add-PnPFile -Path $($InstalledFilesPath + "\SiteAssets\js\bundle.js.map") -Folder "SiteAssets\js"

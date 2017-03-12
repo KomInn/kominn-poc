@@ -24,8 +24,11 @@ export class DataAdapter
      * Param: (optional) SuggestionType 
      * Returns: Array with all suggestions, sorted by date. 
      */
-    getAllSuggestions(type?:Status, top?:number):JQueryPromise<Array<Suggestion>>
-    {       
+    getAllSuggestions(type?:Status, top?:number, customQuery?:string):JQueryPromise<Array<Suggestion>>
+    {   
+        if(customQuery != null)
+            return adapter.getAllSuggestions(null, top, customQuery);     
+
         if(top != null)
             return adapter.getAllSuggestions(type, top, null);
         

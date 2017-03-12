@@ -14,15 +14,13 @@ export class Personalia extends React.Component<PersonaliaProps, PersonaliaState
         super();
         this.state = { profile:new Person() };
         var da = new DataAdapter(); 
-        da.getMyUserProfile().then( (result:Person) => {    
-            console.log(result);         
+        da.getMyUserProfile().then( (result:Person) => {                
             this.setState({profile:result}, () => this.update() ); 
         })
         
     }
     update()
-    {
-        console.log("upd");
+    {        
         this.props.onDataUpdate(this.state.profile); 
     }
     set(event:any)

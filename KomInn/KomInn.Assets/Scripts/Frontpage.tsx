@@ -9,27 +9,24 @@ import { DataAdapter } from "./Components/Common/DataAdapter";
 
 import { Suggestion } from "./Components/Common/Suggestion"; 
 
-interface FrontpageState { suggestions:Array<Suggestion> }
-export class Frontpage extends React.Component<any, FrontpageState>
+
+export class Frontpage extends React.Component<any, any>
 {
     constructor()
     {
         super();
-        this.state = { suggestions:new Array<Suggestion>() };
-        var d = new DataAdapter();
-        d.getAllSuggestions().then( (results:Array<Suggestion>)  => { 
-            this.setState({suggestions:results}); 
-        });
+        
+      
     }
     render()
     {
         return (
             <div className="container-fluid">
                 <Searchbar />
-                <PromotedSuggestions suggestions={this.state.suggestions} />
-                <PopularSuggestions suggestions={this.state.suggestions} />
-                <SuccessStories suggestions={this.state.suggestions} />
-                <MySuggestions suggestions={this.state.suggestions}/>
+                <PromotedSuggestions  />
+                <PopularSuggestions />
+                <SuccessStories  />
+                <MySuggestions />
                 <a className="accessibility" href="#wrapper">Back to top</a>
             </div>           
         )

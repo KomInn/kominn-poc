@@ -2,8 +2,9 @@ import * as React from "react";
 import { Row, Col } from "react-bootstrap";
 import { Suggestion } from "../Common/Suggestion";
 import { Tools } from "../Common/Tools";
+
 interface MapProps { suggestion:Suggestion }
-export class Map extends React.Component<MapProps, any>
+export class MapView extends React.Component<MapProps, any>
 {   
     render()
     {
@@ -19,7 +20,12 @@ export class Map extends React.Component<MapProps, any>
                     <span className="type-frame">Nyttetype: {this.props.suggestion.UsefulnessType}</span>
                 </div>
                 <div className="map-block hidden-xs">
-                    
+                    {(this.props.suggestion.Location == null) ? "" : 
+                    <iframe 
+                        src={this.props.suggestion.MapUrl}
+                        width="600" 
+                        height="450" 
+                        ></iframe>}
                 </div>
             </Row>                    
         )

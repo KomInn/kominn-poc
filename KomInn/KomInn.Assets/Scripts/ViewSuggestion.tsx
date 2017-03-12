@@ -4,7 +4,7 @@ import { Searchbar } from "./Components/Frontpage/Searchbar";
 import { Content } from "./Components/ViewSuggestion/Content";
 import { Actions } from "./Components/ViewSuggestion/Actions";
 import { Summary }from "./Components/ViewSuggestion/Summary";
-import { Map }from "./Components/ViewSuggestion/Map"; 
+import { MapView }from "./Components/ViewSuggestion/Map"; 
 import { InspiredBy } from "./Components/ViewSuggestion/InspiredBy"; 
 import { Comments } from "./Components/ViewSuggestion/Comments";
 import { Suggestion } from "./Components/Common/Suggestion";
@@ -65,7 +65,7 @@ export class ViewSuggestion extends React.Component<any, ViewSuggestionState>
                     </div>
                     <div id="sidebar">
                         <Actions suggestion={this.state.suggestion} onLikeUpdated={this.loadSuggestion.bind(this)} />
-                        <Map suggestion={this.state.suggestion} />
+                        <MapView suggestion={this.state.suggestion} />
                     </div>
                     <div className="box-wrapp">
                         <div className="content">                                                           

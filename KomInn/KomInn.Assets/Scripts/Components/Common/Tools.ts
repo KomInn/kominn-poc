@@ -43,6 +43,9 @@ export class Tools
 
     public static IsLatLong(location:string):boolean
     {
+        if(location == null || location.length <= 0)
+            return false; 
+            
         if(location.indexOf(",") == -1)
             return false; 
 
@@ -80,5 +83,5 @@ export class Tools
         }
         reader.readAsArrayBuffer(file);
         return df.promise();
-    }
+    }    
 }

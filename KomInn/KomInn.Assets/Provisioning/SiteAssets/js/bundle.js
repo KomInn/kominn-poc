@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 296);
+/******/ 	return __webpack_require__(__webpack_require__.s = 297);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -1088,7 +1088,9 @@ var DataAdapter = (function () {
      * Param: (optional) SuggestionType
      * Returns: Array with all suggestions, sorted by date.
      */
-    DataAdapter.prototype.getAllSuggestions = function (type, top) {
+    DataAdapter.prototype.getAllSuggestions = function (type, top, customQuery) {
+        if (customQuery != null)
+            return adapter.getAllSuggestions(null, top, customQuery);
         if (top != null)
             return adapter.getAllSuggestions(type, top, null);
         return adapter.getAllSuggestions(type, null, null);
@@ -1797,6 +1799,8 @@ var Tools = (function () {
             date.getFullYear();
     };
     Tools.IsLatLong = function (location) {
+        if (location == null || location.length <= 0)
+            return false;
         if (location.indexOf(",") == -1)
             return false;
         var parts = location.split(',');
@@ -2057,7 +2061,6 @@ module.exports = exports["default"];
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var Person_1 = __webpack_require__(52);
-var Tools_1 = __webpack_require__(32);
 var Suggestion = (function () {
     function Suggestion() {
         this.Id = -1;
@@ -2100,11 +2103,8 @@ var Suggestion = (function () {
     });
     Object.defineProperty(Suggestion.prototype, "MapUrl", {
         get: function () {
-            var str = "";
-            var url = "https://www.google.no/maps/";
-            if (Tools_1.Tools.IsLatLong(this.Location))
-                return url + "@" + this.Location + ",16z";
-            return "https://www.google.no/maps/place/" + this.Location.replace(" ", "+");
+            var mapsApiKey = "AIzaSyBEQC7aWXruMiVIMfR_ev-7AFFqs96xn2c";
+            return "//www.google.com/maps/embed/v1/place?key=" + mapsApiKey + "&q=" + this.Location;
         },
         enumerable: true,
         configurable: true
@@ -7940,25 +7940,18 @@ var PromotedSuggestions_1 = __webpack_require__(134);
 var PopularSuggestions_1 = __webpack_require__(133);
 var SuccessStories_1 = __webpack_require__(135);
 var MySuggestions_1 = __webpack_require__(132);
-var DataAdapter_1 = __webpack_require__(14);
 var Frontpage = (function (_super) {
     __extends(Frontpage, _super);
     function Frontpage() {
-        var _this = _super.call(this) || this;
-        _this.state = { suggestions: new Array() };
-        var d = new DataAdapter_1.DataAdapter();
-        d.getAllSuggestions().then(function (results) {
-            _this.setState({ suggestions: results });
-        });
-        return _this;
+        return _super.call(this) || this;
     }
     Frontpage.prototype.render = function () {
         return (React.createElement("div", { className: "container-fluid" },
             React.createElement(Searchbar_1.Searchbar, null),
-            React.createElement(PromotedSuggestions_1.PromotedSuggestions, { suggestions: this.state.suggestions }),
-            React.createElement(PopularSuggestions_1.PopularSuggestions, { suggestions: this.state.suggestions }),
-            React.createElement(SuccessStories_1.SuccessStories, { suggestions: this.state.suggestions }),
-            React.createElement(MySuggestions_1.MySuggestions, { suggestions: this.state.suggestions }),
+            React.createElement(PromotedSuggestions_1.PromotedSuggestions, null),
+            React.createElement(PopularSuggestions_1.PopularSuggestions, null),
+            React.createElement(SuccessStories_1.SuccessStories, null),
+            React.createElement(MySuggestions_1.MySuggestions, null),
             React.createElement("a", { className: "accessibility", href: "#wrapper" }, "Back to top")));
     };
     return Frontpage;
@@ -8010,8 +8003,6 @@ var NewSuggestion = (function (_super) {
     };
     NewSuggestion.prototype.updatePerson = function (p) {
         var _this = this;
-        console.log("upd person");
-        console.log(p);
         var s = this.state.suggestion;
         s.Submitter = p;
         this.setState({ suggestion: s }, function () { return console.log(_this.state.suggestion); });
@@ -8021,9 +8012,9 @@ var NewSuggestion = (function (_super) {
         s.Image = pictureURL;
         this.setState({ suggestion: s });
     };
-    NewSuggestion.prototype.updateLocation = function (location) {
+    NewSuggestion.prototype.updateLocation = function (lat, lon) {
         var s = this.state.suggestion;
-        s.Location = location;
+        s.Location = lat + "," + lon;
         this.setState({ suggestion: s });
     };
     NewSuggestion.prototype.updateInspiredBy = function (inspiredby) {
@@ -8038,7 +8029,7 @@ var NewSuggestion = (function (_super) {
             return;
         }
         var d = new DataAdapter_1.DataAdapter();
-        d.submitSuggestion(this.state.suggestion).then(function () {
+        d.submitSuggestion(this.state.suggestion).done(function () {
             _this.setState({ submitted: true });
         });
     };
@@ -8137,7 +8128,7 @@ var ViewSuggestion = (function (_super) {
                         React.createElement(Content_1.Content, { suggestion: this.state.suggestion })),
                     React.createElement("div", { id: "sidebar" },
                         React.createElement(Actions_1.Actions, { suggestion: this.state.suggestion, onLikeUpdated: this.loadSuggestion.bind(this) }),
-                        React.createElement(Map_1.Map, { suggestion: this.state.suggestion })),
+                        React.createElement(Map_1.MapView, { suggestion: this.state.suggestion })),
                     React.createElement("div", { className: "box-wrapp" },
                         React.createElement("div", { className: "content" },
                             React.createElement(Summary_1.Summary, { suggestion: this.state.suggestion }),
@@ -8221,12 +8212,12 @@ var SPDataAdapter = (function () {
      */
     SPDataAdapter.getAllSuggestions = function (type, top, customFilter) {
         var numResults = (top == null) ? 100 : top;
-        var query = (type == null) ? "" : "&$filter=Status eq '" + Tools_1.Tools.statusToString(type) + "'";
+        var query = (type == null) ? "" : "&$filter=Status ne 'Sendt inn' and Status eq '" + Tools_1.Tools.statusToString(type) + "'";
         if (customFilter != null)
             query = customFilter;
         var df = $.Deferred();
         var suggestions = new Array();
-        $.get(_spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Forslag')/Items?$top=" + numResults + "&$orderby=Created desc " + query).then(function (result) {
+        $.get(_spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Forslag')/Items?$select=*,InspiredBy/Id,InspiredBy/Title&$expand=InspiredBy&$top=" + numResults + "&$orderby=Created desc" + query).then(function (result) {
             var results = result.d.results;
             for (var i = 0; i < results.length; i++) {
                 var p = new Person_1.Person();
@@ -8250,6 +8241,7 @@ var SPDataAdapter = (function () {
                 s.Submitter = p;
                 s.SuggestedSolution = results[i].SuggestedSolution;
                 s.Summary = results[i].Summary;
+                s.InspiredBy = (results[i].InspiredBy != null) ? results[i].InspiredBy.results : null;
                 if (results[i].Tags != null)
                     s.Tags = results[i].Tags.results;
                 s.Title = results[i].Title;
@@ -8267,7 +8259,7 @@ var SPDataAdapter = (function () {
         return this.getAllSuggestions(null, null, "&$filter=AuthorId eq " + userId);
     };
     SPDataAdapter.getSuggestionByTitle = function (title) {
-        return this.getAllSuggestions(null, null, "&$filter=substringof('" + title + "', Title)");
+        return this.getAllSuggestions(null, null, "&$filter=substringof('" + title + "', Title) and Status ne 'Sendt inn'");
     };
     SPDataAdapter.getMyUserProfile = function () {
         var _this = this;
@@ -8376,6 +8368,7 @@ var SPDataAdapter = (function () {
         context.executeQueryAsync(function (success) {
             df.resolve(s);
         }, function (fail, error) {
+            console.log(error.get_message());
             df.reject(error.get_message());
         });
         return df.promise();
@@ -8386,7 +8379,7 @@ var SPDataAdapter = (function () {
      */
     SPDataAdapter.getCommentsForSuggestion = function (suggestion) {
         var df = $.Deferred();
-        $.get(_spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Kommentarer')/Items?$filter=SuggestionId eq " + suggestion.Id + "").then(function (result) {
+        $.get(_spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Kommentarer')/Items?$orderby=Created desc&$filter=SuggestionId eq " + suggestion.Id + "").then(function (result) {
             var c = new Array();
             for (var _i = 0, _a = result.d.results; _i < _a.length; _i++) {
                 var item = _a[_i];
@@ -8606,6 +8599,7 @@ var React = __webpack_require__(0);
 var react_bootstrap_1 = __webpack_require__(10);
 var DataAdapter_1 = __webpack_require__(14);
 var Status_1 = __webpack_require__(31);
+var Tools_1 = __webpack_require__(32);
 var PopularSuggestions = (function (_super) {
     __extends(PopularSuggestions, _super);
     function PopularSuggestions() {
@@ -8647,7 +8641,8 @@ var PopularSuggestions = (function (_super) {
                                         React.createElement("footer", null,
                                             React.createElement("time", null, item.Created.getDate() + "." + (item.Created.getMonth() + 1) + "." + item.Created.getFullYear()),
                                             React.createElement("strong", { className: "author" }, item.Submitter.Name),
-                                            React.createElement("span", null, item.Location),
+                                            (Tools_1.Tools.IsLatLong(item.Location)) ? "" :
+                                                React.createElement("span", null, item.Location),
                                             React.createElement("ul", { className: "btn-list" },
                                                 React.createElement("li", null,
                                                     React.createElement("a", { href: "#" },
@@ -8694,7 +8689,7 @@ var PromotedSuggestions = (function (_super) {
         _this.state = { suggestions: new Array(), CurrentImage: 0 };
         return _this;
     }
-    PromotedSuggestions.prototype.componentWillMount = function (newprops) {
+    PromotedSuggestions.prototype.componentWillMount = function () {
         var _this = this;
         var d = new DataAdapter_1.DataAdapter();
         d.getAllSuggestions(Status_1.Status.Promoted, 50).then(function (results) {
@@ -8855,15 +8850,60 @@ var react_bootstrap_1 = __webpack_require__(10);
 var AddLocation = (function (_super) {
     __extends(AddLocation, _super);
     function AddLocation() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        var _this = _super.call(this) || this;
+        _this.state = { selectedLocation: new google.maps.LatLng(59.8346001, 10.436568699999953), feedbackMessage: null, searchval: "" };
+        _this.map = null;
+        _this.marker = null;
+        return _this;
     }
-    AddLocation.prototype.updateLocation = function (loc) {
-        this.props.onDataUpdate(loc);
+    AddLocation.prototype.drawMap = function () {
+        var _this = this;
+        var myOptions = {
+            zoom: 5,
+            center: this.state.selectedLocation,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        this.map = new google.maps.Map(document.getElementById("map"), myOptions);
+        google.maps.event.addListener(this.map, 'click', (function (event) {
+            _this.setMarker(event.latLng);
+        }));
+    };
+    AddLocation.prototype.setMarker = function (location) {
+        var _this = this;
+        if (this.marker) {
+            this.marker.setPosition(location);
+            return;
+        }
+        this.marker = new google.maps.Marker({ position: location, map: this.map });
+        this.setState({ selectedLocation: location }, function () { _this.submitLocation(); });
+    };
+    AddLocation.prototype.geocodeAddress = function (address) {
+        var _this = this;
+        var geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ 'address': address }, function (results, status) {
+            if (status === google.maps.GeocoderStatus.OK) {
+                _this.map.setCenter(results[0].geometry.location);
+                _this.setMarker(results[0].geometry.location);
+                _this.setState({ feedbackMessage: null });
+            }
+            else {
+                _this.setState({ feedbackMessage: "Fant ikke adressen, prøv igjen." });
+                _this.setMarker(null);
+            }
+        });
+    };
+    AddLocation.prototype.componentDidMount = function () {
+        this.drawMap();
+    };
+    AddLocation.prototype.submitLocation = function () {
+        if (this.state.selectedLocation == null)
+            return;
+        this.props.onDataUpdate(this.state.selectedLocation.lat(), this.state.selectedLocation.lng());
     };
     AddLocation.prototype.getPosition = function () {
         var _this = this;
-        var g = navigator.geolocation.getCurrentPosition(function (pos) {
-            _this.updateLocation(pos);
+        navigator.geolocation.getCurrentPosition(function (pos) {
+            _this.setMarker(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude));
         });
     };
     AddLocation.prototype.render = function () {
@@ -8873,7 +8913,13 @@ var AddLocation = (function (_super) {
             React.createElement(react_bootstrap_1.Col, { xs: 12 },
                 React.createElement("div", { className: "form-area" },
                     React.createElement("label", { htmlFor: "sted" }, "Sted (valgfritt)"),
-                    React.createElement("input", { id: "sted", type: "text", placeholder: "Skriv inn sted", onBlur: function (evt) { console.log(evt); _this.updateLocation(evt.target.value); } }),
+                    React.createElement("p", null, "Klikk i kartet for \u00E5 markere, eller bruk s\u00F8kefeltet."),
+                    React.createElement("div", { id: "map", style: { width: "470px", height: "400px" } }),
+                    React.createElement(react_bootstrap_1.FormGroup, { validationState: (this.state.feedbackMessage == null) ? null : "error" },
+                        React.createElement(react_bootstrap_1.InputGroup, null,
+                            React.createElement(react_bootstrap_1.FormControl, { type: "text", style: { width: "393px" }, placeholder: "Skriv inn sted", onChange: function (e) { return _this.setState({ searchval: e.target.value }); } }),
+                            React.createElement(react_bootstrap_1.FormControl.Feedback, null),
+                            React.createElement(react_bootstrap_1.Button, { className: "custombtn", onClick: function () { return _this.geocodeAddress(_this.state.searchval); } }, "S\u00F8k"))),
                     (geo == null) ? "" :
                         React.createElement("span", null,
                             React.createElement("span", { className: "separator" }, "eller"),
@@ -9100,13 +9146,11 @@ var Personalia = (function (_super) {
         _this.state = { profile: new Person_1.Person() };
         var da = new DataAdapter_1.DataAdapter();
         da.getMyUserProfile().then(function (result) {
-            console.log(result);
             _this.setState({ profile: result }, function () { return _this.update(); });
         });
         return _this;
     }
     Personalia.prototype.update = function () {
-        console.log("upd");
         this.props.onDataUpdate(this.state.profile);
     };
     Personalia.prototype.set = function (event) {
@@ -9421,24 +9465,93 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var React = __webpack_require__(0);
 var react_bootstrap_1 = __webpack_require__(10);
 var DataAdapter_1 = __webpack_require__(14);
+var PinTypes;
+(function (PinTypes) {
+    PinTypes[PinTypes["Start"] = 0] = "Start";
+    PinTypes[PinTypes["After"] = 1] = "After";
+    PinTypes[PinTypes["Previous"] = 2] = "Previous";
+})(PinTypes || (PinTypes = {}));
 var InspiredBy = (function (_super) {
     __extends(InspiredBy, _super);
     function InspiredBy() {
         var _this = _super.call(this) || this;
-        _this.state = { InspiredBy: new Array(), InspirationFor: new Array() };
+        _this.state = { InspiredBy: new Array(), InspirationFor: new Array(), selectedLocation: new google.maps.LatLng(59.8346001, 10.436568699999953) };
+        _this.map = null;
+        _this.marker = null;
         return _this;
     }
     InspiredBy.prototype.componentWillMount = function () {
-        this.setState({ InspiredBy: this.props.suggestion.InspiredBy });
+    };
+    InspiredBy.prototype.componentWillReceiveProps = function (newprops) {
+    };
+    /**
+     *
+     * @param which 1 = green, 2 = yellow, 3 = red
+     */
+    InspiredBy.prototype.getPin = function (which) {
+        switch (which) {
+            case PinTypes.Start: return 'http://maps.google.com/mapfiles/kml/paddle/grn-blank.png';
+            case PinTypes.Previous: return 'http://maps.google.com/mapfiles/kml/paddle/ylw-blank.png';
+            case PinTypes.After: return 'http://maps.google.com/mapfiles/kml/paddle/blu-blank.png';
+        }
+    };
+    InspiredBy.prototype.getPinIcon = function (which) {
+        return {
+            url: this.getPin(which),
+            scaledSize: new google.maps.Size(32, 32)
+        };
+    };
+    InspiredBy.prototype.drawMap = function () {
+        var _this = this;
+        var startPin = {
+            url: 'http://maps.google.com/mapfiles/kml/paddle/grn-blank.png',
+            scaledSize: new google.maps.Size(32, 32)
+        };
+        var myOptions = {
+            zoom: 5,
+            center: this.state.selectedLocation,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        this.map = new google.maps.Map(document.getElementById("map"), myOptions);
+        google.maps.event.addListener(this.map, 'click', (function (event) {
+            _this.setMarker(event.latLng);
+        }));
+    };
+    InspiredBy.prototype.setMarker = function (location) {
+        var _this = this;
+        if (this.marker) {
+            this.marker.setPosition(location);
+            return;
+        }
+        var infowindow = new google.maps.InfoWindow({
+            content: "<h1>Skole må testes</h1><div id='bodyContent'><p>DEtte er en test</p></div>"
+        });
+        this.marker = new google.maps.Marker({
+            position: location,
+            map: this.map,
+            icon: this.getPinIcon(PinTypes.After),
+            animation: google.maps.Animation.DROP,
+        });
+        this.marker.addListener('click', function () { return infowindow.open(_this.map, _this.marker); });
+        this.setState({ selectedLocation: location });
+    };
+    InspiredBy.prototype.componentDidMount = function () {
+        var _this = this;
+        console.log(this.props);
         var da = new DataAdapter_1.DataAdapter();
+        da.getAllSuggestions(null, 2500, "&$filter=Status ne 'Sendt inn'&$select=Id,Title,InspiredBy/Id, InspiredBy/Title&$expand=InspiredBy")
+            .then(function (results) {
+            console.log(results);
+            _this.drawMap();
+        });
     };
     InspiredBy.prototype.render = function () {
         return (React.createElement(react_bootstrap_1.Row, null,
             React.createElement("div", { className: "text-area" },
                 React.createElement("h3", null, "Forbindelse til andre forslag"),
                 React.createElement("p", null, "Visualiseringen nedefor viser hvordan dette forslaget b\u00E5de har blitt inspirert av andre, tidligere, forslag samtidig som det igjen har inspirert ny forslag.")),
-            React.createElement("div", { className: "img-area hidden-xs" },
-                React.createElement("img", { src: "images/img-7.png", width: "531", height: "299", alt: "image description" })),
+            React.createElement("div", { className: "img-area" },
+                React.createElement("div", { id: "map", style: { width: "500px", height: "300px" } })),
             React.createElement("div", { className: "btn-holder hidden-xs" },
                 React.createElement("a", { href: "#", className: "btn-link" }, "Tidligere forslag"),
                 React.createElement("a", { href: "#", className: "btn-link" }, "Senere forslag"))));
@@ -9468,12 +9581,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var React = __webpack_require__(0);
 var react_bootstrap_1 = __webpack_require__(10);
 var Tools_1 = __webpack_require__(32);
-var Map = (function (_super) {
-    __extends(Map, _super);
-    function Map() {
+var MapView = (function (_super) {
+    __extends(MapView, _super);
+    function MapView() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    Map.prototype.render = function () {
+    MapView.prototype.render = function () {
         return (React.createElement(react_bootstrap_1.Row, null,
             React.createElement("div", { className: "sub-box" },
                 React.createElement("time", null, Tools_1.Tools.FormatDate(this.props.suggestion.Created)),
@@ -9487,11 +9600,12 @@ var Map = (function (_super) {
                 React.createElement("span", { className: "type-frame" },
                     "Nyttetype: ",
                     this.props.suggestion.UsefulnessType)),
-            React.createElement("div", { className: "map-block hidden-xs" })));
+            React.createElement("div", { className: "map-block hidden-xs" }, (this.props.suggestion.Location == null) ? "" :
+                React.createElement("iframe", { src: this.props.suggestion.MapUrl, width: "600", height: "450" }))));
     };
-    return Map;
+    return MapView;
 }(React.Component));
-exports.Map = Map;
+exports.MapView = MapView;
 
 
 /***/ }),
@@ -20471,7 +20585,8 @@ function isReactComponent(component) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(12)))
 
 /***/ }),
-/* 296 */
+/* 296 */,
+/* 297 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

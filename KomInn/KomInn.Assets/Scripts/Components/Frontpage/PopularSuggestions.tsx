@@ -3,6 +3,7 @@ import { Row, Col } from "react-bootstrap";
 import { Suggestion } from "../Common/Suggestion"; 
 import { DataAdapter } from "../Common/DataAdapter"; 
 import { Status } from "../Common/Status"; 
+import { Tools } from "../Common/Tools"; 
 interface PopularSuggestionsState { suggestions:Array<Suggestion>, top?:number, maxReached?:boolean }
 export class PopularSuggestions extends React.Component<any, PopularSuggestionsState>
 {
@@ -57,7 +58,8 @@ export class PopularSuggestions extends React.Component<any, PopularSuggestionsS
                             <footer>
                                 <time>{item.Created.getDate() + "." + (item.Created.getMonth()+1) +"."+ item.Created.getFullYear()}</time>
                                 <strong className="author">{item.Submitter.Name}</strong>
-                                <span>{item.Location}</span>
+                                { (Tools.IsLatLong(item.Location)) ? "" : 
+                                <span>{item.Location}</span>}
                                  <ul className="btn-list">
                                 <li>
                                     <a href="#"><i className="icon-like"></i><span className="counter">{item.Likes}</span></a>
