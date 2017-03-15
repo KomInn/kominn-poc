@@ -73,4 +73,16 @@ export class Suggestion
         var mapsApiKey = "AIzaSyBEQC7aWXruMiVIMfR_ev-7AFFqs96xn2c";                        
         return "//www.google.com/maps/embed/v1/place?key="+mapsApiKey+"&q="+this.Location;
     }
+
+    public get LocationLatLng():google.maps.LatLng
+    {
+        if(this.Location == null)
+            return null; 
+
+        if(!Tools.IsLatLong(this.Location))
+            return null;    
+                
+        var s = this.Location.split(',');         
+        return new google.maps.LatLng(parseFloat(s[0].trim()), parseFloat(s[1].trim())); 
+    }
 }

@@ -3,183 +3,154 @@ import { Row, Col } from "react-bootstrap";
 import { Suggestion } from "../Common/Suggestion";
 import { DataAdapter } from "../Common/DataAdapter";
 import { Status } from "../Common/Status";
-import * as vis from "vis"; 
+import * as vis from "vis";
 
 
-interface InspiredByProps { suggestion:Suggestion }
-interface InspiredByState { InspiredBy:Array<Suggestion>, InspirationFor:Array<Suggestion>, selectedLocation:google.maps.LatLng   }
+interface InspiredByProps { suggestion: Suggestion }
 enum PinTypes { Start, After, Previous }
-interface Connection  { From:Suggestion, To:Suggestion }
-export class InspiredBy extends React.Component<InspiredByProps, InspiredByState>
+interface Connection { From: Suggestion, To: Suggestion }
+export class InspiredBy extends React.Component<InspiredByProps, any>
 {
-
-    marker:google.maps.Marker;
-    map:google.maps.Map; 
-    constructor()
-    {
-        super(); 
-        this.state ={ InspiredBy:new Array<Suggestion>(), InspirationFor:new Array<Suggestion>(), selectedLocation:new google.maps.LatLng(59.8346001,10.436568699999953) };         
-         this.map = null;
-        this.marker = null; 
+    map: google.maps.Map;
+    constructor() {
+        super();        
+        this.map = null;        
     }
 
-    componentWillMount()
-    {
-      
+    componentWillMount() {
+
     }
-    componentWillReceiveProps(newprops:InspiredByProps)
-    {
-      
+    componentWillReceiveProps(newprops: InspiredByProps) {
+
     }
 
-/**
- * 
- * @param which 1 = green, 2 = yellow, 3 = red
- */
-    getPin(which:PinTypes)
-    {
-        switch(which)
-        {
+    /**
+     * 
+     * @param which 1 = green, 2 = yellow, 3 = red
+     */
+    getPin(which: PinTypes) {
+        switch (which) {
             case PinTypes.Start: return 'http://maps.google.com/mapfiles/kml/paddle/grn-blank.png';
             case PinTypes.Previous: return 'http://maps.google.com/mapfiles/kml/paddle/ylw-blank.png';
             case PinTypes.After: return 'http://maps.google.com/mapfiles/kml/paddle/blu-blank.png'
         }
     }
-    
-    getPinIcon(which:PinTypes):any
-    {        
+
+    getPinIcon(which: PinTypes): any {
         return {
-        url: this.getPin(which),
-        scaledSize : new google.maps.Size(32, 32)
-        };     
+            url: this.getPin(which),
+            scaledSize: new google.maps.Size(32, 32)
+        };
     }
 
-    drawMap()
-    {   
-       var startPin = {
-        url: 'http://maps.google.com/mapfiles/kml/paddle/grn-blank.png', // image is 512 x 512
-        scaledSize : new google.maps.Size(32, 32)
-    };     
-    
-    
+    drawMap() {
+        var startPin = {
+            url: 'http://maps.google.com/mapfiles/kml/paddle/grn-blank.png', // image is 512 x 512
+            scaledSize: new google.maps.Size(32, 32)
+        };
+
         var myOptions = {
             zoom: 5,
             center: this.state.selectedLocation,
             mapTypeId: google.maps.MapTypeId.ROADMAP
         }
-        this.map = new google.maps.Map(document.getElementById("map"), myOptions); 
-
-      google.maps.event.addListener(this.map, 'click', ((event:any) => {	         
-         this.setMarker(event.latLng);
-      }));
-    }
-    setMarker(location:google.maps.LatLng)
-    {       
-        if (this.marker) {
-            this.marker.setPosition(location);
+        this.map = new google.maps.Map(document.getElementById("map"), myOptions);
+        if(this.props.suggestion.LocationLatLng == null)
             return; 
-         }
-         var infowindow = new google.maps.InfoWindow({
-    content: "<h1>Skole må testes</h1><div id='bodyContent'><p>DEtte er en test</p></div>"
-  })
+        
+        this.createMarker(this.props.suggestion, PinTypes.Start, null);
+        this.getFutureConnections(this.props.suggestion);
+        this.getPastConnections(this.props.suggestion);
+    }
+    createMarker(suggestion:Suggestion, type: PinTypes, connection: Connection) {
+        console.log("Creating marker");
+        console.log(location);
+        var marker = new google.maps.Marker({
+            position: suggestion.LocationLatLng,
+            map: this.map,
+            icon: this.getPinIcon(type),
+            animation: google.maps.Animation.DROP
+        }); 
+        var infowindow = new google.maps.InfoWindow({
+            content: "<div><a href='"+suggestion.Url+"'>"+suggestion.Title+"</a></div>"
+        })
 
- 
-  
-	     this.marker = new google.maps.Marker({
-             position:location, 
-             map:this.map,             
-             icon: this.getPinIcon(PinTypes.After),
-             animation: google.maps.Animation.DROP, }); 
-            this.marker.addListener('click', () => infowindow.open(this.map, this.marker)); 
-         this.setState({selectedLocation:location});
+        marker.addListener('click', () => { infowindow.open(this.map, marker); })
+
+        // Draw arrow between connection
+        if(connection == null)
+            return; 
+
+        if(connection.From == null || connection.To == null)
+            return; 
+        
+        var lineSymbol = {
+          path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
+        };        
+
+         var line = new google.maps.Polyline({
+          path: [connection.From.LocationLatLng, connection.To.LocationLatLng],
+          icons: [{
+            icon: lineSymbol,
+            offset: '100%'
+          }],
+          map: this.map,
+          strokeOpacity:0.7
+          
+        });                    
     }
 
-    suggestions:Array<Suggestion>;
-    componentDidMount()
-    {        
-        var da = new DataAdapter();         
-        da.getAllSuggestions(null,2500, "&$filter=Status ne 'Sendt inn'&$select=Id,Title,Location,InspiredBy/Id,InspiredBy/Title&$expand=InspiredBy")
-            .then( (results:Array<Suggestion>) => { 
-                this.suggestions = results;  
-                console.log(this.suggestions);               
-                var thisId = this.props.suggestion.Id;                 
-                var futureConn = new Array<Connection>(); 
-                futureConn = this.getFutureConnections(this.props.suggestion);
-
-                var pastConn = new Array<Connection>();
-                pastConn = this.getPastConnections(this.props.suggestion);
-
-                console.log("FUT");
-                console.log(futureConn);
-                console.log(pastConn);
-
+    suggestions: Array<Suggestion>;
+    componentDidMount() {
+        var da = new DataAdapter();
+        da.getAllSuggestions(null, 2000, "&$filter=Status ne 'Sendt inn'&$select=Id,Title,Location,InspiredBy/Id,InspiredBy/Title&$expand=InspiredBy&orderby=Created desc")
+            .then((results: Array<Suggestion>) => {
+                this.suggestions = results;
+                var thisId = this.props.suggestion.Id;
                 this.drawMap();
-            })
+            });
     }
 
-      getPastConnections(suggestion:Suggestion):Array<Connection>
-    {
-        var k = new Array<Connection>();
-        
-        
-            for(let it of suggestion.InspiredBy)
-            {
-                for(let s of this.suggestions)
-                {
-                    if(it.Id == suggestion.Id)
-                    {
-                        k.push({From:s, To:suggestion}); 
-                        break; 
-                    }
+    getPastConnections(suggestion: Suggestion) {
+        for (let it of suggestion.InspiredBy) {
+            for (let s of this.suggestions) {
+                if (it.Id == s.Id) {                   
+                    this.createMarker(s, PinTypes.After, { From: s, To: suggestion });
+                    this.getPastConnections(s);                   
                 }
             }
-        
-        return k; 
+        }
     }
 
-    getFutureConnections(suggestion:Suggestion):Array<Connection>
-    {
-        var k = new Array<Connection>();
-        for(let s of this.suggestions)
-        {
-            for(let it of s.InspiredBy)
-                if(it.Id == suggestion.Id)
-                {
-                    k.push({From:suggestion, To:s});
-                    break;
+
+    getFutureConnections(suggestion: Suggestion) {
+        for (let s of this.suggestions) {
+            for (let it of s.InspiredBy)
+                if (it.Id == suggestion.Id) {
+                    this.createMarker(s, PinTypes.Previous, { From: suggestion, To:s });
+                    this.getFutureConnections(s);                    
                 }
         }
-        return k; 
     }
 
-
-
-    getSuggestionById(id:number):Suggestion
-    {
-        for(let s of this.suggestions)
-        {
-            if(s.Id == id)
-                return s; 
+    getSuggestionById(id: number): Suggestion {
+        for (let s of this.suggestions) {
+            if (s.Id == id)
+                return s;
         }
     }
 
-   
-    
-
-
-
-    render()
-    {        
+    render() {
         return (
-            <Row>                
+            <Row>
                 <div className="text-area">
                     <h3>Forbindelse til andre forslag</h3>
                     <p>Visualiseringen nedefor viser hvordan dette forslaget både har blitt inspirert av andre, tidligere, forslag samtidig som det igjen har inspirert nye forslag.</p>
                 </div>
                 <div className="img-area">
-                    <div id="map" style={{width:"500px", height:"300px"}}></div>
-                </div>               
-            </Row>                    
+                    <div id="map" style={{ width: "500px", height: "300px" }}></div>
+                </div>
+            </Row>
         )
     }
 }
