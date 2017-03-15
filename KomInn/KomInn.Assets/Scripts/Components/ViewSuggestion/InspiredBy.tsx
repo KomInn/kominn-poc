@@ -9,6 +9,7 @@ import * as vis from "vis";
 interface InspiredByProps { suggestion:Suggestion }
 interface InspiredByState { InspiredBy:Array<Suggestion>, InspirationFor:Array<Suggestion>, selectedLocation:google.maps.LatLng   }
 enum PinTypes { Start, After, Previous }
+interface Connection  { From:Suggestion, To:Suggestion }
 export class InspiredBy extends React.Component<InspiredByProps, InspiredByState>
 {
 
@@ -93,18 +94,79 @@ export class InspiredBy extends React.Component<InspiredByProps, InspiredByState
          this.setState({selectedLocation:location});
     }
 
-    
+    suggestions:Array<Suggestion>;
     componentDidMount()
-    {
-        console.log(this.props);
+    {        
         var da = new DataAdapter();         
-        da.getAllSuggestions(null,2500, "&$filter=Status ne 'Sendt inn'&$select=Id,Title,InspiredBy/Id, InspiredBy/Title&$expand=InspiredBy")
+        da.getAllSuggestions(null,2500, "&$filter=Status ne 'Sendt inn'&$select=Id,Title,Location,InspiredBy/Id,InspiredBy/Title&$expand=InspiredBy")
             .then( (results:Array<Suggestion>) => { 
-                console.log(results);                                   
+                this.suggestions = results;  
+                console.log(this.suggestions);               
+                var thisId = this.props.suggestion.Id;                 
+                var futureConn = new Array<Connection>(); 
+                futureConn = this.getFutureConnections(this.props.suggestion);
+
+                var pastConn = new Array<Connection>();
+                pastConn = this.getPastConnections(this.props.suggestion);
+
+                console.log("FUT");
+                console.log(futureConn);
+                console.log(pastConn);
+
                 this.drawMap();
             })
-           
     }
+
+      getPastConnections(suggestion:Suggestion):Array<Connection>
+    {
+        var k = new Array<Connection>();
+        
+        
+            for(let it of suggestion.InspiredBy)
+            {
+                for(let s of this.suggestions)
+                {
+                    if(it.Id == suggestion.Id)
+                    {
+                        k.push({From:s, To:suggestion}); 
+                        break; 
+                    }
+                }
+            }
+        
+        return k; 
+    }
+
+    getFutureConnections(suggestion:Suggestion):Array<Connection>
+    {
+        var k = new Array<Connection>();
+        for(let s of this.suggestions)
+        {
+            for(let it of s.InspiredBy)
+                if(it.Id == suggestion.Id)
+                {
+                    k.push({From:suggestion, To:s});
+                    break;
+                }
+        }
+        return k; 
+    }
+
+
+
+    getSuggestionById(id:number):Suggestion
+    {
+        for(let s of this.suggestions)
+        {
+            if(s.Id == id)
+                return s; 
+        }
+    }
+
+   
+    
+
+
 
     render()
     {        
@@ -112,15 +174,11 @@ export class InspiredBy extends React.Component<InspiredByProps, InspiredByState
             <Row>                
                 <div className="text-area">
                     <h3>Forbindelse til andre forslag</h3>
-                    <p>Visualiseringen nedefor viser hvordan dette forslaget både har blitt inspirert av andre, tidligere, forslag samtidig som det igjen har inspirert ny forslag.</p>
+                    <p>Visualiseringen nedefor viser hvordan dette forslaget både har blitt inspirert av andre, tidligere, forslag samtidig som det igjen har inspirert nye forslag.</p>
                 </div>
                 <div className="img-area">
                     <div id="map" style={{width:"500px", height:"300px"}}></div>
-                </div>
-                <div className="btn-holder hidden-xs">
-                    <a href="#" className="btn-link">Tidligere forslag</a>
-                    <a href="#" className="btn-link">Senere forslag</a>
-                </div>
+                </div>               
             </Row>                    
         )
     }
