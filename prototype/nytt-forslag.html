@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Office365</title>
+	<link media="all" rel="stylesheet" href="css/main.css">
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js" defer></script>
+	<script type="text/javascript">window.jQuery || document.write('<script src="js/jquery-1.11.2.min.js" defer><\/script>')</script>
+	 <script type="text/javascript" src="js/jquery.main.js" defer></script>
+</head>
+<body>
+	<noscript><div>Javascript must be enabled for the correct page display</div></noscript>
+	<div id="wrapper">
+		<section class="form-section">
+			<div class="container">
+				<h2>Nytt forslag</h2>
+				<form action="#" class="contacts-form">
+					<div class="row">
+						<label for="tittel">Tittel</label>
+						<input id="tittel" type="text">
+						<label for="sammendrag">Sammendrag</label>
+						<textarea id="sammendrag" cols="30" rows="10" placeholder="Beskriv forslaget ditt med to setninger."></textarea>
+					</div>
+					<div class="row">
+						<label for="utfordringer">Utfordring</label>
+						<textarea id="utfordring" cols="30" rows="10" placeholder="Beskriv utfordringen(e) dette forslaget er ment å ta tak i. Hvorfor er det viktig å ta tak i dette? Er det f.eks konkrete problemer du ønsker å løse? I så fall, hvor lenge har disse problemene eksistert?"></textarea>
+						<label for="løsningsforslag">Løsningsforslag</label>
+						<textarea id="løsningsforslag" cols="30" rows="10" placeholder="Beskriv forslaget til løsning mer detaljert. Vet du noe om hva dette vil koste? Er det andre som må være med på å realisere løsningen? Etc.."></textarea>
+					</div>
+					<div class="row">
+						<label for="select-1">Hvilken type nytte?</label>
+						<select id="select-1">
+							<option selected="selected">Velg nytte-type</option>
+							<option>Tidstyvjakt/Effektivisering</option>
+							<option>Bedre kvalitet på tjenesten/Tjenesteinnovasjon</option>
+							<option>Samskaping/Gjøre noe sammen med andre enn kommunale aktører</option>
+							<option>Annet</option>
+							<!-- vises kun ved valg annet over -->
+							<input id="annet" type="text">
+							<!-- slutt annet -->
+						</select>
+						<label for="nyttig">Nyttig for andre?</label>
+						<input id="nyttig" type="text" placeholder="Kan forslaget ditt være nyttig for andre enn deg/din virksomhet?">
+					</div>
+					<div class="form-area">
+						<strong class="title">Bilder (valgfritt)</strong>
+						<p>Bildene må være mindre enn 1.5 Mb, og av typen .png, .jpg eller .gif</p>
+						<a href="#" class="btn">Velg bilder</a>
+					</div>
+					<div class="form-area">
+						<label for="sted">Sted(valgfritt)</label>
+						<input id="sted" type="text" placeholder="Skriv inn sted">
+						<span class="separator">eller</span>
+						<a href="#" class="btn">Bruk mitt sted</a>
+					</div>
+					<div class="form-area">
+						<label for="inspirasjon">Inspirasjon(valgfritt)</label>
+						<input id="inspirasjon" type="text" placeholder="Søk opp forslag som du ble inspirert av">
+						<div class="offers-table alt">
+							<div class="table-row">
+								<div class="col">
+									<a href="#" class="title-block">
+										<div class="img-block">
+											<img src="images/img-5.jpg" width="49" height="49" alt="image description">
+										</div>
+										<strong class="table-title">Bygg en lekeplass for barna</strong>
+									</a>
+								</div>
+								<div class="col">
+									<a href="#" class="btn-close"><span class="hidden">X</span></a>
+								</div>
+							</div>
+							<div class="table-row">
+								<div class="col">
+									<a href="#" class="title-block">
+										<div class="img-block">
+											<img src="images/img-5.jpg" width="49" height="49" alt="image description">
+										</div>
+										<strong class="table-title">Hva med utendørs buldrevegg på Festningen?</strong>
+									</a>
+								</div>
+								<div class="col">
+									<a href="#" class="btn-close"><span class="hidden">X</span></a>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="form-area hidden-xs">
+						<ul class="btn-list">
+							<li><a href="#" class="btn">Send inn</a></li>
+							<li><a href="#" class="btn">Forhåndsvis</a></li>
+						</ul>
+					</div>
+				</form>
+			</div>
+		</section>
+	</div>
+	<a class="accessibility" href="#wrapper">Back to top</a>
+</body>
+</html>
