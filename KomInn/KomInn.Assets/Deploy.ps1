@@ -3,7 +3,7 @@
 $env = @{   
     SiteURL = "https://kominn.sharepoint.com/"; 
     User = "admin@kominn.onmicrosoft.com"; 
-Pwd = ConvertTo-SecureString "---" -AsPlainText -Force
+Pwd = ConvertTo-SecureString "FF28F8B1493F26==" -AsPlainText -Force
 }; 
 
 
@@ -20,7 +20,7 @@ Add-PnPFile -Path $($AppFilesPath + "Provisioning\SiteAssets\js\bundle.js") -Fol
 Add-PnPFile -Path $($AppFilesPath + "Provisioning\SiteAssets\js\bundle.js.map") -Folder "SiteAssets\js\"       
 
 #Add-PnPFile -Path $($AppFilesPath + "Provisioning\SiteAssets\lib\jquery\jquery.main.js") -Folder "SiteAssets\js\"       
-Add-PnPFile -Path $($AppFilesPath + "Styles\Main.css") -Folder "SiteAssets\css\"       
+#Add-PnPFile -Path $($AppFilesPath + "Styles\Main.css") -Folder "SiteAssets\css\"       
 
 
 

@@ -52,17 +52,20 @@ export class SPDataAdapter {
      * Param: (optional) Count: Gets a set count
      * Returns: Array with all suggestions, sorted by date. 
      */
-    static getAllSuggestions(type?:Status, top?:number, customFilter?:string):JQueryPromise<Array<Suggestion>>
+    static getAllSuggestions(type?:Status, top?:number, customFilter?:string, customSort?:string):JQueryPromise<Array<Suggestion>>
     {
         var numResults = (top == null) ? 100 : top; 
         var query = (type == null) ? "" : "&$filter=Status ne 'Sendt inn' and Status eq '"+Tools.statusToString(type)+"'";
+        var sortStr = "&$orderby=Created desc"; 
+        if(customSort != null)
+            sortStr = customSort; 
         
         if(customFilter != null)
             query = customFilter; 
 
         var df = $.Deferred(); 
         var suggestions = new Array<Suggestion>(); 
-        $.get(_spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Forslag')/Items?$select=*,InspiredBy/Id,InspiredBy/Title&$expand=InspiredBy&$top="+numResults+"&$orderby=Created desc" +query).then( (result:any) => {           
+        $.get(_spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Forslag')/Items?$select=*,InspiredBy/Id,InspiredBy/Title&$expand=InspiredBy&$top="+numResults+ sortStr +query).then( (result:any) => {           
 
             var results = result.d.results; 
             for(var i=0;i<results.length;i++)

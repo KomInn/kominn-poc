@@ -45,13 +45,13 @@ export class InspiredBy extends React.Component<InspiredByProps, any>
 
     drawMap() {
         var startPin = {
-            url: 'http://maps.google.com/mapfiles/kml/paddle/grn-blank.png', // image is 512 x 512
+            url: '//maps.google.com/mapfiles/kml/paddle/grn-blank.png', // image is 512 x 512
             scaledSize: new google.maps.Size(32, 32)
         };
 
         var myOptions = {
-            zoom: 5,
-            center: this.state.selectedLocation,
+            zoom: 14,
+            center: this.props.suggestion.LocationLatLng,
             mapTypeId: google.maps.MapTypeId.ROADMAP
         }
         this.map = new google.maps.Map(document.getElementById("map"), myOptions);
@@ -141,15 +141,21 @@ export class InspiredBy extends React.Component<InspiredByProps, any>
     }
 
     render() {
+        
         return (
             <Row>
+                <Col xs={12}>
                 <div className="text-area">
                     <h3>Forbindelse til andre forslag</h3>
                     <p>Visualiseringen nedefor viser hvordan dette forslaget både har blitt inspirert av andre, tidligere, forslag samtidig som det igjen har inspirert nye forslag.</p>
+                    <span style={{backgroundColor:"lime", border:"1px solid black", width:"20px", height:"20px", display:"inline-block"}}></span> - Her startet forslaget<br/>
+                    <span style={{backgroundColor:"blue", border:"1px solid black", width:"20px", height:"20px", display:"inline-block"}}></span> - Dette forslaget ble inspirert av<br/>
+                    <span style={{backgroundColor:"yellow", border:"1px solid black", width:"20px", height:"20px", display:"inline-block"}}></span> - Dette forslaget har inspirert.<br/>
                 </div>
                 <div className="img-area">
                     <div id="map" style={{ width: "500px", height: "300px" }}></div>
                 </div>
+                </Col>
             </Row>
         )
     }

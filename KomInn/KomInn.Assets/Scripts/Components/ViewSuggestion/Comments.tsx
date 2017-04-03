@@ -28,7 +28,7 @@ export class Comments extends React.Component<CommentsProps, CommentsState>
                 <form action="#" className="comments-form">
                     <label htmlFor="kommentarer">Kommentarer</label>
                     <textarea id="kommentarer" onChange={ (e:any) => { this.setState({text:e.target.value}); }} value={this.state.text} cols={30} rows={10} placeholder="Hva syntes du om forslaget?"></textarea>
-                    <button className="btn" onClick={this.submitComment.bind(this)}>Post kommentar</button>
+                    <button className="btn" onClick={this.submitComment.bind(this)}>Send kommentar</button>
                 </form>
                 <ul className="comments-list">
                     { this.props.suggestion.Comments.map( (item:Comment, index:number) => { 

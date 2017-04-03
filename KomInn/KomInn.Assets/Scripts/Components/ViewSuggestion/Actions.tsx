@@ -27,7 +27,7 @@ export class Actions extends React.Component<ActionsProps, any>
 						</ul>
 					</div>
 				</div>
-				<div className="sub-box">
+				{/*<div className="sub-box">
 					<h3>Del gjerne forslaget</h3>
 					<p>Dersom du liker dette forslaget setter vi pris på om du deler det med familie, venner og kjente. Takk! </p>
 					<ul className="social-network">
@@ -36,7 +36,7 @@ export class Actions extends React.Component<ActionsProps, any>
 						<li><a href="#"><i className="icon-sms"></i></a></li>
 						<li><a href="#"><i className="icon-instagram"></i></a></li>
 					</ul>
-				</div>
+				</div>*/}
             </Row>                    
         )
     }

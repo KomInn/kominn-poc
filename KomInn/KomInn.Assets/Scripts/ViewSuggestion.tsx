@@ -67,15 +67,13 @@ export class ViewSuggestion extends React.Component<any, ViewSuggestionState>
                         <Actions suggestion={this.state.suggestion} onLikeUpdated={this.loadSuggestion.bind(this)} />
                         <MapView suggestion={this.state.suggestion} />
                     </div>
-                    <div className="box-wrapp">
-                        <div className="content">                                                           
+                    <div className="box-wrapp">                        
                             <Summary  suggestion={this.state.suggestion}  />
                             <InspiredBy  suggestion={this.state.suggestion}  />
                             
                             <div id="kommentar">
                                 <Comments  suggestion={this.state.suggestion} onCommentSubmitted={this.loadSuggestion.bind(this)} />
-                            </div>                                                           
-                        </div>
+                            </div>                                                                                   
                     </div>
                 </div>
             </section>
